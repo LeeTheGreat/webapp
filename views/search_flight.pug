@@ -1,0 +1,24 @@
+form(action='/searchFlight' method='POST')
+    div(class='container')
+        div(class='form-group row col-6 mb-3')
+            label(class='col-sm-4 col-form-label') From
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='text' name='from')
+            label(class='col-sm-4 col-form-label') To
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='text' name='to')
+            label(class='col-sm-4 col-form-label') Depart Date
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='date' name='dpt')
+            label(class='col-sm-4 col-form-label') Return Date
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='date' name='ret')
+            label(class='col-sm-4 col-form-label') Class
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='text' name='class')
+            label(class='col-sm-4 col-form-label') No. of Pax
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='text' name='pax')
+            div(class='col-sm-8 ms-auto mb-3')
+                button(class='form-control form-control-md' type='submit' name='search') Search Flight
+            
