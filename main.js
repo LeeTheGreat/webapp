@@ -68,9 +68,9 @@ const getRegisterHandler = async (req, res) => {
 
 const postRegisterHandler = async (req, res) => {
     console.log(req.body)
-	const { title, ln, fn, cty, state, phone, email, dob_d, dob_m, dob_y, pass, cfm_pass, register } = req.body
+	const { title, ln, fn, cntry, state, phone, email, dob_d, dob_m, dob_y, pass, cfm_pass, register } = req.body
 	console.log(title);
-	//const rows = await query(`INSERT INTO users VALUES(NULL, ?, ?, ?, ?, ?, ?, ?) * FROM users WHERE email = ? AND password = ?`, [email, password])
+	const rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [email, pass, title, fn, ln, phone, "2000-7-04", cntry, state]);
 	//return res.send(pug.renderFile('views/home.pug')
 }
 
