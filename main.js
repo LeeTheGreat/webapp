@@ -91,3 +91,4 @@ app.get('/', authenticationMiddleware, indexHandler)
 app.get('/login', authenticationMiddleware, getLoginHandler)
 app.get('/register', authenticationMiddleware, getRegisterHandler)
 app.post('/register', authenticationMiddleware, urlencodedParser, postRegisterHandler)
+
