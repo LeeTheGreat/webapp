@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS country(
+CREATE TABLE IF NOT EXISTS countries(
    id           INTEGER  NOT NULL PRIMARY KEY,
    name         VARCHAR(36) NOT NULL,
    iso3         VARCHAR(3) NOT NULL UNIQUE,

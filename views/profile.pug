@@ -8,35 +8,29 @@ block append content
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Title
                     div(class='col-sm-6 ms-auto')
-                        input(type='text' class='form-control' id='title' name='title' value=profile[0].title)
+                        input(type='text' class='form-control' id='title' name='title' value=profileJSON[0].title)
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') First Name
                     div(class='col-sm-6 ms-auto')            
-                        input(type='text',class='form-control' id='fn' name='fn' value=profile[0].first_name)                        
+                        input(type='text',class='form-control' id='fn' name='fn' value=profileJSON[0].first_name)                        
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') Last Name
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control' id='ln' name='ln' value=profile[0].last_name)
+                        input(type='text',class='form-control' id='ln' name='ln' value=profileJSON[0].last_name)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Date of Birth
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dob' value=profile[0].dob)
-                div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') Country / Region
-                    div(class='col-sm-6 ms-auto')
-                        input(class='form-control',id='country',name='country')
-                div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') State / Province
-                    div(class='col-sm-6 ms-auto')
-                        input(class='form-control',id='state',name='state')
+                        input(class='form-control form-control-md' type='date' name='dob' value=profileJSON[0].dob)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Phone
                     div(class='col-sm-6 ms-auto')
-                        input(type='tel',class='form-control',id='phone',name='phone')                
+                        input(type='tel',class='form-control',id='phone',name='phone' value=profileJSON[0].phone)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Email
                     div(class='col-sm-6 ms-auto')
-                        input(type='email',class='form-control',id='email',name='email')
+                        input(type='email',class='form-control',id='email',name='email' value=profileJSON[0].email)
                 div(class='row mb-3')
+                    div(class='col-sm-6 ms-auto')            
+                        button(type='submit' class="btn btn-primary my-3") Change
         
         

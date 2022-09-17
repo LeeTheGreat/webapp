@@ -1,9 +1,9 @@
-CREATE TABLE IF NOT EXISTS state(
+CREATE TABLE IF NOT EXISTS states(
    id         INTEGER PRIMARY KEY,
    name       VARCHAR(70) NOT NULL,
    country_id INTEGER NOT NULL,
    state_code VARCHAR(5) NOT NULL,
-   CONSTRAINT fk_state_country_id FOREIGN KEY (country_id) REFERENCES country(id)
+   CONSTRAINT fk_state_country_id FOREIGN KEY (country_id) REFERENCES countries(id)
 );
 
 INSERT INTO state(id,name,country_id,state_code) VALUES (3901,'Badakhshan',1,'BDS');
