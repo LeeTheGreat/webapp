@@ -77,7 +77,7 @@ const postRegisterHandler = async (req, res) => {
     //console.log(req.body)
 	const { title, ln, fn, country, state, phone, email, dob, pass, cfm_pass } = req.body
 	try{
-		const rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [email, pass, title, fn, ln, phone, dob, country, state])
+		const rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?, ?)`, [email, pass, title, fn, ln, phone, dob])
 		//res.status(200).send("Registration successful. Redirecting to home page...");
 		res.redirect("/");
 	}
