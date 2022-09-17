@@ -2,6 +2,9 @@ extends base.pug
 
 block append content
     form(action='/register' method='POST')
+        if err
+            span(class="border")
+                label(class='col-sm-3 col-form-label') #{err}
         div(class='container')
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
@@ -11,21 +14,19 @@ block append content
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') Last Name
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control',id='ln',name='ln')
+                        input(type='text',class='form-control' id='ln' name='ln')
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') First Name
                     div(class='col-sm-6 ms-auto')            
-                        input(type='text',class='form-control',id='fn',name='fn')
-                div(class='row mb-3')
+                        input(type='text',class='form-control' id='fn' name='fn')
+                div(class='row mb-3') 
                     label(class='col-sm-3 col-form-label') Date of Birth
-                    div(class='col-sm-6 ms-auto')            
-                        input(type='day',class='form-control',id='dob_d',name='dob_d')
-                        input(type='month',class='form-control',id='dob_m',name='dob_m')
-                        input(type='year',class='form-control',id='dob_y',name='dob_y')                        
+                    div(class='col-sm-6 ms-auto')
+                        input(class='form-control form-control-md' type='date' name='dob')
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Country / Region
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control',id='cntry',name='cntry')
+                        input(class='form-control',id='country',name='country')
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') State / Province
                     div(class='col-sm-6 ms-auto')
@@ -48,4 +49,4 @@ block append content
                         input(type='password',class='form-control',id='cfm_pass', name='cfm_pass')
                 div(class='row mb-3')
                     div(class='col-sm-6 ms-auto')            
-                        button(type='submit' class="btn btn-primary my-3" value='register',name='register') Register
+                        button(type='submit' class="btn btn-primary my-3") Register
