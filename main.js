@@ -8,6 +8,7 @@ const pug = require('pug')
 
 const app = express()
 const bodyParser = require('body-parser')
+const e = require('express')
 const mysqloptions = {
 	host: 'localhost',
 	port: 3306,
@@ -34,9 +35,9 @@ const db = mysql.createConnection({
 const query = util.promisify(db.query).bind(db);
 app.use(session({
 	key: 'sessionid',
-	secret: crypto.randomBytes(32).toString('hex'),
+	secret: "airline",
 	store: sessionStore,
-	resave: false,
+	resave: true,
 	saveUninitialized: false,
 	cookie: { maxAge: 1000 * 60 * 60 * 24 },
 }))
@@ -44,12 +45,12 @@ app.use(session({
 app.use(express.static('static'))
 
 const authenticationMiddleware = async (req, res, next) => {
-	/*
-	if(req.session.userId){
+	if(req.session.id){
 		next()
 	}
-	*/
-	next()
+	else{
+		return res.redirect('/')
+	}
 }
 
 const indexHandler = async (req, res) => {
@@ -57,9 +58,9 @@ const indexHandler = async (req, res) => {
 	//req.session.userId = 'aaaa';
     //session = req.session;
 	//console.log(req.session)
-	if(req.session.userId){
+	if(req.session.id){
 		console.log("logged in")
-		return res.send(pug.renderFile('views/home.pug', {fn: ""}))
+		return res.send(pug.renderFile('views/home.pug', {fn: req.session.name}))
 	}
 	res.send(pug.renderFile('views/home.pug'))
 }
@@ -91,19 +92,37 @@ const postRegisterHandler = async (req, res) => {
 const postLoginHandler = async (req, res) => {
 	//console.log(req.body)
 	const { email, password } = req.body
-    if (!email || !password){}
+    if (!email || !password){
+		return res.send(pug.renderFile('/login'))
+	}
     const rows = await query(`SELECT * FROM users WHERE email = ? AND pass = ?`, [email, password])
     if (rows.length === 0){
         return res.status(401).send(pug.renderFile('views/login.pug', {err: "Wrong username or password"}))
 	}
-	req.session.userId = email
+	//console.log(rows);
+	req.session.email = rows[0].email
+	req.session.userid = rows[0].id
+	req.session.name = rows[0].first_name + " " + rows[0].last_name
 	//console.log(req.session)
     return res.redirect("/")
 }
 
-app.get('/', authenticationMiddleware, indexHandler)
-app.get('/login', authenticationMiddleware, getLoginHandler)
-app.post('/login', authenticationMiddleware, urlencodedParser, postLoginHandler)
-app.get('/register', authenticationMiddleware, getRegisterHandler)
-app.post('/register', authenticationMiddleware, urlencodedParser, postRegisterHandler)
+const getProfileHandler = async (req, res) => {
+	const rows = await query(`SELECT * FROM users WHERE id = ?`, [req.session.userid])
+	rowsJSON = JSON.parse(JSON.stringify(rows))
+	//console.log(rows_JSON)
+	return res.send(pug.renderFile('views/profile.pug', {profile: rowsJSON}))
+}
 
+const getLogoutHandler = async (req, res) => {
+	req.session.destroy();
+	return res.redirect('/');
+}
+
+app.get('/', indexHandler)
+app.get('/login', getLoginHandler)
+app.post('/login', urlencodedParser, postLoginHandler)
+app.get('/register', getRegisterHandler)
+app.post('/register', urlencodedParser, postRegisterHandler)
+app.get('/profile', authenticationMiddleware, getProfileHandler)
+app.get('/logout', authenticationMiddleware, getLogoutHandler)
