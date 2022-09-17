@@ -4,19 +4,14 @@ block append content
     form(action='/login' method='POST')
         div(class='container')
             div(class='form-group row col-4 mb-3')
-                //label(class='col-sm-4 col-form-label') email
                 div(class='col-sm-12 mb-3')
                     input(type='email' class='form-control' placeholder='email' id='email' name='email')
-                //label(class='col-sm-4 col-form-label') password
                 div(class='col-sm-12 mb-3')
-                    input(type='text' class='form-control' placeholder='password' id='email' name='password')
-                //label(class='col-sm-4 col-form-label')
-                    //input(type='checkbox', id='rmb_me', value='rmb_me')
-                    //label(class='col-sm-4 col-form-label') Remember Me        
+                    input(type='password' class='form-control' placeholder='password' id='email' name='password')
                 div(class='col-sm-4 mb-3')
                     a(class='col-sm-4 col-form-label' href='/forgotpassword') Forgot Password
                 div(class='col-sm-12 mb-3')    
                     button(type='submit' class='col-sm-12 mb-3') Login
-            if err
+            if msg
                 span(class="border")
-                    label(class='col-sm-3 col-form-label') #{err}
+                    label(class='col-sm-3 col-form-label') #{msg}

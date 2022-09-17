@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	`depart` DATETIME NOT NULL,
 	`arrive` DATETIME NOT NULL,
 	`aircraft_id` INT NOT NULL,
-	CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airline(id),
+	CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airlines(id),
 	CONSTRAINT fk_flight_src_airport_id FOREIGN KEY (src_airport_id) REFERENCES airports(id),
 	CONSTRAINT fk_flight_dst_airport_id FOREIGN KEY (dst_airport_id) REFERENCES airports(id),
 	CONSTRAINT fk_flight_src_country_id FOREIGN KEY (src_country_id) REFERENCES countries(id),
 	CONSTRAINT fk_flight_dst_country_id FOREIGN KEY (dst_country_id) REFERENCES countries(id),
-	CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircraft(id)
+	CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 );
 
 CREATE TABLE IF NOT EXISTS `users`(
@@ -71,4 +71,6 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 );
 
-insert into users values (0, admin@airline.com, admin, NULL, NULL, '2000-01-01');
+insert into users values (0, 'admin@airline.com', 'password', NULL, 'admin', NULL, NULL, '2000-01-01');
+use airline;
+show tables;

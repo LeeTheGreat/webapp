@@ -1,9 +1,9 @@
 extends base.pug
 
 block append content
-    h1 Profile
-    div(class='container')
+    form(action='/profile' method='POST')
         div(class='container')
+            h1 Profile
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Title
@@ -30,7 +30,12 @@ block append content
                     div(class='col-sm-6 ms-auto')
                         input(type='email',class='form-control',id='email',name='email' value=profileJSON[0].email)
                 div(class='row mb-3')
+                    label(class='col-sm-3 col-form-label') Password
                     div(class='col-sm-6 ms-auto')            
-                        button(type='submit' class="btn btn-primary my-3") Change
-        
-        
+                        input(type='password',class='form-control',id='pass' name='pass')                        
+                div(class='row mb-3')
+                    div(class='col-sm-6 ms-auto')            
+                        button(type='submit' class="btn btn-primary my-3") Update
+            if msg
+                span(class="border")
+                    label(class='col-sm-3 col-form-label') #{msg}
