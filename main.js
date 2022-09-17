@@ -106,3 +106,4 @@ app.get('/login', authenticationMiddleware, getLoginHandler)
 app.post('/login', authenticationMiddleware, urlencodedParser, postLoginHandler)
 app.get('/register', authenticationMiddleware, getRegisterHandler)
 app.post('/register', authenticationMiddleware, urlencodedParser, postRegisterHandler)
+
