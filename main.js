@@ -9,6 +9,7 @@ const pug = require('pug')
 const app = express()
 const bodyParser = require('body-parser')
 const e = require('express')
+const { count } = require('console')
 const mysqloptions = {
 	host: 'localhost',
 	port: 3306,
@@ -67,8 +68,13 @@ const indexHandler = async (req, res) => {
 	//req.session.userId = 'aaaa';
     //session = req.session;
 	//console.log("indexHandler(): " + String(req.session))
+	console.log(req.session)
+	if(req.session.userid == 1){
+		console.log("admin login")
+		return res.redirect('/admin')
+	}		
 	if(req.session.userid){
-		console.log("logged in")
+		console.log("normal login")
 		return res.send(pug.renderFile('views/home.pug', {fn: req.session.name}))
 	}
 	res.send(pug.renderFile('views/home.pug'))
@@ -121,10 +127,6 @@ const postLoginHandler = async (req, res) => {
 	req.session.name = rows[0].first_name + " " + rows[0].last_name
 	req.session.userid = rows[0].id
 	//console.log(req.session)
-	if(rows[0].id == '0'){
-		console.log("admin login")
-		return res.redirect('/admin')
-	}
     return res.redirect("/")
 }
 
@@ -173,31 +175,43 @@ const getLogoutHandler = async (req, res) => {
 }
 
 const getAdminHomeHandler = async (req, res) => {
-	//console.log("getAdminHomeHandler")
-	return res.send(pug.renderFile('views/admin_home.pug'))
+	console.log("getAdminHomeHandler")
+	return res.send(pug.renderFile('views/admin_home.pug', {fn: "Admin"}))
 }
 
 const getAdminFlightHandler = async (req, res) => {
 	//console.log("getAdminFlightHandler")
+	/*
 	rows = await query(`SELECT 	al.name, flt_num, ct.name as fm_country, ct.name as to_country, 
 								ap.name as from_airport, ap.name as to_airport, depart, arrive, ac.company, ac.model
-								from flights fl, airlines al, airports ap, countries ct, aircrafts ac join on al.id = 
+								from flights fl, airlines al, airports ap, countries ct, aircrafts ac 
+								join on al.id = airline_id 
+								join airports on ap.id = src_airport_id and 
 						  title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
-	return res.send(pug.renderFile('views/admin_home.pug'))
+	*/
+	return res.send(pug.renderFile('views/admin_flight.pug'))
 }
 
-/*
-`id` INT AUTO_INCREMENT PRIMARY KEY,
-	`airline_id` INT NOT NULL,
-	`flt_num` VARCHAR(4) NOT NULL,
-	`src_airport_id` INT NOT NULL,
-	`dst_airport_id` INT NOT NULL,
-	`src_country_id` INT NOT NULL,
-	`dst_country_id` INT NOT NULL,
-	`depart` DATETIME NOT NULL,
-	`arrive` DATETIME NOT NULL,
-	`aircraft_id` INT NOT NULL,
-*/
+const getAdminFlightAddHandler = async (req, res) => {
+	var airlines = await query(`SELECT * from airlines`)
+	var aircrafts = await query(`SELECT * from aircrafts`)
+	var airports = await query(`SELECT * from airports`)
+	var countries = await query(`SELECT * from countries`)
+	var airlinesJSON = JSON.parse(JSON.stringify(airlines))
+	var aircraftsJSON = JSON.parse(JSON.stringify(aircrafts))
+	var airportsJSON = JSON.parse(JSON.stringify(airports))
+	var countriesJSON = JSON.parse(JSON.stringify(countries))
+	//console.log(countriesJSON)
+	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON}))
+}
+
+const postAdminFlightAddHandler = async (req, res) => {
+	console.log(req.body)
+	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
+	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
+	var rows = await query(`INSERT INTO flights (airline_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive) values 
+							(?,?,?,?,?,?,?,?,?)`, [req.body.airline, req.body.ac, req.body.flt_num, fm_country, to_country, fm_airport, to_airport, dpt_date, dp_time])
+}
 
 app.get('/', indexHandler)
 app.get('/login', getLoginHandler)
@@ -209,3 +223,5 @@ app.post('/profile', authenticationMiddleware, loggedInMiddleware, urlencodedPar
 app.get('/logout', getLogoutHandler)
 app.get('/admin', getAdminHomeHandler)
 app.get('/admin/flight', getAdminFlightHandler)
+app.get('/admin/flight/add', getAdminFlightAddHandler)
+app.post('/admin/flight/add', authenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)

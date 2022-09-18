@@ -1,0 +1,68 @@
+extends base.pug
+
+block append content
+    form(action='/admin/flight/add' method='POST')
+        div(class='container')
+            div(class='form-group row col-6 mb-3')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Airline
+                    div(class='col-sm-6 ms-auto')
+                        select(name="airline" class="form-select" id="airline")
+                            each airline in airlines
+                                option(value=airline.id) #{airline.name}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Aircraft
+                    div(class='col-sm-6 ms-auto')
+                        select(name="aircraft" class="form-select" id="aircraft")
+                            each aircraft in aircrafts
+                                option(value=aircraft.id) #{aircraft.company} #{aircraft.model}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Flight Number
+                    div(class='col-sm-6 ms-auto')
+                        input(type='text',class='form-control' id='flt_num' name='flt_num' maxlength='4')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') From Country
+                    div(class='col-sm-6 ms-auto')
+                        select(name="fm_country" class='form-select' id='fm_country')
+                            each country in countries 
+                                option(value=country.id) #{country.name}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') To Country
+                    div(class='col-sm-6 ms-auto')
+                        select(name="to_country" class='form-select' id='to_country')
+                            each country in countries 
+                                option(value=country.id) #{country.name}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') From Airport
+                    div(class='col-sm-6 ms-auto')
+                        select(name="fm_airport" class='form-select' id='fm_airport')
+                            each airport in airports
+                                option(value=airport.id) #{airport.name}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') To Airport
+                    div(class='col-sm-6 ms-auto')
+                        select(name="to_airport" class='form-select' id='to_airport')
+                            each airport in airports 
+                                option(value=airport.id) #{airport.name}                
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Departure Date
+                    div(class='col-sm-6 ms-auto')
+                        input(class='form-control form-control-md' type='date' name='dpt_date')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Arrival Date
+                    div(class='col-sm-6 ms-auto')
+                        input(class='form-control form-control-md' type='date' name='arr_date')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Departure Time (GMT)
+                    div(class='col-sm-6 ms-auto')            
+                        input(type='time',class='form-control',id='dpt_time' ,name='dpt_time')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Arrival Time (GMT)
+                    div(class='col-sm-6 ms-auto')            
+                        input(type='time',class='form-control',id='arr_time' ,name='arr_time')                        
+                div(class='row mb-3')
+                    div(class='col-sm-6 ms-auto')            
+                        button(type='submit' class="btn btn-primary my-3") Add Flight
+            if msg
+                span(class="border")
+                    label(class='col-sm-3 col-form-label') #{msg}

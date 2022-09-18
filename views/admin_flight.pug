@@ -1,0 +1,10 @@
+extends base.pug
+
+block append content
+    div(class='container')
+        div(class='row mb-3')
+            div(class='col-sm-6 ms-auto')            
+                a(href="/admin/flight/add" class="btn btn-primary my-3") Add Flight
+        div(class='row mb-3')
+            div(class='col-sm-6 ms-auto')            
+                a(href="/admin/flight/delete" class="btn btn-primary my-3") Delete Selected Flights
