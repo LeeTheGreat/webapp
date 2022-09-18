@@ -210,7 +210,7 @@ const postAdminFlightAddHandler = async (req, res) => {
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active) values (?,?,?,?,?,?,?,?,?,1) WHERE NOT EXISTS`, 
+		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active) values (?,?,?,?,?,?,?,?,?,1)`, 
 							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate])
 		res.redirect('/admin/flight/add')
 	}
@@ -229,6 +229,6 @@ app.get('/profile', authenticationMiddleware, getProfileHandler)
 app.post('/profile', authenticationMiddleware, loggedInMiddleware, urlencodedParser, postProfileHandler)
 app.get('/logout', getLogoutHandler)
 app.get('/admin', getAdminHomeHandler)
-app.get('/admin/flight', getAdminFlightHandler)
-app.get('/admin/flight/add', getAdminFlightAddHandler)
+app.get('/admin/flight', authenticationMiddleware, getAdminFlightHandler)
+app.get('/admin/flight/add', authenticationMiddleware, getAdminFlightAddHandler)
 app.post('/admin/flight/add', authenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)
