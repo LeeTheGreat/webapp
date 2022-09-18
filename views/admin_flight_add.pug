@@ -55,22 +55,24 @@ block append content
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Departure Time (GMT)
                     div(class='col-sm-6 ms-auto')            
-                        input(type='time',class='form-control',id='dpt_time' ,name='dpt_time')
+                        input(type='time',class='form-control',id='dpt_time' name='dpt_time')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Arrival Time (GMT)
                     div(class='col-sm-6 ms-auto')            
-                        input(type='time',class='form-control',id='arr_time' ,name='arr_time')
+                        input(type='time',class='form-control',id='arr_time' name='arr_time')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Price
                     div(class='col-sm-6 ms-auto')            
-                        input(type='number',class='form-control',id='price' ,name='price')
+                        input(type='number',class='form-control',id='price' name='price')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Status
                     div(class='col-sm-6 ms-auto')
                         select(name="status" class='form-select' id='status')
-                            option(value='active') Active
-                            option(value='cancelled') Cancelled
-                            option(value='rescheduled') Rescheduled
+                            each status in ['active', 'cancelled', 'rescheduled']
+                                option(value=status)=status
+                            //option(value='active') Active
+                            //option(value='cancelled') Cancelled
+                            //option(value='rescheduled') Rescheduled
                 div(class='row mb-3')
                     div(class='col-sm-6 ms-auto')            
                         button(type='submit' class="btn btn-primary my-3") Add Flight

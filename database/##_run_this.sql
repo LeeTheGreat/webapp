@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
 	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status) /*shouldn't have duplicate flights with these same details*/
+	,CREATE INDEX idx_flight_uk (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status)
 );
 
 CREATE TABLE IF NOT EXISTS `users`(

@@ -189,7 +189,19 @@ const getAdminFlightHandler = async (req, res) => {
 								join airports on ap.id = src_airport_id and 
 						  title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
 	*/
-	return res.send(pug.renderFile('views/admin_flight.pug'))
+	var rows = await query(`SELECT flt.id as ID, flt_num as "Flt #", al.name as "Airline", CONCAT(ac.company, " ", ac.model) as "Aircraft", ct1.name as "From Country", ct2.name as "To Country", ap1.name as "From Airport", ap2.name as "To Airport", depart as Depart, arrive as Arrive, price as Price, status as Status from flights as flt
+							join airlines as al on al.id = airline_id
+							join airports as ap1 on ap1.id = src_airport_id
+							join airports as ap2 on ap2.id = dst_airport_id
+							join countries as ct1 on ct1.id = src_country_id
+							join countries as ct2 on ct2.id = dst_country_id
+							join aircrafts as ac on ac.id = aircraft_id`)
+	rowsJSON = JSON.parse(JSON.stringify(rows))
+	rowsKey = Object.keys(rowsJSON[0]);
+	rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	//console.log(rowsJSON)
+	//console.log(rowsKeyJSON)
+	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
 }
 
 const getAdminFlightAddHandler = async (req, res) => {
@@ -202,7 +214,7 @@ const getAdminFlightAddHandler = async (req, res) => {
 	var airportsJSON = JSON.parse(JSON.stringify(airports))
 	var countriesJSON = JSON.parse(JSON.stringify(countries))
 	//console.log(countriesJSON)
-	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, fn: req.session.name}))
+	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON}))
 }
 
 const postAdminFlightAddHandler = async (req, res) => {
@@ -221,6 +233,29 @@ const postAdminFlightAddHandler = async (req, res) => {
 	}		
 }
 
+const getAdminFlightEditHandler = async (req, res) => {
+	var airlinesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airlines`)))
+	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
+	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
+	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
+	var rowsJSON = JSON.parse(JSON.stringify(await query(`select *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive from flights where id=?`, [req.query.row_id])))
+	rowsJSON[0].dpt_date = rowsJSON[0].depart.split(' ')[0]
+	rowsJSON[0].arr_date = rowsJSON[0].arrive.split(' ')[0]
+	rowsJSON[0].dpt_time = rowsJSON[0].depart.split(' ')[1]
+	rowsJSON[0].arr_time = rowsJSON[0].arrive.split(' ')[1]
+	delete rowsJSON[0].depart
+	delete rowsJSON[0].arrive
+	console.log(rowsJSON)
+	return res.send(pug.renderFile('views/admin_flight_edit.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
+}
+
+const postAdminFlightPostHandler = async (req, res) => {
+	//console.log(req.query)
+	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
+	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
+}
+
+
 app.get('/', indexHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
@@ -233,3 +268,5 @@ app.get('/admin', getAdminHomeHandler)
 app.get('/admin/flight', getAdminFlightHandler)
 app.get('/admin/flight/add', getAdminFlightAddHandler)
 app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
+app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)
+app.post('/admin/flight/edit', urlencodedParser, postAdminFlightPostHandler)
