@@ -19,20 +19,21 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY,
 	`airline_id` INT NOT NULL,
 	`aircraft_id` INT NOT NULL,	
-	`flt_num` VARCHAR(4) UNIQUE NOT NULL,
+	`flt_num` VARCHAR(4) NOT NULL,
 	`src_airport_id` INT NOT NULL,
 	`dst_airport_id` INT NOT NULL,
 	`src_country_id` INT NOT NULL,
 	`dst_country_id` INT NOT NULL,
 	`depart` DATETIME NOT NULL,
 	`arrive` DATETIME NOT NULL,
+	`active` ENUM('y','n'),
 	CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airlines(id),
 	CONSTRAINT fk_flight_src_airport_id FOREIGN KEY (src_airport_id) REFERENCES airports(id),
 	CONSTRAINT fk_flight_dst_airport_id FOREIGN KEY (dst_airport_id) REFERENCES airports(id),
 	CONSTRAINT fk_flight_src_country_id FOREIGN KEY (src_country_id) REFERENCES countries(id),
 	CONSTRAINT fk_flight_dst_country_id FOREIGN KEY (dst_country_id) REFERENCES countries(id),
-	CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id),
-	CONSTRAINT chk_flight_dpt_time_lte_arr_time CHECK (depart <= arrive)
+	CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
+	/*UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active)*/
 );
 
 CREATE TABLE IF NOT EXISTS `users`(
@@ -56,8 +57,8 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY,
 	`seat_id` INT,
 	`booking_date` DATETIME NOT NULL,
-	`guest_id` INT,
 	`user_id` INT,
+	`active` ENUM('y','n'),
 	CONSTRAINT fk_booking_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -71,6 +72,6 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 );
 
-insert into users values (0, 'admin@airline.com', 'password', NULL, 'admin', NULL, NULL, '2000-01-01');
+insert into users (email, pass, title, first_name, last_name, phone, dob) values ('admin@airline.com', 'password', '', 'admin', '', '', '2000-01-01');
 use airline;
 show tables;

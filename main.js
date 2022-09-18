@@ -202,15 +202,22 @@ const getAdminFlightAddHandler = async (req, res) => {
 	var airportsJSON = JSON.parse(JSON.stringify(airports))
 	var countriesJSON = JSON.parse(JSON.stringify(countries))
 	//console.log(countriesJSON)
-	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON}))
+	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, fn: req.session.name}))
 }
 
 const postAdminFlightAddHandler = async (req, res) => {
 	console.log(req.body)
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
-	var rows = await query(`INSERT INTO flights (airline_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive) values 
-							(?,?,?,?,?,?,?,?,?)`, [req.body.airline, req.body.ac, req.body.flt_num, fm_country, to_country, fm_airport, to_airport, dpt_date, dp_time])
+	try{
+		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active) values (?,?,?,?,?,?,?,?,?,1) WHERE NOT EXISTS`, 
+							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate])
+		res.redirect('/admin/flight/add')
+	}
+	catch (err){
+		console.log(err.sqlMessage);
+		return res.status(500).send(err.sqlMessage);
+	}		
 }
 
 app.get('/', indexHandler)
