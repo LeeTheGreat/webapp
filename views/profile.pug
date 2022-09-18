@@ -6,25 +6,23 @@ block append content
             h1 Profile
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') Title
-                    div(class='col-sm-6 ms-auto')
-                        input(type='text' class='form-control' id='title' name='title' value=profileJSON[0].title)
-                div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') First Name
                     div(class='col-sm-6 ms-auto')            
-                        input(type='text',class='form-control' id='fn' name='fn' value=profileJSON[0].first_name)                        
+                        input(type='text',class='form-control' id='fn' name='fn' value=profileJSON[0].fname)                        
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') Last Name
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control' id='ln' name='ln' value=profileJSON[0].last_name)
+                        input(type='text',class='form-control' id='ln' name='ln' value=profileJSON[0].lname)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Date of Birth
                     div(class='col-sm-6 ms-auto')
                         input(class='form-control form-control-md' type='date' name='dob' value=profileJSON[0].dob)
                 div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') Phone
+                    label(class='col-sm-3 col-form-label') Gender
                     div(class='col-sm-6 ms-auto')
-                        input(type='tel',class='form-control',id='phone',name='phone' value=profileJSON[0].phone)
+                        select(name='gender' class='form-select' value=profileJSON[0].gender)
+                            option(value='F') F
+                            option(value='M') M                        
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Email
                     div(class='col-sm-6 ms-auto')

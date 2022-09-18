@@ -5,10 +5,6 @@ block append content
         div(class='container')
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') Title
-                    div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control',id='title',name='title')
-                div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') First Name
                     div(class='col-sm-6 ms-auto')            
                         input(type='text',class='form-control' id='fn' name='fn')                        
@@ -19,12 +15,14 @@ block append content
                 div(class='row mb-3') 
                     label(class='col-sm-3 col-form-label') Date of Birth
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dob')
+                        input(class='form-control form-control-md' type='date' name='dob')                      
                 div(class='row mb-3')
-                    label(class='col-sm-3 col-form-label') Phone
+                    label(class='col-sm-3 col-form-label') Gender
                     div(class='col-sm-6 ms-auto')
-                        input(type='tel',class='form-control',id='phone',name='phone')                
-                div(class='row mb-3')
+                        select(name='gender' class='form-select')
+                            option(value='F') F
+                            option(value='M') M
+                div(class='row mb-3')                 
                     label(class='col-sm-3 col-form-label') Email
                     div(class='col-sm-6 ms-auto')
                         input(type='email',class='form-control',id='email',name='email')

@@ -65,16 +65,10 @@ const loggedInMiddleware = async (req, res, next) => {
 
 const indexHandler = async (req, res) => {
     //return res.send(pug.renderFile('templates/index.pug'))
-	//req.session.userId = 'aaaa';
     //session = req.session;
 	//console.log("indexHandler(): " + String(req.session))
 	console.log(req.session)
-	if(req.session.userid == 1){
-		console.log("admin login")
-		return res.redirect('/admin')
-	}		
 	if(req.session.userid){
-		console.log("normal login")
 		return res.send(pug.renderFile('views/home.pug', {fn: req.session.name}))
 	}
 	res.send(pug.renderFile('views/home.pug'))
@@ -85,23 +79,24 @@ const getLoginHandler = async (req, res) => {
 }
 
 const getRegisterHandler = async (req, res) => {
-	if(req.session.userid){
+	if(req.session.email){
 		return res.redirect('/')
 	}
     return res.send(pug.renderFile('views/register.pug'))
 }
 
 const postRegisterHandler = async (req, res) => {
-    if(req.session.userid){
+    if(req.session.email){
 		res.redirect('/')
 	}
-	const { title, fn, ln, phone, email, dob, pass} = req.body
+	const { fn, ln, gender, dob, email, pass} = req.body
 	try{
-		var rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?, ?)`, [email, pass, title, fn, ln, phone, dob])
+		var rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?)`, [email, pass, fn, ln, gender, dob])
 		//res.status(200).send("Registration successful. Redirecting to home page...");
-		req.session.name = fn + " " + ln
+		rows = await query(`SELECT id, email, fname, lname FROM users WHERE email=?`, [email])
+		req.session.name = rows[0].fname + " " + rows[0].lname
+		req.session.email = rows[0].email
 		req.session.userid = rows[0].id
-		req.session.
 		res.redirect("/");
 	}
 	catch (err){
@@ -118,55 +113,60 @@ const postLoginHandler = async (req, res) => {
     if (!email || !password){
 		return res.send(pug.renderFile('/login'))
 	}
-    const rows = await query(`SELECT * FROM users WHERE email = ? AND pass = ?`, [email, password])
-    if (rows.length === 0){
+    const rows = await query(`SELECT * FROM users WHERE email = ? AND password = ?`, [email, password])
+    if (rows.length == 0){
         return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))
 	}
 	console.log(rows[0].email);
 	req.session.email = rows[0].email
-	req.session.name = rows[0].first_name + " " + rows[0].last_name
+	req.session.name = rows[0].fname + " " + rows[0].lname
 	req.session.userid = rows[0].id
 	//console.log(req.session)
     return res.redirect("/")
 }
 
 const getProfileHandler = async (req, res) => {
-	const rows = await query(`SELECT email, title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
+	const rows = await query(`SELECT email, fname, lname, gender, dob FROM users WHERE id = ?`, [req.session.userid])
 	if(rows.length == 0){
-		return res.send(500).send('Something went wrong. Pls login again')
+		return res.status(500).send('Something went wrong. Pls login again')
 	}
 	//console.log(rows)
 	profileJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rows_JSON)
+	console.log(profileJSON)
 	return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, fn: req.session.name}))
 }
 
 const postProfileHandler = async (req, res) => {
-	const { title, fn, ln, phone, email, dob, pass} = req.body
+	const { title, fn, ln, gender, email, dob, pass} = req.body
 	console.log(req.body)
 	try{
 		if(!pass){
-			var rows = await query(`UPDATE users SET email=?, title=?, first_name=?, last_name=?, phone=?, dob=? WHERE id=?`, [email, title, fn, ln, phone, dob, req.session.userid])
+			var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=? WHERE id=?`, [email, fn, ln, gender, dob, req.session.userid])
 		}
 		if(pass){
-			var rows = await query(`UPDATE users SET email=?, title=?, first_name=?, last_name=?, phone=?, dob=?, pass=? WHERE id=?`, [email, title, fn, ln, phone, dob, pass, req.session.userid])
+			var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=?, pass=? WHERE id=?`, [email, fn, ln, dob, pass, req.session.userid])
 		}
-		rows = await query(`SELECT email, title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
+		/*
+		rows = await query(`SELECT email, fname, lname, gender, dob FROM users WHERE email = ?`, [req.session.email])
 		req.session.email = rows[0].email;
-		req.session.name = rows[0].first_name + " " + rows[0].last_name
+		req.session.name = rows[0].fname + " " + rows[0].lname
 		profileJSON = JSON.parse(JSON.stringify(rows))
 		return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, msg: "Profile updated", fn: req.session.name}))
+		*/
+		req.session.email = email
+		req.session.name = fn + " " + ln
+		res.status(200).send("Profile updated")
+		return res.redirect('/')
 	}
 	catch (err){
-		const rows = await query(`SELECT email, title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
+		/*
+		var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=? WHERE email=?`, [email, title, fn, ln, gender, dob, req.session.email])
 		profileJSON = JSON.parse(JSON.stringify(rows))
 		console.log(err.sqlMessage);
 		return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, msg: err.sqlMessage}))
-	}	
-	console.log(rows)
-	profileJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rows_JSON)
-	return res.redirect('view/profile.pug')
+		*/
+		return res.status(500).send(err.sqlMessage)
+	}
 }
 
 const getLogoutHandler = async (req, res) => {
@@ -176,7 +176,7 @@ const getLogoutHandler = async (req, res) => {
 
 const getAdminHomeHandler = async (req, res) => {
 	console.log("getAdminHomeHandler")
-	return res.send(pug.renderFile('views/admin_home.pug', {fn: "Admin"}))
+	return res.send(pug.renderFile('views/admin_home.pug', {admin: "admin"}))
 }
 
 const getAdminFlightHandler = async (req, res) => {
@@ -223,8 +223,8 @@ const postAdminFlightAddHandler = async (req, res) => {
 app.get('/', indexHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
-app.get('/register', loggedInMiddleware, getRegisterHandler)
-app.post('/register', loggedInMiddleware, urlencodedParser, postRegisterHandler)
+app.get('/register', getRegisterHandler)
+app.post('/register', urlencodedParser, postRegisterHandler)
 app.get('/profile', authenticationMiddleware, getProfileHandler)
 app.post('/profile', authenticationMiddleware, loggedInMiddleware, urlencodedParser, postProfileHandler)
 app.get('/logout', getLogoutHandler)
