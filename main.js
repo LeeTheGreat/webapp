@@ -210,9 +210,10 @@ const postAdminFlightAddHandler = async (req, res) => {
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active) values (?,?,?,?,?,?,?,?,?,1)`, 
-							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate])
-		res.redirect('/admin/flight/add')
+		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, price, status) values (?,?,?,?,?,?,?,?,?,?,?)`, 
+							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+		res.status(200).send("Flight added")
+		//res.redirect('/admin/flight/add')
 	}
 	catch (err){
 		console.log(err.sqlMessage);
