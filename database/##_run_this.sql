@@ -34,9 +34,8 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_flight_src_country_id FOREIGN KEY (src_country_id) REFERENCES countries(id)
 	,CONSTRAINT fk_flight_dst_country_id FOREIGN KEY (dst_country_id) REFERENCES countries(id)
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
-	,CONSTRAINT chk_flights_price (price >= 0)
-	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, active), /*shouldn't have duplicate flights with these same details*/
-	
+	,CONSTRAINT chk_flights_price CHECK (price >= 0)
+	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status) /*shouldn't have duplicate flights with these same details*/
 );
 
 CREATE TABLE IF NOT EXISTS `users`(
@@ -46,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `users`(
 	,`fname` CHAR(30) NOT NULL
 	,`lname` CHAR(30) DEFAULT ''
 	,`gender` CHAR(1) NOT NULL
-	`dob` DATE NOT NULL
+	,`dob` DATE NOT NULL
 	/*
 	`country_id` INT NOT NULL,
 	`state_id` INT NOT NULL,
@@ -60,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`user_id` INT DEFAULT NULL
 	,`cust_email` VARCHAR(50) NOT NULL
 	,`fname` CHAR(30) NOT NULL
-	,`lname` CHAR(30) DEFAULT ''
+	,`lname` CHAR(30)
 	,`gender` CHAR(1) NOT NULL
 	,`dob` DATE NOT NULL
 	/*
@@ -69,19 +68,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	CONSTRAINT fk_users_country_id FOREIGN KEY (country_id) REFERENCES country(id),
 	CONSTRAINT fk_users_state_id FOREIGN KEY (state_id) REFERENCES state(id)
 	*/
-	CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id);
-);
-
-CREATE TABLE IF NOT EXISTS `bookings`(
-	`id` INT AUTO_INCREMENT PRIMARY KEY,
-	`flt_id` INT,
-	`cust_id` INT,
-	`seat_id` INT,
-	`datetime` DATETIME NOT NULL,
-	`status` ENUM('active','cancelled','rescheduled')
-	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
-	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
+	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS `seats`(
@@ -92,9 +79,21 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 );
 
+CREATE TABLE IF NOT EXISTS `bookings`(
+	`id` INT AUTO_INCREMENT PRIMARY KEY
+	,`flt_id` INT
+	,`cust_id` INT
+	,`seat_id` INT
+	,`datetime` DATETIME NOT NULL
+	,`status` ENUM('active','cancelled','rescheduled')
+	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
+	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
+	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
+);
+
 CREATE TABLE IF NOT EXISTS `admins`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
-	,`username` INT NOT NULL UNIQUE
+	,`username` VARCHAR(20) NOT NULL UNIQUE
 	,`password` VARCHAR(50) NOT NULL
 );
 
