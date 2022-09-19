@@ -35,7 +35,12 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_flight_dst_country_id FOREIGN KEY (dst_country_id) REFERENCES countries(id)
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
-	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status) /*shouldn't have duplicate flights with these same details*/
+	/*
+		shouldn't have duplicate active flights with these same details
+		can't implement it using unique key because I can't specify static values
+		may need to use WHERE NOT EXISTS (...) to check for duplicate, instead of UNIQUE KEY
+	*/
+	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status) 
 	,CREATE INDEX idx_flight_uk (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status)
 );
 

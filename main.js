@@ -222,7 +222,7 @@ const postAdminFlightAddHandler = async (req, res) => {
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		var rows = await query(`INSERT INTO flights (airline_id, aircraft_id, flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, price, status) values (?,?,?,?,?,?,?,?,?,?,?)`, 
+		var rows = await query(`INSERT INTO flights values (NULL,?,?,?,?,?,?,?,?,?,?,?)`, 
 							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		res.status(200).send("Flight added")
 		//res.redirect('/admin/flight/add')
@@ -238,23 +238,53 @@ const getAdminFlightEditHandler = async (req, res) => {
 	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
 	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
 	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
-	var rowsJSON = JSON.parse(JSON.stringify(await query(`select *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive from flights where id=?`, [req.query.row_id])))
+	var rowsJSON = [{}]
+	try{
+		let rows = await query(`SELECT *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive FROM flights WHERE id=?`, [req.query.flt_id])
+		rowsJSON = JSON.parse(JSON.stringify(rows))
+	}
+	catch (err){
+		console.log(err.sqlMessage);
+		return res.status(500).send(err.sqlMessage);
+	}
+	//console.log(rowsJSON)
+	if(rowsJSON.length == 0){
+		return res.status(500).send('No result returned');
+	}
 	rowsJSON[0].dpt_date = rowsJSON[0].depart.split(' ')[0]
 	rowsJSON[0].arr_date = rowsJSON[0].arrive.split(' ')[0]
 	rowsJSON[0].dpt_time = rowsJSON[0].depart.split(' ')[1]
 	rowsJSON[0].arr_time = rowsJSON[0].arrive.split(' ')[1]
-	delete rowsJSON[0].depart
-	delete rowsJSON[0].arrive
-	console.log(rowsJSON)
+	//console.log(rowsJSON)
 	return res.send(pug.renderFile('views/admin_flight_edit.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
 }
 
-const postAdminFlightPostHandler = async (req, res) => {
-	//console.log(req.query)
+const postAdminFlightEditHandler = async (req, res) => {
+	console.log(req.body)
+	try{
+		await query(`UPDATE flights SET status=? WHERE id=?`, [req.body.status, req.body.flt_id])
+	}
+	catch(err){
+		return res.status(500).send(err.sqlMessage)
+	}
+	if(req.query.status == 'cancelled'){
+		return req.status(200).send('Flight updated')
+	}
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
+	console.log(Number(req.body.airline))
+	try{
+		await query(`INSERT INTO flights VALUES(NULL,?,?,?,?,?,?,?,?,?,?,'active')`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price)])
+		return res.redirect('/admin/flight')
+	}
+	catch(err){
+		console.log(err.sql)
+		return res.status(500).send(err.sqlMessage)
+	}
 }
 
+const postAdminFlightCancelHandler = async (req, res) => {
+}
 
 app.get('/', indexHandler)
 app.get('/login', getLoginHandler)
@@ -269,4 +299,5 @@ app.get('/admin/flight', getAdminFlightHandler)
 app.get('/admin/flight/add', getAdminFlightAddHandler)
 app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)
-app.post('/admin/flight/edit', urlencodedParser, postAdminFlightPostHandler)
+app.post('/admin/flight/edit', urlencodedParser, postAdminFlightEditHandler)
+app.post('/admin/flight/cancel', urlencodedParser, postAdminFlightCancelHandler)

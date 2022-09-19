@@ -1,9 +1,11 @@
 extends admin_base.pug
 
 block append content
-    form(action='/admin/flight/add' method='POST')
+    form(action='/admin/flight/edit' method='POST')
         div(class='container')
             div(class='form-group row col-6 mb-3')
+                div(class='row mb-3')
+                    input(type='hidden' class='form-control' value=rowsJSON[0].id id='flt_id' name='flt_id')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Airline
                     div(class='col-sm-6 ms-auto')
@@ -21,7 +23,7 @@ block append content
                                 if aircraft.id == rowsJSON[0].aircraft_id
                                     option(value=aircraft.id selected) #{aircraft.company} #{aircraft.model}
                                 else
-                                    option(value=aircraft.id) #{aircraft.name}
+                                    option(value=aircraft.id) #{aircraft.company} #{aircraft.model}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Flight Number
                     div(class='col-sm-6 ms-auto')
@@ -85,7 +87,7 @@ block append content
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Status
                     div(class='col-sm-6 ms-auto')
-                        select(name="status" class='form-select' id='status')
+                        select(name='status' class='form-select' id='status')
                             each status in ['active', 'cancelled', 'rescheduled']
                                 if status == rowsJSON[0].status
                                     option(value=status selected)=status

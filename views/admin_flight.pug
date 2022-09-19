@@ -15,7 +15,7 @@ block append content
                 each row in rowsKeyJSON
                     th(scope='col') #{row}
                 th(scope='col') Cancel
-                th(scope='col')
+                th(scope='col') Edit
         tbody
             each row in rowsJSON
                 tr
@@ -32,8 +32,10 @@ block append content
                     td #{row["Price"]}
                     td #{row["Status"]}
                     td
-                        input(type='checkbox')
-                    td
-                        form(action='/admin/flight/edit?id=' + row.ID method='GET')
-                            input(type='hidden' class='form-control' value=row.ID id='row_id' name='row_id')
-                            button(type='submit' class="btn btn-primary") Edit
+                        form(action='/admin/flight/cancel' method='POST')
+                            input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                            button(type='submit' class="btn btn-primary") C
+                    td      
+                        form(action='/admin/flight/edit' method='GET')
+                            input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                            button(type='submit' class="btn btn-primary") E
