@@ -4,17 +4,12 @@ block append content
     div(class='container')
         div(class='row mb-3')
             div(class='col-sm-6 ms-auto')            
-                a(href="/admin/flight/add" class="btn btn-primary my-3") Add Flight
-        div(class='row mb-3')
-            div(class='col-sm-6 ms-auto')            
-                a(href="/admin/flight/delete" class="btn btn-primary my-3") Delete Selected Flights
-    
+                a(href="/admin/flight/add" class="btn btn-primary my-3") Add Flight    
     table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
             tr
                 each row in rowsKeyJSON
                     th(scope='col') #{row}
-                th(scope='col') Cancel
                 th(scope='col') Edit
         tbody
             each row in rowsJSON
@@ -31,10 +26,6 @@ block append content
                     td #{row["Arrive"]}
                     td #{row["Price"]}
                     td #{row["Status"]}
-                    td
-                        form(action='/admin/flight/cancel' method='POST')
-                            input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
-                            button(type='submit' class="btn btn-primary") C
                     td      
                         form(action='/admin/flight/edit' method='GET')
                             input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')

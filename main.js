@@ -274,7 +274,7 @@ const postAdminFlightEditHandler = async (req, res) => {
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	console.log(Number(req.body.airline))
 	try{
-		await query(`INSERT INTO flights VALUES(NULL,?,?,?,?,?,?,?,?,?,?,'active')`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price)])
+		//await query(`INSERT INTO flights VALUES(NULL,?,?,?,?,?,?,?,?,?,?,'active')`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price)])
 		return res.redirect('/admin/flight')
 	}
 	catch(err){
