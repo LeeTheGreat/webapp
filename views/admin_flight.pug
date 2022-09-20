@@ -8,25 +8,27 @@ block append content
     table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
             tr
-                each row in rowsKeyJSON
-                    th(scope='col') #{row}
-                th(scope='col') Edit
+                if rowsKeyJSON
+                    each row in rowsKeyJSON
+                        th(scope='col') #{row}
+                    th(scope='col') Edit
         tbody
-            each row in rowsJSON
-                tr
-                    td #{row.ID}
-                    td #{row["Flt #"]}
-                    td #{row["Airline"]}
-                    td #{row["Aircraft"]}
-                    td #{row["From Country"]}
-                    td #{row["To Country"]}
-                    td #{row["From Airport"]}
-                    td #{row["To Airport"]}
-                    td #{row["Depart"]}
-                    td #{row["Arrive"]}
-                    td #{row["Price"]}
-                    td #{row["Status"]}
-                    td      
-                        form(action='/admin/flight/edit' method='GET')
-                            input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
-                            button(type='submit' class="btn btn-primary") E
+            if rowsJSON
+                each row in rowsJSON
+                    tr
+                        td #{row.ID}
+                        td #{row["Flt #"]}
+                        td #{row["Airline"]}
+                        td #{row["Aircraft"]}
+                        td #{row["From Country"]}
+                        td #{row["To Country"]}
+                        td #{row["From Airport"]}
+                        td #{row["To Airport"]}
+                        td #{row["Depart"]}
+                        td #{row["Arrive"]}
+                        td #{row["Price"]}
+                        td #{row["Status"]}
+                        td      
+                            form(action='/admin/flight/edit' method='GET')
+                                input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                                button(type='submit' class="btn btn-primary") E

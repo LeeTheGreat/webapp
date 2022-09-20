@@ -196,9 +196,12 @@ const getAdminFlightHandler = async (req, res) => {
 							join countries as ct1 on ct1.id = src_country_id
 							join countries as ct2 on ct2.id = dst_country_id
 							join aircrafts as ac on ac.id = aircraft_id`)
-	rowsJSON = JSON.parse(JSON.stringify(rows))
-	rowsKey = Object.keys(rowsJSON[0]);
-	rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	var rowsJSON = JSON.parse(JSON.stringify(rows))
+	if(rowsJSON.length == 0){
+		return res.send(pug.renderFile('views/admin_flight.pug'))
+	}
+	var rowsKey = Object.keys(rowsJSON[0]);
+	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
 	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
@@ -223,12 +226,12 @@ const postAdminFlightAddHandler = async (req, res) => {
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
 		var rows = await query(`INSERT INTO flights values (NULL,?,?,?,?,?,?,?,?,?,?,?)`, 
-							[Number(req.body.airline), Number(req.body.aircraft), req.body.flt_num, Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+							[req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		res.status(200).send("Flight added")
 		//res.redirect('/admin/flight/add')
 	}
 	catch (err){
-		console.log(err.sqlMessage);
+		console.log(err);
 		return res.status(500).send(err.sqlMessage);
 	}		
 }

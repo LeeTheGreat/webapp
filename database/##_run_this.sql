@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS `flights`(
 		can't implement it using unique key because I can't specify static values for status='active'
 		may need to use WHERE NOT EXISTS (...) to check for duplicate, instead of UNIQUE KEY
 	*/
-	--,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status) 
-	--,CREATE INDEX idx_flight_uk (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status)
+	,UNIQUE KEY uk_flight (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status)
+	,INDEX idx_flight_uk (flt_num, src_airport_id, dst_airport_id, src_country_id, dst_country_id, depart, arrive, status)
 );
 
 CREATE TABLE IF NOT EXISTS `users`(
