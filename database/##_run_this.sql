@@ -120,8 +120,24 @@ insert into customers values (3,NULL,'guest1@guest.com','guest1','','F','1111-01
 insert into flights values (1,'1111',1,1,1,1,14,14,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
 insert into flights values (2,'1111',2,2,2,2,210,210,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
 insert into seats values (NULL,1,'A01',true), (NULL,1,'A02',true), (NULL,1,'A03',true), (NULL,1,'B01',true), (NULL,1,'B02',true);
-insert into bookings values (1,2,1,1,'1111-11-11','active');
+insert into bookings values (1,1,1,1,'1111-11-11','active'),(2,2,1,1,'1111-11-11','active'),(3,1,1,1,'1111-11-11','active'),(4,2,1,1,'1111-11-11','active');
 use airline;
 show tables;
 
-create trigger 
+create trigger upd_flights after update on flights
+for each row
+begin
+IF NEW.status <> "cancelled" THEN
+UPDATE bookings SET bookings.status = NEW.status WHERE bookings.id = NEW.id;
+END IF
+end
+
+delimiter //
+CREATE TRIGGER upd_flights AFTER UPDATE ON flights
+FOR EACH ROW
+BEGIN
+	IF NEW.status <> "active" THEN
+		UPDATE bookings SET bookings.status = NEW.status WHERE bookings.flt_id = NEW.id;
+END IF;
+END//
+delimiter ;
