@@ -63,11 +63,11 @@ CREATE TABLE IF NOT EXISTS `users`(
 CREATE TABLE IF NOT EXISTS `customers`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
 	,`user_id` INT DEFAULT NULL
-	,`cust_email` VARCHAR(50) NOT NULL
-	,`fname` CHAR(30) NOT NULL
+	,`cust_email` VARCHAR(50)
+	,`fname` CHAR(30)
 	,`lname` CHAR(30)
-	,`gender` CHAR(1) NOT NULL
-	,`dob` DATE NOT NULL
+	,`gender` CHAR(1)
+	,`dob` DATE
 	/*
 	`country_id` INT NOT NULL,
 	`state_id` INT NOT NULL,
@@ -75,6 +75,8 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	CONSTRAINT fk_users_state_id FOREIGN KEY (state_id) REFERENCES state(id)
 	*/
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
+	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill it */
+	,CONSTRAINT chk_existing_user CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
 );
 
 CREATE TABLE IF NOT EXISTS `seats`(
@@ -104,5 +106,8 @@ CREATE TABLE IF NOT EXISTS `admins`(
 );
 
 insert into admins (username, password) values ('admin', 'password');
+insert into users values (NULL, '1@1.com','1','1_fn','1_ln','F','1111-01-01'), (NULL, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (NULL, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
+insert into customers values (NULL,1,NULL,NULL,NULL,NULL,NULL)
+insert into customers values (NULL,NULL,'guest1@guest.com','guest1','','F',NULL)
 use airline;
 show tables;
