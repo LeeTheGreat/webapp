@@ -36,6 +36,10 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
 	/*
+		TODO: add check constraint on src_airport_id and dst_airport_id such that only airports in src_country and dst_country are allowed
+		Based on stackoverflow, need to use User-Defined Function. https://stackoverflow.com/questions/3880698/can-a-check-constraint-relate-to-another-table
+
+	/*
 		shouldn't have duplicate active flights with these same details
 		can't implement it using unique key because I can't specify static values for status='active'
 		may need to use WHERE NOT EXISTS (...) to check for duplicate, instead of UNIQUE KEY
@@ -65,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`user_id` INT DEFAULT NULL
 	,`cust_email` VARCHAR(50)
 	,`fname` CHAR(30)
-	,`lname` CHAR(30)
+	,`lname` CHAR(30) DEFAULT ''
 	,`gender` CHAR(1)
 	,`dob` DATE
 	/*
@@ -85,18 +89,22 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,`seat_num` CHAR(3) NOT NULL
 	,`available` BOOLEAN NOT NULL
 	,CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
+	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_num (flt_id,seat_num)
+	,INDEX idx_seats_flt_id_seat_num (flt_id,seat_num)
 );
 
 CREATE TABLE IF NOT EXISTS `bookings`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
-	,`flt_id` INT
-	,`cust_id` INT
-	,`seat_id` INT
+	,`flt_id` INT NOT NULL
+	,`cust_id` INT NOT NULL
+	,`seat_id` INT NOT NULL
 	,`datetime` DATETIME NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled')
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
+	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id)
+	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id)
 );
 
 CREATE TABLE IF NOT EXISTS `admins`(
@@ -106,8 +114,14 @@ CREATE TABLE IF NOT EXISTS `admins`(
 );
 
 insert into admins (username, password) values ('admin', 'password');
-insert into users values (NULL, '1@1.com','1','1_fn','1_ln','F','1111-01-01'), (NULL, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (NULL, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
-insert into customers values (NULL,1,NULL,NULL,NULL,NULL,NULL)
-insert into customers values (NULL,NULL,'guest1@guest.com','guest1','','F',NULL)
+insert into users values (1, '1@1.com','1','1_fn','','F','1111-01-01'), (2, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (3, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
+insert into customers values (1,1,NULL,NULL,NULL,NULL,NULL), (2,2,NULL,NULL,NULL,NULL,NULL);
+insert into customers values (3,NULL,'guest1@guest.com','guest1','','F','1111-01-01'), (4,NULL,'guest2@guest.com','guest2','','F','1111-01-02');
+insert into flights values (1,'1111',1,1,1,1,14,14,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
+insert into flights values (2,'1111',2,2,2,2,210,210,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
+insert into seats values (NULL,1,'A01',true), (NULL,1,'A02',true), (NULL,1,'A03',true), (NULL,1,'B01',true), (NULL,1,'B02',true);
+insert into bookings values (1,2,1,1,'1111-11-11','active');
 use airline;
 show tables;
+
+create trigger 
