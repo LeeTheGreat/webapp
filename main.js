@@ -270,6 +270,8 @@ const postAdminFlightEditHandler = async (req, res) => {
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
 	}
+	//might want to consider other way to store flight history changes.
+	//maybe can use a flightHistory table, store update time, data = json of old flight, then a flt_id_reference
 	if(req.query.status == 'cancelled'){
 		return req.status(200).send('Flight updated')
 	}
