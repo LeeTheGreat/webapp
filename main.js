@@ -289,6 +289,11 @@ const postAdminFlightEditHandler = async (req, res) => {
 const postAdminFlightCancelHandler = async (req, res) => {
 }
 
+const getAdminBookingHandler = async (req, res) => {
+	console.log("getAdminBookingHandler")
+	return res.send(pug.renderFile('views/admin_booking.pug', {admin: "admin"}))
+}
+
 app.get('/', indexHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
@@ -299,6 +304,7 @@ app.post('/profile', authenticationMiddleware, loggedInMiddleware, urlencodedPar
 app.get('/logout', getLogoutHandler)
 app.get('/admin', getAdminHomeHandler)
 app.get('/admin/flight', getAdminFlightHandler)
+app.get('/admin/booking', getAdminBookingHandler)
 app.get('/admin/flight/add', getAdminFlightAddHandler)
 app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)

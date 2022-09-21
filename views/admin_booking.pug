@@ -1,0 +1,31 @@
+extends admin_base.pug
+
+block append content
+    div(class='container')
+        div(class="title") Customer Booking Tracker
+        
+        div(class="search_box")
+            input(type='text' id="search_input" placeholder="Input your search here")
+
+        table(class="table")
+            thead
+                tr
+                    th(scope="col") Customer ID
+                    th(scope="col") Flight ID
+                    th(scope="col") Name
+                    th(scope="col") Status
+                    th(scope="col") Action
+            tbody 
+                tr
+                    td 1234
+                    td 3242
+                    td Alex Lee
+                    td Active
+                    td 
+                        div(class="d-flex flex-row mb-1")
+                            div                 
+                                button(type="button" class="btn")
+                                    i(class="material-icons text-warning") Edit
+                            div      
+                                button(type="button" class="btn")
+                                    i(class="material-icons text-danger") Delete
