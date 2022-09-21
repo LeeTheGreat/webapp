@@ -124,6 +124,7 @@ insert into bookings values (1,1,1,1,'1111-11-11','active'),(2,2,1,1,'1111-11-11
 use airline;
 show tables;
 
+/*
 create trigger upd_flights after update on flights
 for each row
 begin
@@ -131,6 +132,7 @@ IF NEW.status <> "cancelled" THEN
 UPDATE bookings SET bookings.status = NEW.status WHERE bookings.id = NEW.id;
 END IF
 end
+*/
 
 delimiter //
 CREATE TRIGGER upd_flights AFTER UPDATE ON flights
