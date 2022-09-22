@@ -113,6 +113,25 @@ CREATE TABLE IF NOT EXISTS `admins`(
 	,`password` VARCHAR(50) NOT NULL
 );
 
+	,`flt_num` VARCHAR(4) NOT NULL
+	,`airline_id` INT NOT NULL
+	,`aircraft_id` INT NOT NULL	
+	,`src_airport_id` INT NOT NULL
+	,`dst_airport_id` INT NOT NULL
+	,`src_country_id` INT NOT NULL
+	,`dst_country_id` INT NOT NULL
+	,`depart` DATETIME NOT NULL
+	,`arrive` DATETIME NOT NULL
+	,`price` INT NOT NULL
+	,`status` ENUM('active','cancelled','rescheduled')
+
+CREATE TABLE IF NOT EXISTS `flights_hist`(
+	`id` INT AUTO_INCREMENT PRIMARY KEY
+	,`flt_id` INT NOT NULL
+	,`old_data` VARCHAR(100) NOT NULL
+	,CONSTRAINT fk_flights_hist_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
+);
+
 insert into admins (username, password) values ('admin', 'password');
 insert into users values (1, '1@1.com','1','1_fn','','F','1111-01-01'), (2, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (3, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
 insert into customers values (1,1,NULL,NULL,NULL,NULL,NULL), (2,2,NULL,NULL,NULL,NULL,NULL);
@@ -124,18 +143,30 @@ insert into bookings values (1,1,1,1,'1111-11-11','active'),(2,2,1,1,'1111-11-11
 use airline;
 show tables;
 
-/*
-create trigger upd_flights after update on flights
-for each row
-begin
-IF NEW.status <> "cancelled" THEN
-UPDATE bookings SET bookings.status = NEW.status WHERE bookings.id = NEW.id;
-END IF
-end
-*/
+	,`flt_num` VARCHAR(4) NOT NULL
+	,`airline_id` INT NOT NULL
+	,`aircraft_id` INT NOT NULL	
+	,`src_airport_id` INT NOT NULL
+	,`dst_airport_id` INT NOT NULL
+	,`src_country_id` INT NOT NULL
+	,`dst_country_id` INT NOT NULL
+	,`depart` DATETIME NOT NULL
+	,`arrive` DATETIME NOT NULL
+	,`price` INT NOT NULL
+	,`status` ENUM('active','cancelled','rescheduled')
 
 delimiter //
-CREATE TRIGGER upd_flights AFTER UPDATE ON flights
+CREATE TRIGGER upd_flights_before BEFORE UPDATE ON flights
+FOR EACH ROW
+BEGIN
+	IF NEW.status <> "active" THEN
+		INSERT INTO flights_hist VALUES (NULL, NEW.id, CONCAT_WS(';',NEW.flt_num,NEW.airline_id,NEW.aircraft_id,NEW.src_airport_id,NEW.dst_airport_id,NEW.src_country_id,NEW.dst_country_id,NEW.depart,NEW.arrive,NEW.price,NEW.status));
+END IF;
+END//
+delimiter ;
+
+delimiter //
+CREATE TRIGGER upd_flights_after AFTER UPDATE ON flights
 FOR EACH ROW
 BEGIN
 	IF NEW.status <> "active" THEN
