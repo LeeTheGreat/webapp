@@ -270,25 +270,7 @@ const postAdminFlightEditHandler = async (req, res) => {
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
 	}
-	//might want to consider other way to store flight history changes.
-	//maybe can use a flightHistory table, store update time, data = json of old flight, then a flt_id_reference
-	if(req.query.status == 'cancelled'){
-		return req.status(200).send('Flight updated')
-	}
-	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
-	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
-	console.log(Number(req.body.airline))
-	try{
-		//await query(`INSERT INTO flights VALUES(NULL,?,?,?,?,?,?,?,?,?,?,'active')`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price)])
-		return res.redirect('/admin/flight')
-	}
-	catch(err){
-		console.log(err.sql)
-		return res.status(500).send(err.sqlMessage)
-	}
-}
-
-const postAdminFlightCancelHandler = async (req, res) => {
+	return res.redirect('/admin/flight')
 }
 
 const getAdminBookingHandler = async (req, res) => {
@@ -311,4 +293,3 @@ app.get('/admin/flight/add', getAdminFlightAddHandler)
 app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)
 app.post('/admin/flight/edit', urlencodedParser, postAdminFlightEditHandler)
-app.post('/admin/flight/cancel', urlencodedParser, postAdminFlightCancelHandler)
