@@ -15,7 +15,7 @@ const mysqloptions = {
 	port: 3306,
 	user: 'airline_admin',
 	password: 'password',
-	database: 'airline'
+	database: 'airline',
 }
 const sessionStore = new mysqlstore(mysqloptions);
 
@@ -31,8 +31,9 @@ const db = mysql.createConnection({
 	user: "airline_admin",
 	password: "password",
 	database: "airline",
-	dateStrings: "true"
-  });
+	dateStrings: "true",
+	multipleStatements: true
+});
 
 const query = util.promisify(db.query).bind(db);
 app.use(session({
@@ -86,9 +87,6 @@ const getRegisterHandler = async (req, res) => {
 }
 
 const postRegisterHandler = async (req, res) => {
-    if(req.session.email){
-		res.redirect('/')
-	}
 	const { fn, ln, gender, dob, email, pass} = req.body
 	try{
 		var rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?)`, [email, pass, fn, ln, gender, dob])
@@ -146,17 +144,9 @@ const postProfileHandler = async (req, res) => {
 		if(pass){
 			var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=?, pass=? WHERE id=?`, [email, fn, ln, dob, pass, req.session.userid])
 		}
-		/*
-		rows = await query(`SELECT email, fname, lname, gender, dob FROM users WHERE email = ?`, [req.session.email])
-		req.session.email = rows[0].email;
-		req.session.name = rows[0].fname + " " + rows[0].lname
-		profileJSON = JSON.parse(JSON.stringify(rows))
-		return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, msg: "Profile updated", fn: req.session.name}))
-		*/
 		req.session.email = email
 		req.session.name = fn + " " + ln
-		res.status(200).send("Profile updated")
-		return res.redirect('/')
+		return res.status(200).send("Profile updated")
 	}
 	catch (err){
 		/*
@@ -208,10 +198,10 @@ const getAdminFlightHandler = async (req, res) => {
 }
 
 const getAdminFlightAddHandler = async (req, res) => {
-	var airlines = await query(`SELECT * from airlines`)
-	var aircrafts = await query(`SELECT * from aircrafts`)
-	var airports = await query(`SELECT * from airports`)
-	var countries = await query(`SELECT * from countries`)
+	var airlines = await query(`SELECT * FROM airlines`)
+	var aircrafts = await query(`SELECT * FROM aircrafts`)
+	var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
+	var countries = await query(`SELECT * FROM countries order by name`)
 	var airlinesJSON = JSON.parse(JSON.stringify(airlines))
 	var aircraftsJSON = JSON.parse(JSON.stringify(aircrafts))
 	var airportsJSON = JSON.parse(JSON.stringify(airports))
@@ -221,13 +211,30 @@ const getAdminFlightAddHandler = async (req, res) => {
 }
 
 const postAdminFlightAddHandler = async (req, res) => {
-	console.log(req.body)
+	//console.log(req.body)
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
+		/*
 		var rows = await query(`INSERT INTO flights values (NULL,?,?,?,?,?,?,?,?,?,?,?)`, 
 							[req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		res.status(200).send("Flight added")
+		*/
+		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?,?,?,?,@ret,@msg); SELECT @ret,@msg`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+		var rowsJSON = JSON.stringify(rows)
+		var rowsObj = JSON.parse(rowsJSON)
+
+		// return is [{"fieldCount":0,"affectedRows":1,"insertId":0,"serverStatus":10,"warningCount":0,"message":"","protocol41":true,"changedRows":0},[{"@ret":1,"@msg":null}]]
+		// really confusing JSON
+		// rowsObj[1] ==> [{"@ret":1,"@msg":null}] ---> still an array
+		// rowsObj[1][0] ==> {"@ret":1,"@msg":null} ---> an object
+		// rowsObj[1][0]['@ret'] ==> getting the data '@ret' = 1
+		if(rowsObj[1][0]['@ret'] != 1){
+			return res.status(500).send(rowsObj[1][0]['@msg'])
+		}
+		return res.status(200).send('Flight updated')
+		//console.log("sp_flights_insert rows: " + rowsJSON)
+		//call sp_flights_insert('1111',2,2,2,2,210,210,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active', @ret); select @ret;
 		//res.redirect('/admin/flight/add')
 	}
 	catch (err){

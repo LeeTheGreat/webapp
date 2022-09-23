@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_flight_dst_country_id FOREIGN KEY (dst_country_id) REFERENCES countries(id)
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
+	,CONSTRAINT chk_flights_arrive_gt_depart CHECK (depart > arrive)
+	,CONSTRAINT chk_flights_src_aiport_ne_dst_airport CHECK (src_airport_id <> dst_airport_id) /* src airport != dst airport */
 	/*
 		TODO: add check constraint on src_airport_id and dst_airport_id such that only airports in src_country and dst_country are allowed
 		Based on stackoverflow, need to use User-Defined Function. https://stackoverflow.com/questions/3880698/can-a-check-constraint-relate-to-another-table
@@ -72,14 +74,8 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`lname` CHAR(30) DEFAULT ''
 	,`gender` CHAR(1)
 	,`dob` DATE
-	/*
-	`country_id` INT NOT NULL,
-	`state_id` INT NOT NULL,
-	CONSTRAINT fk_users_country_id FOREIGN KEY (country_id) REFERENCES country(id),
-	CONSTRAINT fk_users_state_id FOREIGN KEY (state_id) REFERENCES state(id)
-	*/
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
-	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill it */
+	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields */
 	,CONSTRAINT chk_existing_user CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
 );
 
@@ -98,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,`flt_id` INT NOT NULL
 	,`cust_id` INT NOT NULL
 	,`seat_id` INT NOT NULL
-	,`datetime` DATETIME NOT NULL
+	,`purchase_datetime` DATETIME NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled')
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
@@ -124,8 +120,9 @@ insert into admins (username, password) values ('admin', 'password');
 insert into users values (1, '1@1.com','1','1_fn','','F','1111-01-01'), (2, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (3, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
 insert into customers values (1,1,NULL,NULL,NULL,NULL,NULL), (2,2,NULL,NULL,NULL,NULL,NULL);
 insert into customers values (3,NULL,'guest1@guest.com','guest1','','F','1111-01-01'), (4,NULL,'guest2@guest.com','guest2','','F','1111-01-02');
-insert into flights values (1,'1111',1,1,1,1,14,14,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
-insert into flights values (2,'1111',2,2,2,2,210,210,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active');
+insert into flights values (1,'1111',1,1,1108,1121,14,102,'2022-11-11 08:00:00','2022-11-11 14:30:00', 100, 'active');
+insert into flights values (2,'1112',2,2,263,271,174,14,'2022-11-11 08:00:00','2022-11-11 14:30:00', 50, 'active');
+insert into flights values (3,'1113',2,2,120,87,109,132,'2022-11-11 08:00:00','2022-11-11 14:30:00', 50, 'active');
 insert into seats values (NULL,1,'A01',true),(NULL,1,'A02',true),(NULL,1,'A03',true),(NULL,1,'B01',true),(NULL,1,'B02',true),(NULL,2,'A01',true),(NULL,2,'A02',true),(NULL,2,'A03',true),(NULL,2,'B01',true),(NULL,2,'B02',true)
 insert into bookings values (1,1,3,1,'1111-11-11','active'),(2,2,4,1,'1111-11-11','active'),(3,1,2,2,'1111-11-11','active'),(4,2,1,2,'1111-11-11','active');
 use airline;
@@ -153,43 +150,24 @@ delimiter ;
 
 delimiter //
 
-	,`flt_num` VARCHAR(4) NOT NULL
-	,`airline_id` INT NOT NULL
-	,`aircraft_id` INT NOT NULL	
-	,`src_airport_id` INT NOT NULL
-	,`dst_airport_id` INT NOT NULL
-	,`src_country_id` INT NOT NULL
-	,`dst_country_id` INT NOT NULL
-	,`depart` DATETIME NOT NULL
-	,`arrive` DATETIME NOT NULL
-	,`price` INT NOT NULL
-	,`status` ENUM('active','cancelled','rescheduled')
-
-
-/* TODO: test */
 delimiter //
-CREATE PROCEDURE sp_dst_airport_exist_in_country(IN dst_airport_id INT, IN dst_country_id INT, OUT result BOOLEAN)
+CREATE PROCEDURE sp_airport_exist_in_country(IN airport_id INT, IN country_id INT, OUT result BOOLEAN)
 BEGIN
-	SELECT EXISTS(SELECT id FROM airports WHERE id = dst_airport_id and id IN (SELECT id FROM airports WHERE country_iso2 = (SELECT iso2 FROM countries WHERE id = dst_country_id))) INTO result;
+	SELECT EXISTS(SELECT id FROM airports WHERE id = airport_id and id IN (SELECT id FROM airports WHERE country_iso2 = (SELECT iso2 FROM countries WHERE id = country_id))) INTO result;
 END//
 delimiter ;
 
-/* TODO: test */
 delimiter //
-CREATE PROCEDURE sp_src_airport_exist_in_country(IN src_airport_id INT, IN src_country_id INT, OUT result BOOLEAN)
+CREATE PROCEDURE sp_flights_insert(IN flt_num INT, IN airline_id INT, IN ac_id INT, IN src_ap_id INT, IN dst_ap_id INT, IN src_cy_id INT, IN dst_cy_id INT, IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20), OUT ret BOOLEAN, OUT msg VARCHAR(100))
 BEGIN
-	SELECT EXISTS(SELECT id FROM airports WHERE id = src_airport_id and id IN (SELECT id FROM airports WHERE country_iso2 = (SELECT iso2 FROM countries WHERE id = src_country_id))) INTO result;
-END//
-delimiter ;
-
-/* TODO: test */
-delimiter //
-CREATE PROCEDURE sp_flights_insert(IN flt_num INT, IN airline_id INT, IN ac_id INT, IN src_ap_id INT, IN dst_ap_id INT, IN src_cy_id INT, IN dst_cy_id INT, IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20), OUT ret BOOLEAN)
-BEGIN
-	CALL sp_dst_airport_exist_in_country(dst_ap_id,dst_cy_id,@dst_exist);
-	CALL sp_src_airport_exist_in_country(dst_ap_id,dst_cy_id,@src_exists);
-	IF(@dst_exist and @src_exists) THEN
-		INSERT INTO fligts VALUES(NULL,flt_num,airline_id,ac_id,src_ap_id,dst_ap_id,src_cy_id,dst_cy_id,dpt,arr,price,status);
+	SET ret = false;
+	CALL sp_airport_exist_in_country(dst_ap_id,dst_cy_id,@dst_exists);
+	CALL sp_airport_exist_in_country(src_ap_id,src_cy_id,@src_exists);
+	IF(@dst_exists AND @src_exists) THEN
+		INSERT INTO flights VALUES(NULL,flt_num,airline_id,ac_id,src_ap_id,dst_ap_id,src_cy_id,dst_cy_id,dpt,arr,price,status);
+		SET ret = true;
+	ELSE
+		SET msg = CONCAT('Destination or Source airport not in country');
 	END IF;
 END//
 delimiter ;
