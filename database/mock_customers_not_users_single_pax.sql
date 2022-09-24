@@ -1,5 +1,4 @@
 /* customers who are not existing users. Need to fill in all the data */
-/* Single travellers */
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mdelacroix0@sogou.com', 'Michelle', 'De la croix', 'F', '1990/03/02');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'coheffernan1@lulu.com', 'Calli', 'O''Heffernan', 'F', '1997/01/15');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'spreon2@miitbeian.gov.cn', 'Scott', 'Preon', 'M', '1988/02/15');

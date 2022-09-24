@@ -1,4 +1,4 @@
-// families 
+/* families */
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 72, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'acarnie3z@sfgate.com', 'Aubrey', 'Carnie', 'M', '2002/10/29');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mtreneer0@elegantthemes.com', 'Maurice', 'Treneer', 'M', '2012/02/03');
@@ -54,7 +54,18 @@ insert into customers (id, user_id, cust_email, fname, lname, gender, dob) value
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'eselley1c@netvibes.com', 'Edee', 'Selley', 'F', '2013/08/17');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'vwibrew1d@google.es', 'Vernen', 'Wibrew', 'M', '2016/09/06');
 
-// friends or couples
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 42, null, null, null, null, null);
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'hmurrieg@bizjournals.com', 'Hernando', 'Murrie', 'M', '1990/04/18');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'agalloph@xing.com', 'Alisha', 'Gallop', 'F', '1970/12/13');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'giacovom@nhs.uk', 'Gardener', 'Iacovo', 'M', '2014/10/17');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ftuffelln@cbsnews.com', 'Freddie', 'Tuffell', 'F', '2011/08/24');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ebilloo@geocities.jp', 'Elvina', 'Billo', 'F', '2012/11/25');
+
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 50, null, null, null, null, null);
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'crankingl@dot.gov', 'Clovis', 'Ranking', 'F', '1972/05/11');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ccrossthwaitep@photobucket.com', 'Care', 'Crossthwaite', 'M', '2015/04/16');
+
+/* friends or couples */
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 59, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mgosforth2@noaa.gov', 'Marget', 'Gosforth', 'F', '1997/08/25');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ctremmelb@engadget.com', 'Cody', 'Tremmel', 'M', '2000/02/14');
@@ -80,89 +91,15 @@ insert into customers (id, user_id, cust_email, fname, lname, gender, dob) value
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 47, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'vmacdearmonts@nytimes.com', 'Vassili', 'MacDearmont', 'M', '1977/07/18');
 
-// kids
-
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'giacovom@nhs.uk', 'Gardener', 'Iacovo', 'M', '2014/10/17');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ftuffelln@cbsnews.com', 'Freddie', 'Tuffell', 'F', '2011/08/24');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ebilloo@geocities.jp', 'Elvina', 'Billo', 'F', '2012/11/25');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ccrossthwaitep@photobucket.com', 'Care', 'Crossthwaite', 'M', '2015/04/16');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'kdrawmerq@discuz.net', 'Kimberlee', 'Drawmer', 'F', '2012/01/12');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mkelbyr@army.mil', 'Micheil', 'Kelby', 'M', '2018/05/21');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'kjoselands@360.cn', 'Knox', 'Joseland', 'M', '2017/07/11');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'vstearnt@ox.ac.uk', 'Vanni', 'Stearn', 'F', '2011/01/05');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mscreechu@ameblo.jp', 'Myca', 'Screech', 'M', '2012/06/22');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'rfretsonv@ft.com', 'Reese', 'Fretson', 'M', '2016/01/28');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'wbavridgew@fastcompany.com', 'Westley', 'Bavridge', 'M', '2018/12/23');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ldelaprellex@163.com', 'Livvie', 'Delaprelle', 'F', '2016/10/13');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'lsarey@skype.com', 'Lauretta', 'Sare', 'F', '2011/01/18');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'hbichenerz@woothemes.com', 'Heinrick', 'Bichener', 'M', '2014/05/31');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'ahuebner10@mail.ru', 'Anastasie', 'Huebner', 'F', '2018/11/26');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'rbonnick11@home.pl', 'Robbyn', 'Bonnick', 'F', '2018/12/04');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'bhenstridge12@weebly.com', 'Babb', 'Henstridge', 'F', '2017/02/22');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'srudge13@huffingtonpost.com', 'Skipp', 'Rudge', 'M', '2010/07/10');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'eisakowicz14@usatoday.com', 'Elihu', 'Isakowicz', 'M', '2015/11/26');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'sdensun15@cdbaby.com', 'Siouxie', 'Densun', 'F', '2010/07/30');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mdyzart16@weibo.com', 'Mattie', 'Dyzart', 'M', '2017/06/15');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'erowell17@wisc.edu', 'Eduino', 'Rowell', 'M', '2010/08/06');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'chamstead18@sciencedirect.com', 'Cecilius', 'Hamstead', 'M', '2011/03/13');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'amccrorie19@globo.com', 'Amber', 'McCrorie', 'F', '2016/11/11');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'cseifert1a@csmonitor.com', 'Carrol', 'Seifert', 'M', '2011/02/09');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'gvaulkhard1b@washington.edu', 'Giffer', 'Vaulkhard', 'M', '2016/12/20');
-
-// non user adult
-
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'hmurrieg@bizjournals.com', 'Hernando', 'Murrie', 'M', '1990/04/18');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'agalloph@xing.com', 'Alisha', 'Gallop', 'F', '1970/12/13');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 54, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'kjuliffi@github.io', 'Kayne', 'Juliff', 'M', '1984/03/28');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mfawcettj@multiply.com', 'Mollie', 'Fawcett', 'F', '1950/03/22');
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'dropek@miibeian.gov.cn', 'Dwayne', 'Rope', 'M', '1990/08/07');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'crankingl@dot.gov', 'Clovis', 'Ranking', 'F', '1972/05/11');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'mferschkem@cam.ac.uk', 'Morgen', 'Ferschke', 'F', '1960/06/19');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'damdohrn@sakura.ne.jp', 'Dorian', 'Amdohr', 'M', '1971/11/05');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'jrearieo@diigo.com', 'Joane', 'Rearie', 'F', '1951/05/23');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'bposselowp@utexas.edu', 'Benedict', 'Posselow', 'M', '1988/10/31');
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'zhimsworthq@google.de', 'Zara', 'Himsworth', 'F', '1976/07/31');
 
-
-
-
-// user adult
-
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 78, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 59, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 42, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 64, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 58, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 48, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 69, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 43, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 41, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 54, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 53, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 44, null, null, null, null, null);
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'smerriment1@slashdot.org', 'Sibella', 'Merriment', 'F', '1991/02/10');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'vsmorthit4@cpanel.net', 'Vincent', 'Smorthit', 'M', '1983/11/06');
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'dropek@miibeian.gov.cn', 'Dwayne', 'Rope', 'M', '1990/08/07');
 
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 67, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 80, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 59, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 57, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 66, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 62, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 80, null, null, null, null, null);
-
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 63, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 73, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 63, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 75, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 65, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 63, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 50, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 43, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 52, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 78, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 46, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 42, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 51, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 66, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 46, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 45, null, null, null, null, null);
-insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 64, null, null, null, null, null);
+insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, null, 'vsmorthit4@cpanel.net', 'Vincent', 'Smorthit', 'M', '1983/11/06');

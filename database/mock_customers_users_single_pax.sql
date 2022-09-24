@@ -1,5 +1,4 @@
 /* customers who are existing users. So, we only need to reference the existing user id and all other customer fields can be NULL */
-/* Single travellers */
 /* user_id is from 1 to 40 */
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 1, null, null, null, null, null);
 insert into customers (id, user_id, cust_email, fname, lname, gender, dob) values (null, 16, null, null, null, null, null);
