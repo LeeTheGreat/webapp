@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,`depart` DATETIME NOT NULL
 	,`arrive` DATETIME NOT NULL
 	,`price` INT NOT NULL
-	,`status` ENUM('active','cancelled','rescheduled')
+	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
 	,CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airlines(id)
 	,CONSTRAINT fk_flight_src_airport_id FOREIGN KEY (src_airport_id) REFERENCES airports(id)
 	,CONSTRAINT fk_flight_dst_airport_id FOREIGN KEY (dst_airport_id) REFERENCES airports(id)
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`cust_email` VARCHAR(50)
 	,`fname` CHAR(30)
 	,`lname` CHAR(30) DEFAULT ''
-	,`gender` CHAR(1)
+	,`gender` ENUM('M','F')
 	,`dob` DATE
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields */
@@ -89,13 +89,15 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,INDEX idx_seats_flt_id_seat_num (flt_id,seat_num)
 );
 
+/* ref_num is to for cases where a person book for multiple passengers */
 CREATE TABLE IF NOT EXISTS `bookings`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
 	,`flt_id` INT NOT NULL
 	,`cust_id` INT NOT NULL
 	,`seat_id` INT NOT NULL
 	,`purchase_datetime` DATETIME NOT NULL
-	,`status` ENUM('active','cancelled','rescheduled')
+	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
+	,`ref_num` CHAR(10) NOT NULL
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
@@ -116,9 +118,11 @@ CREATE TABLE IF NOT EXISTS `flights_hist`(
 	,CONSTRAINT fk_flights_hist_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 );
 
-insert into admins (username, password) values ('admin', 'password');
-insert into users values (1, '1@1.com','1','1_fn','','F','1111-01-01'), (2, '2@2.com','2','2_fn','2_ln','F','2222-01-01'), (3, '3@3.com','3','3_fn','3_ln','F','3333-01-01');
+source mock_users.sql;
+						
 insert into customers values (1,1,NULL,NULL,NULL,NULL,NULL), (2,2,NULL,NULL,NULL,NULL,NULL);
+
+
 insert into customers values (3,NULL,'guest1@guest.com','guest1','','F','1111-01-01'), (4,NULL,'guest2@guest.com','guest2','','F','1111-01-02');
 insert into flights values (1,'1111',1,1,1108,1121,14,102,'2022-11-11 08:00:00','2022-11-11 14:30:00', 100, 'active');
 insert into flights values (2,'1112',2,2,263,271,174,14,'2022-11-11 08:00:00','2022-11-11 14:30:00', 50, 'active');
