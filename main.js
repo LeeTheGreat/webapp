@@ -181,11 +181,11 @@ const getAdminFlightHandler = async (req, res) => {
 	*/
 	var rows = await query(`SELECT flt.id as ID, flt_num as "Flt #", al.name as "Airline", CONCAT(ac.company, " ", ac.model) as "Aircraft", ct1.name as "From Country", ct2.name as "To Country", ap1.name as "From Airport", ap2.name as "To Airport", depart as Depart, arrive as Arrive, price as Price, status as Status from flights as flt
 							join airlines as al on al.id = airline_id
-							join airports as ap1 on ap1.id = src_airport_id
-							join airports as ap2 on ap2.id = dst_airport_id
-							join countries as ct1 on ct1.id = src_country_id
-							join countries as ct2 on ct2.id = dst_country_id
-							join aircrafts as ac on ac.id = aircraft_id`)
+							join airports as ap1 on ap1.iata_code = src_airport_code
+							join airports as ap2 on ap2.iata_code = dst_airport_code
+							join countries as ct1 on ct1.iso2 = src_country_code
+							join countries as ct2 on ct2.iso2 = dst_country_code
+							join aircrafts as ac on ac.id = aircraft_id order by Depart asc`)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
@@ -220,10 +220,10 @@ const postAdminFlightAddHandler = async (req, res) => {
 							[req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		res.status(200).send("Flight added")
 		*/
-		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?,?,?,?,@ret,@msg); SELECT @ret,@msg`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), Number(req.body.fm_airport), Number(req.body.to_airport), Number(req.body.fm_country), Number(req.body.to_country), sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?,?,?,?,@ret,@msg); SELECT @ret,@msg`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, req.body.fm_country, req.body.to_country, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		var rowsJSON = JSON.stringify(rows)
 		var rowsObj = JSON.parse(rowsJSON)
-
+		console.log(rowsJSON)
 		// return is [{"fieldCount":0,"affectedRows":1,"insertId":0,"serverStatus":10,"warningCount":0,"message":"","protocol41":true,"changedRows":0},[{"@ret":1,"@msg":null}]]
 		// really confusing JSON
 		// rowsObj[1] ==> [{"@ret":1,"@msg":null}] ---> still an array

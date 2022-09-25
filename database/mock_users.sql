@@ -31,7 +31,7 @@ insert into users (id, email, password, fname, lname, gender, dob) values (30, '
 insert into users (id, email, password, fname, lname, gender, dob) values (31, 'fbowermanu@posterous.com', 'UcIb3Z1r7i', 'Fransisco', 'Bowerman', 'M', '1995/05/15');
 insert into users (id, email, password, fname, lname, gender, dob) values (32, 'gpallasv@amazon.co.uk', 'v2GMezQIpt6S', 'Grayce', 'Pallas', 'F', '2002/10/20');
 insert into users (id, email, password, fname, lname, gender, dob) values (33, 'cchasterw@ovh.net', 'Y9NlGIQj', 'Claudia', 'Chaster', 'F', '1971/11/24');
-insert into users (id, email, password, fname, lname, gender, dob) values (34, 'ddickersonx@toplist.cz', 'rOKU5Y1wWZ6', 'Dalia', 'Dickerson', 'Agender', '1983/07/24');
+insert into users (id, email, password, fname, lname, gender, dob) values (34, 'ddickersonx@toplist.cz', 'rOKU5Y1wWZ6', 'Dalia', 'Dickerson', 'F', '1983/07/24');
 insert into users (id, email, password, fname, lname, gender, dob) values (35, 'sdanesy@opensource.org', 'VZy0csh6ybM', 'Sharyl', 'Danes', 'F', '1977/01/31');
 insert into users (id, email, password, fname, lname, gender, dob) values (36, 'nbeldingz@jiathis.com', 'fqw5Gp38', 'Norina', 'Belding', 'F', '1977/06/27');
 insert into users (id, email, password, fname, lname, gender, dob) values (37, 'kdrake10@hp.com', 'xtR7rs9B', 'Kerry', 'Drake', 'M', '1972/08/20');
@@ -49,7 +49,7 @@ insert into users (id, email, password, fname, lname, gender, dob) values (48, '
 insert into users (id, email, password, fname, lname, gender, dob) values (49, 'sbrecknock1c@timesonline.co.uk', 'RWM5eqFMOYN8', 'Sheena', 'Brecknock', 'F', '1987/05/22');
 insert into users (id, email, password, fname, lname, gender, dob) values (50, 'aweekly1d@gmpg.org', 'Lst6N4AX', 'Aundrea', 'Weekly', 'F', '1983/07/20');
 insert into users (id, email, password, fname, lname, gender, dob) values (51, 'wcrighten1e@economist.com', 'zccZ5C', 'Welch', 'Crighten', 'M', '1986/09/25');
-insert into users (id, email, password, fname, lname, gender, dob) values (52, 'lchristopherson1f@multiply.com', 'sYABDbDD', 'Lucinda', 'Christopherson', 'Bigender', '2002/08/19');
+insert into users (id, email, password, fname, lname, gender, dob) values (52, 'lchristopherson1f@multiply.com', 'sYABDbDD', 'Lucinda', 'Christopherson', 'F', '2002/08/19');
 insert into users (id, email, password, fname, lname, gender, dob) values (53, 'iarsmith1g@weather.com', 'kl5TpDeq', 'Ichabod', 'Arsmith', 'M', '2000/12/07');
 insert into users (id, email, password, fname, lname, gender, dob) values (54, 'rmcdougall1h@google.com', 'rMNIZQ4', 'Rickie', 'McDougall', 'M', '1999/10/19');
 insert into users (id, email, password, fname, lname, gender, dob) values (55, 'mstraughan1i@ihg.com', 'pO0p6kPGLn', 'Maudie', 'Straughan', 'F', '1987/05/04');
@@ -70,7 +70,7 @@ insert into users (id, email, password, fname, lname, gender, dob) values (69, '
 insert into users (id, email, password, fname, lname, gender, dob) values (70, 'bsexty1x@infoseek.co.jp', 'jcvdV5Sz7P', 'Biron', 'Sexty', 'M', '1974/07/01');
 insert into users (id, email, password, fname, lname, gender, dob) values (71, 'socodihie1y@blogs.com', 'nT3xKFvfp', 'Shana', 'O''Codihie', 'F', '2005/08/15');
 insert into users (id, email, password, fname, lname, gender, dob) values (72, 'apallant1z@cdc.gov', 'OsQO8hi', 'Alethea', 'Pallant', 'F', '1991/12/29');
-insert into users (id, email, password, fname, lname, gender, dob) values (73, 'mgallamore20@tinypic.com', 'SK9zVhg', 'Malachi', 'Gallamore', 'Genderqueer', '1972/04/04');
+insert into users (id, email, password, fname, lname, gender, dob) values (73, 'mgallamore20@tinypic.com', 'SK9zVhg', 'Malachi', 'Gallamore', 'M', '1972/04/04');
 insert into users (id, email, password, fname, lname, gender, dob) values (74, 'mharlett21@sphinn.com', 'GUS7KM', 'Marietta', 'Harlett', 'F', '1990/12/02');
 insert into users (id, email, password, fname, lname, gender, dob) values (75, 'mlonnon22@domainmarket.com', 'g574ReBQOjlg', 'Maegan', 'Lonnon', 'F', '1994/02/10');
 insert into users (id, email, password, fname, lname, gender, dob) values (76, 'lchesman23@nydailynews.com', 'xsruFU', 'Lissa', 'Chesman', 'F', '1993/01/05');
@@ -148,7 +148,7 @@ insert into users (id, email, password, fname, lname, gender, dob) values (147, 
 insert into users (id, email, password, fname, lname, gender, dob) values (148, 'jhoggan43@ameblo.jp', 'KAx921DkST92', 'Jillene', 'Hoggan', 'F', '1985/02/24');
 insert into users (id, email, password, fname, lname, gender, dob) values (149, 'acarek44@tmall.com', 'r0mjCnL', 'Annie', 'Carek', 'F', '1975/05/02');
 insert into users (id, email, password, fname, lname, gender, dob) values (150, 'hcanon45@dion.ne.jp', 'Y3VCLTWyw', 'Hartwell', 'Canon', 'M', '2006/12/26');
-insert into users (id, email, password, fname, lname, gender, dob) values (151, 'fschrinel46@cdbaby.com', 'ZwddJiXmSLO', 'Fabe', 'Schrinel', 'Bigender', '1990/04/07');
+insert into users (id, email, password, fname, lname, gender, dob) values (151, 'fschrinel46@cdbaby.com', 'ZwddJiXmSLO', 'Fabe', 'Schrinel', 'F', '1990/04/07');
 insert into users (id, email, password, fname, lname, gender, dob) values (152, 'jmcmillam47@issuu.com', 'F09n8B89', 'Jessie', 'McMillam', 'M', '1988/07/31');
 insert into users (id, email, password, fname, lname, gender, dob) values (153, 'iwalklate48@squarespace.com', 'MWwRjo', 'Ingar', 'Walklate', 'M', '2000/06/29');
 insert into users (id, email, password, fname, lname, gender, dob) values (154, 'mwinsome49@moonfruit.com', 'NuuTLIhqZC', 'Marion', 'Winsome', 'M', '1988/03/02');
@@ -161,7 +161,7 @@ insert into users (id, email, password, fname, lname, gender, dob) values (160, 
 insert into users (id, email, password, fname, lname, gender, dob) values (161, 'smitkcov4g@com.com', 'oZRXLjXO', 'Sophia', 'Mitkcov', 'F', '1995/08/12');
 insert into users (id, email, password, fname, lname, gender, dob) values (162, 'sculshew4h@goodreads.com', 'aZpWcMp4MZ', 'Shamus', 'Culshew', 'M', '1982/04/17');
 insert into users (id, email, password, fname, lname, gender, dob) values (163, 'aericssen4i@cbc.ca', 'dN9joH759Fb8', 'Alessandra', 'Ericssen', 'F', '1982/04/10');
-insert into users (id, email, password, fname, lname, gender, dob) values (164, 'lennor4j@addtoany.com', 'ES1OVnS8lVO', 'Laurens', 'Ennor', 'Genderqueer', '2008/11/22');
+insert into users (id, email, password, fname, lname, gender, dob) values (164, 'lennor4j@addtoany.com', 'ES1OVnS8lVO', 'Laurens', 'Ennor', 'F', '2008/11/22');
 insert into users (id, email, password, fname, lname, gender, dob) values (165, 'fbrennan4k@google.de', 'RXHhLE4zt', 'Filbert', 'Brennan', 'M', '1984/05/05');
 insert into users (id, email, password, fname, lname, gender, dob) values (166, 'gthewys4l@eepurl.com', 'B5pjuD0ycri', 'Griffy', 'Thewys', 'M', '1974/06/01');
 insert into users (id, email, password, fname, lname, gender, dob) values (167, 'caxcell4m@nymag.com', 'E5j0CWF', 'Costa', 'Axcell', 'M', '1986/03/15');
@@ -170,16 +170,16 @@ insert into users (id, email, password, fname, lname, gender, dob) values (169, 
 insert into users (id, email, password, fname, lname, gender, dob) values (170, 'tmonshall4p@mysql.com', 'lRpjLON', 'Tyrus', 'Monshall', 'M', '2005/03/16');
 insert into users (id, email, password, fname, lname, gender, dob) values (171, 'ljinkin4q@businesswire.com', 'MINAy8hx5', 'Lloyd', 'Jinkin', 'M', '1978/12/17');
 insert into users (id, email, password, fname, lname, gender, dob) values (172, 'lsaiger4r@histats.com', '2XTIuKrx9', 'Lorrie', 'Saiger', 'F', '1996/07/27');
-insert into users (id, email, password, fname, lname, gender, dob) values (173, 'iboise4s@purevolume.com', 'YapcmI6', 'Ilyse', 'Boise', 'Genderqueer', '1992/08/19');
+insert into users (id, email, password, fname, lname, gender, dob) values (173, 'iboise4s@purevolume.com', 'YapcmI6', 'Ilyse', 'Boise', 'F', '1992/08/19');
 insert into users (id, email, password, fname, lname, gender, dob) values (174, 'cschuelcke4t@imageshack.us', 'PVHl79wpKf', 'Cecilia', 'Schuelcke', 'F', '1985/06/17');
 insert into users (id, email, password, fname, lname, gender, dob) values (175, 'kasson4u@wikipedia.org', 'wJDip4Z', 'Kermy', 'Asson', 'M', '1990/11/06');
 insert into users (id, email, password, fname, lname, gender, dob) values (176, 'nmaccaffery4v@ycombinator.com', 'vwUdok51XDJ', 'Noell', 'MacCaffery', 'F', '1972/08/04');
 insert into users (id, email, password, fname, lname, gender, dob) values (177, 'meddowes4w@gov.uk', 'gRYh9GnuH', 'Myrna', 'Eddowes', 'F', '1980/11/30');
 insert into users (id, email, password, fname, lname, gender, dob) values (178, 'sblague4x@youtu.be', 'bJ9ovU', 'Sean', 'Blague', 'F', '1985/05/03');
 insert into users (id, email, password, fname, lname, gender, dob) values (179, 'rjoron4y@yelp.com', 'D3c7CEb', 'Raina', 'Joron', 'F', '1970/03/21');
-insert into users (id, email, password, fname, lname, gender, dob) values (180, 'bockendon4z@pcworld.com', 'ui3fHD86Wm', 'Blondelle', 'Ockendon', 'Non-binary', '1996/01/02');
+insert into users (id, email, password, fname, lname, gender, dob) values (180, 'bockendon4z@pcworld.com', 'ui3fHD86Wm', 'Blondelle', 'Ockendon', 'F', '1996/01/02');
 insert into users (id, email, password, fname, lname, gender, dob) values (181, 'rgranleese50@photobucket.com', 'RPb2PGoHT', 'Ruperta', 'Granleese', 'F', '2002/10/08');
-insert into users (id, email, password, fname, lname, gender, dob) values (182, 'lhulburt51@theatlantic.com', 'ZtQNGge78Tq', 'Leticia', 'Hulburt', 'Agender', '1982/06/25');
+insert into users (id, email, password, fname, lname, gender, dob) values (182, 'lhulburt51@theatlantic.com', 'ZtQNGge78Tq', 'Leticia', 'Hulburt', 'F', '1982/06/25');
 insert into users (id, email, password, fname, lname, gender, dob) values (183, 'bballinger52@ehow.com', '04wWxYyFMGn', 'Bil', 'Ballinger', 'M', '2000/12/15');
 insert into users (id, email, password, fname, lname, gender, dob) values (184, 'reagle53@reddit.com', 'bd9cuTikv4Y', 'Ruthanne', 'Eagle', 'F', '1973/10/07');
 insert into users (id, email, password, fname, lname, gender, dob) values (185, 'ulomond54@canalblog.com', 'GDPCCayZG8bQ', 'Uriah', 'Lomond', 'M', '1979/05/21');

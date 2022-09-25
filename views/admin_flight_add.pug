@@ -25,25 +25,25 @@ block append content
                     div(class='col-sm-6 ms-auto')
                         select(name="fm_country" class='form-select' id='fm_country')
                             each country in countries 
-                                option(value=country.id) #{country.name}
+                                option(value=country.iso2) #{country.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') To Country
                     div(class='col-sm-6 ms-auto')
                         select(name="to_country" class='form-select' id='to_country')
                             each country in countries 
-                                option(value=country.id) #{country.name}
+                                option(value=country.iso2) #{country.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') From Airport
                     div(class='col-sm-6 ms-auto')
                         select(name="fm_airport" class='form-select' id='fm_airport')
                             each airport in airports
-                                option(value=airport.id) #{airport.name}
+                                option(value=airport.iata_code) #{airport.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') To Airport
                     div(class='col-sm-6 ms-auto')
                         select(name="to_airport" class='form-select' id='to_airport')
                             each airport in airports 
-                                option(value=airport.id) #{airport.name}
+                                option(value=airport.iata_code) #{airport.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Departure Date
                     div(class='col-sm-6 ms-auto')
