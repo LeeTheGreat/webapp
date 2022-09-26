@@ -39,3 +39,8 @@ call sp_flights_insert (0251, 3, 1, 'HND', 'BTH', 'JP', 'ID', '2022/09/20 13:00:
 call sp_flights_insert (0251, 2, 2, 'BTH', 'HND', 'JP', 'ID', '2022/09/20 08:00:00', '2022/09/20 15:00:00', 286,'active',@ret,@msg);select @ret,@msg;
 call sp_flights_insert (6552, 1, 1, 'HND', 'BTH', 'JP', 'ID', '2022/09/21 20:00:00', '2022/09/22 02:00:00', 507,'active',@ret,@msg);select @ret,@msg;
 call sp_flights_insert (6552, 3, 6, 'BTH', 'HND', 'JP', 'ID', '2022/09/21 13:00:00', '2022/09/21 18:00:00', 330,'active',@ret,@msg);select @ret,@msg;
+
+call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/12/01 13:00:00', '2022/12/01 17:00:00', 230,'active',@ret,@msg);select @ret,@msg;
+call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/14/01 13:00:00', '2022/14/01 17:00:00', 230,'active',@ret,@msg);select @ret,@msg;
+call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/16/01 13:00:00', '2022/16/01 17:00:00', 230,'active',@ret,@msg);select @ret,@msg;
+call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/18/01 13:00:00', '2022/18/01 17:00:00', 230,'active',@ret,@msg);select @ret,@msg;
