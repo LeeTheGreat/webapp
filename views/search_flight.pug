@@ -1,24 +1,27 @@
-form(action='/searchFlight' method='POST')
+form(action='/flight/search' method='POST')
     div(class='container')
         div(class='form-group row col-6 mb-3')
             label(class='col-sm-4 col-form-label') From
             div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='from')
+                input(class='form-control form-control-md' type='text' name='from_cty' value='SG')
             label(class='col-sm-4 col-form-label') To
             div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='to')
+                input(class='form-control form-control-md' type='text' name='to_cty' value='JP')
+            label(class='col-sm-4 col-form-label') From Airport
+            div(class='col-sm-8 mb-3')
+                input(class='form-control form-control-md' type='text' name='from_ap' value='SIN')
+            label(class='col-sm-4 col-form-label') To Airport
+            div(class='col-sm-8 mb-3')            
+                input(class='form-control form-control-md' type='text' name='to_ap' value='HND')
             label(class='col-sm-4 col-form-label') Depart Date
             div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='date' name='dpt')
+                input(class='form-control form-control-md' type='date' name='dpt' value='2022-11-01')
             label(class='col-sm-4 col-form-label') Return Date
             div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='date' name='ret')
-            label(class='col-sm-4 col-form-label') Class
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='class')
+                input(class='form-control form-control-md' type='date' name='ret' value='2022-11-30')
             label(class='col-sm-4 col-form-label') No. of Pax
             div(class='col-sm-8 mb-3')
                 input(class='form-control form-control-md' type='text' name='pax')
             div(class='col-sm-8 ms-auto mb-3')
-                button(class='form-control form-control-md' type='submit' name='search') Search Flight
+                button(type='submit' class="btn btn-primary") Search Flight
             

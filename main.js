@@ -159,10 +159,61 @@ const postProfileHandler = async (req, res) => {
 	}
 }
 
+
 const getLogoutHandler = async (req, res) => {
 	req.session.destroy();
 	return res.redirect('/');
 }
+
+
+
+const postFlightSearchHandler = async (req, res) => {
+	//console.log(req.body)
+	let ts = Date.now() + (2 * 60 * 60 * 1000)
+
+	let date_ob = new Date(ts)
+	let date = ("0" + date_ob.getDate()).slice(-2)
+	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2)
+	let year = date_ob.getFullYear()
+	let hours = ("0" + (date_ob.getHours())).slice(-2)
+	let minutes = ("0" + (date_ob.getMinutes())).slice(-2)
+	let seconds = ("0" + (date_ob.getSeconds())).slice(-2)
+	let timeSearch = hours + ':' + minutes + ':' + seconds
+	//console.log(timeSearch);
+	let sqlDpt = req.body.dpt + ' ' + timeSearch
+	//console.log(sqlDpt);
+	
+	var rows = await query(`SELECT flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
+							join airlines as al on al.id = airline_id 
+							join airports as ap1 on ap1.iata_code = src_airport_code 
+							join airports as ap2 on ap2.iata_code = dst_airport_code 
+							join countries as ct1 on ct1.iso2 = src_country_code 
+							join countries as ct2 on ct2.iso2 = dst_country_code 
+							where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
+							[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
+	var rowsJSON = JSON.parse(JSON.stringify(rows))
+	var rowsKey = Object.keys(rowsJSON[0])
+	delete rowsKey[3] //fc_iso2
+	delete rowsKey[4] //tc_iso2
+	delete rowsKey[7] //fa_iata
+	delete rowsKey[8] //ta_iata
+	var newRowsKey = rowsKey.filter(word => word)
+	
+	
+	var newRowsKeyJSON = JSON.parse(JSON.stringify(newRowsKey))
+	
+	console.log(newRowsKeyJSON)
+	//console.log(rowsJSON)
+	//console.log(rowsKeyJSON)
+	
+	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax, rowsKeyJSON: newRowsKeyJSON}))
+}
+
+
+const getFlightSearchResultHandler = async (req, res) => {
+	
+}
+
 
 const getAdminHomeHandler = async (req, res) => {
 	console.log("getAdminHomeHandler")
@@ -190,7 +241,7 @@ const getAdminFlightHandler = async (req, res) => {
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
 	}
-	var rowsKey = Object.keys(rowsJSON[0]);
+	var rowsKey = Object.keys(rowsJSON[0])
 	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
@@ -286,6 +337,8 @@ const getAdminBookingHandler = async (req, res) => {
 }
 
 app.get('/', indexHandler)
+app.post('/flight/search', urlencodedParser, postFlightSearchHandler)
+app.get('/flight/search/result', getFlightSearchResultHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

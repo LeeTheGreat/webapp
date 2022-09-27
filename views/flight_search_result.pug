@@ -1,0 +1,36 @@
+extends base.pug
+
+block append content
+    table(class='table table-striped table-hover table-condensed')
+        thead(class='table-dark')
+            tr
+                if rowsKeyJSON
+                    each row in rowsKeyJSON
+                        if row
+                            th(scope='col') #{row}
+                    th(scope='col') Book
+        tbody
+            if rowsJSON
+                each row in rowsJSON
+                    tr
+                        td #{row["Flt #"]}
+                        td 
+                            div #{row["From Country"]}
+                            div #{row["fc_iso2"]}
+                        td 
+                            div #{row["To Country"]}
+                            div #{row["tc_iso2"]}
+                        td
+                            div #{row["From Airport"]}
+                            div #{row["fa_iata"]}
+                        td
+                            div #{row["To Airport"]}
+                            div #{row["ta_iata"]}
+                        td #{row["Depart"]}
+                        td #{row["Arrive"]}
+                        td #{row["Price"]}
+                        td      
+                            form(action='/admin/flight/book' method='GET')
+                                input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                                button(type='submit' class="btn btn-primary") Book
+    
