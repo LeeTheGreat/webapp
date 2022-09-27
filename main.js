@@ -336,6 +336,23 @@ const getAdminBookingHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/admin_booking.pug', {admin: "admin"}))
 }
 
+/*const getBooking = async (req, res) => {
+	const fromcountrySQL = 'SELECT name FROM country WHERE name like ?'
+	const tocountrySQL = 'SELECT name FROM country WHERE name like ?'
+	const departdateSQL = 'SELECT depart_time FROM flights WHERE depart_time like ?'
+	const arrivaldateSQL = 'SELECT arrival_time FROM flights where arrival_time like ?'
+	const flightSQL = 'SELECT f.id , c.name , f.depart_time , f.arrival_time FROM flights f , country c WHERE FromCountry like ? AND ToCountry like ? AND DepartDate like ? AND ArriveDate like ? 
+	AND c.id = f.src_country_id AND c.id = f.dst_country_id WHERE 
+	let fromcountry = {};
+	let tocountry = {};
+	let departdate = {};
+	let arrivaldate = {};
+	try{
+		fromcountry = await queryAsync(fromcountrySQL)
+	await query(
+	}
+}*/
+
 app.get('/', indexHandler)
 app.post('/flight/search', urlencodedParser, postFlightSearchHandler)
 app.get('/flight/search/result', getFlightSearchResultHandler)
