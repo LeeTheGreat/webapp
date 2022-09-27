@@ -8,7 +8,7 @@ block append content
                     each row in rowsKeyJSON
                         if row
                             th(scope='col') #{row}
-                    th(scope='col') Book
+                    th(scope='col')
         tbody
             if rowsJSON
                 each row in rowsJSON
@@ -29,8 +29,9 @@ block append content
                         td #{row["Depart"]}
                         td #{row["Arrive"]}
                         td #{row["Price"]}
-                        td      
-                            form(action='/admin/flight/book' method='GET')
-                                input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                        td
+                            form(action='/flight/pax' method='POST')
+                                input(type='hidden' class='form-control' value=row.id id='flt_id' name='flt_id')
+                                input(type='hidden' class='form-control' value=pax id='pax' name='pax')
                                 button(type='submit' class="btn btn-primary") Book
     

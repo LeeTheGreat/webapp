@@ -149,20 +149,32 @@ BEGIN
 END//
 delimiter ;
 
+
+/* TODO: test the try catch part */
 delimiter //
 CREATE PROCEDURE sp_flights_insert(IN flt_num INT, IN airline_id INT, IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN src_cy_code CHAR(2), IN dst_cy_code CHAR(2), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20), OUT ret BOOLEAN, OUT msg VARCHAR(100))
 BEGIN
-	SET ret = false;
-	/* add code to check for dpt and arr date > today() */
-	CALL sp_airport_exist_in_country(src_ap_code,src_cy_code,@src_exists);
-	CALL sp_airport_exist_in_country(dst_ap_code,dst_cy_code,@dst_exists);
-	
-	IF(@dst_exists AND @src_exists) THEN	
-		INSERT INTO flights VALUES(NULL,flt_num,airline_id,ac_id,src_ap_code,dst_ap_code,src_cy_code,dst_cy_code,dpt,arr,price,status);
-		SET ret = true;
-	ELSE
-		SET msg = CONCAT('Src or Dst airport not in country');
-	END IF;
+	BEGIN TRY
+		SET ret = false;
+		/* add code to check for dpt and arr date > today() */
+		CALL sp_airport_exist_in_country(src_ap_code,src_cy_code,@src_exists);
+		CALL sp_airport_exist_in_country(dst_ap_code,dst_cy_code,@dst_exists);
+		
+		IF(@dst_exists AND @src_exists) THEN
+			INSERT INTO flights VALUES(NULL,flt_num,airline_id,ac_id,src_ap_code,dst_ap_code,src_cy_code,dst_cy_code,dpt,arr,price,status);
+			SET ret = true;
+		ELSE
+			SET msg = CONCAT('Src or Dst airport not in country');
+		END IF;
+	END TRY
+		BEGIN CATCH
+		SET @ErrorMessage  = ERROR_MESSAGE()
+		SET @ErrorSeverity = ERROR_SEVERITY()
+		SET @ErrorState    = ERROR_STATE()
+		RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState)
+		BREAK
+	END CATCH
+END 
 END//
 delimiter ;
 
@@ -172,4 +184,43 @@ source mock_customers_not_users_single_pax.sql;
 source mock_customers_users_multi_pax.sql;
 source mock_customers_users_single_pax.sql;
 source mock_flights.sql;
-insert into seats values (NULL,1,'A01',true),(NULL,1,'A02',true),(NULL,1,'A03',true),(NULL,1,'B01',true),(NULL,1,'B02',true),(NULL,2,'A01',true),(NULL,2,'A02',true),(NULL,2,'A03',true),(NULL,2,'B01',true),(NULL,2,'B02',true);
+
+
+DROP procedure gen_seats;
+delimiter //
+CREATE PROCEDURE gen_seats()
+BEGIN
+	DECLARE fltCount INT DEFAULT 0;
+	DECLARE i INT DEFAULT 0;
+	DECLARE j INT DEFAULT 0;
+	DECLARE k INT DEFAULT 0;
+	DECLARE fltId INT DEFAULT 0;
+	DECLARE fltId2 INT DEFAULT 0;
+	DECLARE seatCount INT DEFAULT 0;
+	DECLARE seat_num CHAR(3);
+	DECLARE totalseat INT DEFAULT 0;
+	SELECT count(*) FROM flights INTO fltCount; select fltCount;
+	WHILE i < fltCount DO
+		SELECT id FROM flights limit i,1 into @fltId; SELECT @fltId;
+		SELECT flights.id,total_seat FROM aircrafts, flights WHERE aircraft_id = aircrafts.id AND flights.id = @fltId INTO fltId2,totalseat; SELECT fltId2,totalseat;
+		WHILE k < totalseat DO			
+			IF(k < totalseat/4) THEN
+				SET seat_num = CONCAT('A', LPAD(k+1,2,0));
+				INSERT IGNORE INTO seats VALUES(NULL,@fltId,seat_num,true);
+			ELSEIF(k < totalseat/4 * 2) THEN
+				SET seat_num = CONCAT('B', LPAD(k+1 - totalseat/4,2,0));
+				INSERT IGNORE INTO seats VALUES(NULL,@fltId,seat_num,true);
+			ELSEIF(k < totalseat/4 * 3) THEN
+				SET seat_num = CONCAT('C', LPAD(k+1 - totalseat/4 * 2,2,0));
+				INSERT IGNORE INTO seats VALUES(NULL,@fltId,seat_num,true);
+			ELSEIF(k < totalseat/4 * 4) THEN
+				SET seat_num = CONCAT('D', LPAD(k+1 - totalseat/4 * 3,2,0));
+				INSERT IGNORE INTO seats VALUES(NULL,@fltId,seat_num,true);
+			END IF;
+			SET k = k + 1;
+		END WHILE;
+		SET i = i + 1;
+	END WHILE;
+END//
+delimiter ;
+call gen_seats;

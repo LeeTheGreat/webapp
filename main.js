@@ -115,7 +115,7 @@ const postLoginHandler = async (req, res) => {
     if (rows.length == 0){
         return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))
 	}
-	console.log(rows[0].email);
+	//console.log(rows[0].email);
 	req.session.email = rows[0].email
 	req.session.name = rows[0].fname + " " + rows[0].lname
 	req.session.userid = rows[0].id
@@ -165,8 +165,6 @@ const getLogoutHandler = async (req, res) => {
 	return res.redirect('/');
 }
 
-
-
 const postFlightSearchHandler = async (req, res) => {
 	//console.log(req.body)
 	let ts = Date.now() + (2 * 60 * 60 * 1000)
@@ -183,7 +181,7 @@ const postFlightSearchHandler = async (req, res) => {
 	let sqlDpt = req.body.dpt + ' ' + timeSearch
 	//console.log(sqlDpt);
 	
-	var rows = await query(`SELECT flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
+	var rows = await query(`SELECT flt.id, flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
 							join airlines as al on al.id = airline_id 
 							join airports as ap1 on ap1.iata_code = src_airport_code 
 							join airports as ap2 on ap2.iata_code = dst_airport_code 
@@ -193,16 +191,15 @@ const postFlightSearchHandler = async (req, res) => {
 							[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	var rowsKey = Object.keys(rowsJSON[0])
-	delete rowsKey[3] //fc_iso2
-	delete rowsKey[4] //tc_iso2
-	delete rowsKey[7] //fa_iata
-	delete rowsKey[8] //ta_iata
+	delete rowsKey[0] //fc_iso2
+	delete rowsKey[4] //fc_iso2
+	delete rowsKey[5] //tc_iso2
+	delete rowsKey[8] //fa_iata
+	delete rowsKey[9] //ta_iata
 	var newRowsKey = rowsKey.filter(word => word)
-	
-	
 	var newRowsKeyJSON = JSON.parse(JSON.stringify(newRowsKey))
 	
-	console.log(newRowsKeyJSON)
+	//console.log(newRowsKeyJSON)
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
 	
@@ -210,10 +207,31 @@ const postFlightSearchHandler = async (req, res) => {
 }
 
 
-const getFlightSearchResultHandler = async (req, res) => {
-	
+const postFlightBuyHandler = async (req, res) => {
+	console.log(req.body)
+	var pax = Number(req.body.pax) + 1
+	for(let i = 1; i < pax; i++){
+		
+	}
 }
 
+const postFlightPaxHandler = async (req, res) => {
+	console.log(req.body)
+	if(req.session.userid){
+		var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
+		rowsJSON = JSON.parse(JSON.stringify(rows))
+		return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, rowsJSON : rowsJSON}))
+	}
+	return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
+}
+
+const postFlightSeatHandler = async (req, res) => {
+	console.log(req.body)
+	var rows = await query('SELECT id,seat_num FROM seats WHERE flt_id=? AND available=true', [req.body.flt_id])
+	rowsJSON = JSON.parse(JSON.stringify(rows))
+	console.log(rowsJSON)
+	return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, rowsJSON : rowsJSON}))
+}
 
 const getAdminHomeHandler = async (req, res) => {
 	console.log("getAdminHomeHandler")
@@ -355,7 +373,11 @@ const getAdminBookingHandler = async (req, res) => {
 
 app.get('/', indexHandler)
 app.post('/flight/search', urlencodedParser, postFlightSearchHandler)
-app.get('/flight/search/result', getFlightSearchResultHandler)
+//app.get('/flight/search/result', getFlightSearchResultHandler)
+//app.get('/flight/pax', getFlightPaxHandler)
+app.post('/flight/pax', urlencodedParser, postFlightPaxHandler)
+app.post('/flight/seat', urlencodedParser, postFlightSeatHandler)
+app.post('/flight/buy', urlencodedParser, postFlightBuyHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)
