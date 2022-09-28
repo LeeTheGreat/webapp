@@ -206,31 +206,48 @@ const postFlightSearchHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax, rowsKeyJSON: newRowsKeyJSON}))
 }
 
-
-const postFlightBuyHandler = async (req, res) => {
-	console.log(req.body)
-	var pax = Number(req.body.pax) + 1
-	for(let i = 1; i < pax; i++){
-		
-	}
+const getFlightSearchHandler = async (req, res) => {
+	return res.redirect('/')
 }
 
 const postFlightPaxHandler = async (req, res) => {
-	console.log(req.body)
+	//console.log(req.body)
 	if(req.session.userid){
 		var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
 		rowsJSON = JSON.parse(JSON.stringify(rows))
 		return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, rowsJSON : rowsJSON}))
 	}
-	return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
+	prevStageJSON = JSON.parse(JSON.stringify(req.body))
+	//console.log(prevStageJSON)
+	//return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
+	return res.send(pug.renderFile('views/flight_pax.pug', {prev : prevStageJSON}))
 }
 
 const postFlightSeatHandler = async (req, res) => {
-	console.log(req.body)
+	prevJSON = JSON.parse(req.body.prev)
+	delete req.body.prev
+	req.body = Object.assign(prevJSON, req.body)
 	var rows = await query('SELECT id,seat_num FROM seats WHERE flt_id=? AND available=true', [req.body.flt_id])
 	rowsJSON = JSON.parse(JSON.stringify(rows))
-	console.log(rowsJSON)
-	return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, rowsJSON : rowsJSON}))
+	//console.log(req.body)
+	prevStageJSON = JSON.parse(JSON.stringify(req.body))
+	//console.log(prevStageJSON)
+	//return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, seats : rowsJSON}))
+	return res.send(pug.renderFile('views/flight_seat_select.pug', {prev : prevStageJSON, seats : rowsJSON}))
+}
+
+
+const postFlightConfirmHandler = async (req, res) => {
+	prevJSON = JSON.parse(req.body.prev)
+	delete req.body.prev
+	console.log(prevJSON)
+	let fields = ['email_','fn_','ln_','gender_','dob_']
+	for (let i = 0; i < prevJSON.pax; i++){
+		let iStr = i.toString()
+		var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON['flt_id'],prevJSON['email_' + i.toString()],prevJSON['fn_'+iStr],prevJSON['ln_'+iStr],prevJSON['gender_'+iStr],prevJSON['dob_'+iStr]])
+		
+	} 
+	
 }
 
 const getAdminHomeHandler = async (req, res) => {
@@ -373,11 +390,11 @@ const getAdminBookingHandler = async (req, res) => {
 
 app.get('/', indexHandler)
 app.post('/flight/search', urlencodedParser, postFlightSearchHandler)
-//app.get('/flight/search/result', getFlightSearchResultHandler)
+app.get('/flight/search', getFlightSearchHandler)
 //app.get('/flight/pax', getFlightPaxHandler)
 app.post('/flight/pax', urlencodedParser, postFlightPaxHandler)
 app.post('/flight/seat', urlencodedParser, postFlightSeatHandler)
-app.post('/flight/buy', urlencodedParser, postFlightBuyHandler)
+app.post('/flight/confirm', urlencodedParser, postFlightConfirmHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

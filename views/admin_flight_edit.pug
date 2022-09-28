@@ -1,8 +1,8 @@
 extends admin_base.pug
 
 block append content
-    form(action='/admin/flight/edit' method='POST')
-        div(class='container')
+    div(class='container')
+        form(action='/admin/flight/edit' method='POST')
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
                     input(type='hidden' class='form-control' value=rowsJSON[0].id id='flt_id' name='flt_id')

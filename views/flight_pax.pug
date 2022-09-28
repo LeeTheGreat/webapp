@@ -1,10 +1,10 @@
 extends base.pug
 
 block append content
-    form(action='/flight/seat' method='POST')
-        div(class='container')
-            input(type='hidden' name='pax' value=pax)
-            input(type='hidden' name='flt_id' value=flt_id)
+    div(class='container')
+        h3 Passenger Details
+        form(action='/flight/seat' method='POST')
+            input(type='hidden' name='prev' value=prev)
             hr
             h4 Passenger 1
             div(class='form-group row col-6 mb-3')
@@ -31,7 +31,7 @@ block append content
                     div(class='col-sm-6 ms-auto')
                         input(class='form-control form-control-md' type='date' name='dob_1' value='1999-11-11')
             - var n = 1;
-            while n < pax
+            while n < prev['pax']
                 - ++n
                 hr
                 h4 Passenger !{n}
