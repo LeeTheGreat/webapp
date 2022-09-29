@@ -10,22 +10,27 @@ block append content
         table(class="table")
             thead
                 tr
-                    th(scope="col") Customer ID
-                    th(scope="col") Flight ID
-                    th(scope="col") Name
-                    th(scope="col") Status
-                    th(scope="col") Action
-            tbody 
-                tr
-                    td 1234
-                    td 3242
-                    td Alex Lee
-                    td Active
-                    td 
-                        div(class="d-flex flex-row mb-1")
-                            div                 
-                                button(type="button" class="btn")
-                                    i(class="material-icons text-warning") Edit
-                            div      
-                                button(type="button" class="btn")
-                                    i(class="material-icons text-danger") Delete
+                    if rowsKey
+                        each row in rowsKey
+                            th(scope='col') #{row}
+                        th(scope='col') Action
+                    
+            tbody
+                if customers
+                    each row in customers
+                        tr
+                            td #{row["id"]}
+                            td #{row["flt_num"]}
+                            td #{row["fname"]}
+                            td #{row["lname"]}
+                            td #{row["status"]}
+
+                            td      
+                                div(class="d-flex flex-row mb-1")
+                                    div                 
+                                        button(type="button" class="btn")
+                                            i(class="material-icons text-warning") Edit
+                                    div      
+                                        button(type="button" class="btn")
+                                            i(class="material-icons text-danger") Delete
+                    
