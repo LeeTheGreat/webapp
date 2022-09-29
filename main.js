@@ -80,7 +80,7 @@ const indexHandler = async (req, res) => {
 	res.send(pug.renderFile('views/home.pug'))
 }
 
-const getLoginHandler = async (req, res) => {
+const getLoginHandler = async (_req, res) => {
     return res.send(pug.renderFile('views/login.pug'))
 }
 
@@ -211,7 +211,7 @@ const postFlightSearchHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax, rowsKeyJSON: newRowsKeyJSON}))
 }
 
-const getFlightSearchHandler = async (req, res) => {
+const getFlightSearchHandler = async (_req, res) => {
 	return res.redirect('/')
 }
 
@@ -242,7 +242,7 @@ const postFlightSeatHandler = async (req, res) => {
 }
 
 
-const postFlightConfirmHandler = async (req, res) => {
+const postFlightConfirmHandler = async (req, _res) => {
 	prevJSON = JSON.parse(req.body.prev)
 	delete req.body.prev
 	console.log(prevJSON)
@@ -267,12 +267,12 @@ const postFlightConfirmHandler = async (req, res) => {
 	}
 }
 
-const getAdminHomeHandler = async (req, res) => {
+const getAdminHomeHandler = async (_req, res) => {
 	console.log("getAdminHomeHandler")
 	return res.send(pug.renderFile('views/admin_home.pug', {admin: "admin"}))
 }
 
-const getAdminFlightHandler = async (req, res) => {
+const getAdminFlightHandler = async (_req, res) => {
 	//console.log("getAdminFlightHandler")
 	/*
 	rows = await query(`SELECT 	al.name, flt_num, ct.name as fm_country, ct.name as to_country, 
@@ -300,7 +300,7 @@ const getAdminFlightHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
 }
 
-const getAdminFlightAddHandler = async (req, res) => {
+const getAdminFlightAddHandler = async (_req, res) => {
 	var airlines = await query(`SELECT * FROM airlines`)
 	var aircrafts = await query(`SELECT * FROM aircrafts`)
 	var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
@@ -370,9 +370,42 @@ const postAdminFlightEditHandler = async (req, res) => {
 	return res.redirect('/admin/flight')
 }
 
-const getAdminBookingHandler = async (req, res) => {
+const getAdminBookingHandler = async (_req, res) => {
 	console.log("getAdminBookingHandler")
-	return res.send(pug.renderFile('views/admin_booking.pug', {admin: "admin"}))
+	var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT b.id as "Customer ID" , f.flt_num as "Flight ID", c.fname as "Fname", c.lname as "Lname", b.status as "Status" FROM bookings b, flights f, customers c WHERE b.id = c.id AND b.flt_id = f.id`)))
+	
+	if(customersJSON.length == 0){
+		return res.send(pug.renderFile('views/admin_booking.pug'))
+	}
+
+	var rowsKey = Object.keys(customersJSON[0])
+	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	
+	return res.send(pug.renderFile('views/admin_booking.pug', {customers : customersJSON, rowsKey: rowsKeyJSON}))
+
+
+	/*var rowsJSON = JSON.parse(JSON.stringify(rows))
+	if(rowsJSON.length == 0){
+		return res.send(pug.renderFile('views/admin_flight.pug'))
+	}
+	var rowsKey = Object.keys(rowsJSON[0])
+	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	//console.log(rowsJSON)
+	//console.log(rowsKeyJSON)
+	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
+*/
+
+}
+
+const postAdminBookingHandler = async (req, res) => {
+	console.log(req.body)
+	/*try{
+		await query (`SELECT * FROM customers`, [req.body.status, req.book.flt_id])
+	}
+	catch(err){
+		return res.status(500).send(err.sqlMessage)
+	}*/
+	return res.redirect('views/admin_booking.pug')
 }
 
 /*const getBooking = async (req, res) => {
@@ -409,6 +442,7 @@ app.get('/logout', getLogoutHandler)
 app.get('/admin', getAdminHomeHandler)
 app.get('/admin/flight', getAdminFlightHandler)
 app.get('/admin/booking', getAdminBookingHandler)
+app.post('/admin/booking', urlencodedParser, postAdminBookingHandler)
 app.get('/admin/flight/add', getAdminFlightAddHandler)
 app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)
