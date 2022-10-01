@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,`seat_num` CHAR(3) NOT NULL
 	,`available` BOOLEAN NOT NULL
 	,CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_num (flt_id,seat_num)
-	,INDEX idx_seats_flt_id_seat_num (flt_id,seat_num)
+	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_id (flt_id,id)
+	,INDEX idx_seats_flt_id_seat_id (flt_id,id)
 );
 
 /* ref_num is to for cases where a person book for multiple passengers */
@@ -97,12 +97,13 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,`seat_id` INT NOT NULL
 	,`purchase_datetime` DATETIME NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
-	,`ref_num` CHAR(10) NOT NULL
+	,`ref_num` INT NOT NULL
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
-	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id)
-	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id)
+	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id) /*there cannot be two booking with same flt_id and seat_id*/
+	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id) /*for indexing unique key*/
+	,CONSTRAINT fk_booking_flt_id_seat_id FOREIGN KEY (flt_id,seat_id) REFERENCES seats(flt_id,id) /*to prevent cases where bookings.flt_id = X but seat_id has flt_id = Y*/
 );
 
 CREATE TABLE IF NOT EXISTS `admins`(
