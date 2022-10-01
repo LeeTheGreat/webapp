@@ -212,23 +212,23 @@ const postFlightSearchHandler = async (req, res) => {
 }
 
 const getFlightSearchHandler = async (_req, res) => {
-	return res.redirect('/')
+	return res.status(500).send("No data for Flightt Search")
 }
 
-const postFlightPaxHandler = async (req, res) => {
+const postFlightBookingPaxInfoHandler = async (req, res) => {
 	//console.log(req.body)
 	if(req.session.userid){
 		var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
 		rowsJSON = JSON.parse(JSON.stringify(rows))
-		return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, rowsJSON : rowsJSON}))
+		return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rowsJSON : rowsJSON}))
 	}
 	prevStageJSON = JSON.parse(JSON.stringify(req.body))
 	//console.log(prevStageJSON)
 	//return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
-	return res.send(pug.renderFile('views/flight_pax.pug', {prev : prevStageJSON}))
+	return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {prev : prevStageJSON}))
 }
 
-const postFlightSeatHandler = async (req, res) => {
+const postFlightBookingSeatSelectHandler = async (req, res) => {
 	prevJSON = JSON.parse(req.body.prev)
 	delete req.body.prev
 	req.body = Object.assign(prevJSON, req.body)
@@ -238,16 +238,15 @@ const postFlightSeatHandler = async (req, res) => {
 	prevStageJSON = JSON.parse(JSON.stringify(req.body))
 	//console.log(prevStageJSON)
 	//return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, seats : rowsJSON}))
-	return res.send(pug.renderFile('views/flight_seat_select.pug', {prev : prevStageJSON, seats : rowsJSON}))
+	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {prev : prevStageJSON, seats : rowsJSON}))
 }
 
 
-const postFlightConfirmHandler = async (req, _res) => {
+const postFlightBookingConfirmHandler = async (req, res) => {
 	prevJSON = JSON.parse(req.body.prev)
 	delete req.body.prev
 	console.log(prevJSON)
-	//console.log(req.body)
-	console.log(Math.random().toString(36).slice(2))
+	console.log(req.body)
 	for (let i = 0; i < prevJSON.pax; i++){
 		let email = 'email_' + (i+1).toString()
 		let fn = 'fn_' + (i+1).toString()
@@ -255,10 +254,13 @@ const postFlightConfirmHandler = async (req, _res) => {
 		let gender = 'gender_' + (i+1).toString()
 		let dob = 'dob_' + (i+1).toString()
 		let seat = 'seat_' + (i+1).toString()
+		//db.beginTransaction()
 		try{
+			
 			//rows = await query('INSERT INTO customers VALUES (NULL,NULL,NULL,NULL,NULL,NULL,NULL)')
 			//var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob]]);
 			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],prevJSON.flt_id,req.body[seat]])
+			return res.send()
 		}
 		catch(e){
 			console.log(e);
@@ -429,9 +431,9 @@ app.get('/', indexHandler)
 app.post('/flight/search', urlencodedParser, postFlightSearchHandler)
 app.get('/flight/search', getFlightSearchHandler)
 //app.get('/flight/pax', getFlightPaxHandler)
-app.post('/flight/pax', urlencodedParser, postFlightPaxHandler)
-app.post('/flight/seat', urlencodedParser, postFlightSeatHandler)
-app.post('/flight/confirm', urlencodedParser, postFlightConfirmHandler)
+app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
+app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
+app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

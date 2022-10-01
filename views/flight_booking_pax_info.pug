@@ -3,7 +3,7 @@ extends base.pug
 block append content
     div(class='container')
         h3 Passenger Details
-        form(action='/flight/seat' method='POST')
+        form(action='/flight/booking/seat_selection' method='POST')
             input(type='hidden' name='prev' value=prev)
             hr
             h4 Passenger 1

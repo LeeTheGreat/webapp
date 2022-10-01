@@ -3,7 +3,7 @@ extends base.pug
 block append content    
     div(class='container')
         h4 Passenger Seats Selection
-        form(action='/flight/confirm' method='POST')
+        form(action='/flight/booking/confirm' method='POST')
             input(type='hidden' name='prev' value=prev)
             div(class='form-group row col-6 mb-3')
                 - var n = 0;

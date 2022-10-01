@@ -30,7 +30,7 @@ block append content
                         td #{row["Arrive"]}
                         td #{row["Price"]}
                         td
-                            form(action='/flight/pax' method='POST')
+                            form(action='/flight/booking/pax_information' method='POST')
                                 input(type='hidden' class='form-control' value=row.id id='flt_id' name='flt_id')
                                 input(type='hidden' class='form-control' value=pax id='pax' name='pax')
                                 button(type='submit' class="btn btn-primary") Book
