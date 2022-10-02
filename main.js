@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const util = require('util')
 const mysqlstore = require('express-mysql-session')(session);
 const pug = require('pug')
+const uuid = require("uuid")
 
 const app = express()
 const bodyParser = require('body-parser')
@@ -247,6 +248,15 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	delete req.body.prev
 	console.log(prevJSON)
 	console.log(req.body)
+	let seats = [];
+	for(let i = 0; i < prevJSON.pax; i++){
+		let seat = 'seat_' + (i+1).toString()
+		if(seats.includes(req.body[seat])){
+			return res.status(500).send("Duplicate seats selected: " + seat)
+		}
+		seats.push(req.body[seat])
+	}
+	var ref_num = uuid.v4().substring(0,8)
 	for (let i = 0; i < prevJSON.pax; i++){
 		let email = 'email_' + (i+1).toString()
 		let fn = 'fn_' + (i+1).toString()
@@ -256,17 +266,31 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		let seat = 'seat_' + (i+1).toString()
 		//db.beginTransaction()
 		try{
-			
+			//console.log(ref_num)
 			//rows = await query('INSERT INTO customers VALUES (NULL,NULL,NULL,NULL,NULL,NULL,NULL)')
 			//var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob]]);
-			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],prevJSON.flt_id,req.body[seat]])
-			return res.send()
+			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],prevJSON.flt_id,req.body[seat],ref_num])
 		}
 		catch(e){
 			console.log(e);
 			return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
-		}		
+		}
 	}
+	/*
+	var flightInfo = await query(`flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive from flights as flt
+					join airlines as al on al.id = airline_id 
+					join airports as ap1 on ap1.iata_code = src_airport_code 
+					join airports as ap2 on ap2.iata_code = dst_airport_code 
+					join countries as ct1 on ct1.iso2 = src_country_code 
+					join countries as ct2 on ct2.iso2 = dst_country_code
+					WHERE flt_id = ?`,[req.flt_id])
+	console.log(flightInfo)
+	*/
+}
+
+const postBookingCheckByRefHandler = async (req, res) => {
+	console.log(req.body)
+	var rows = await query(`SELECT `)
 }
 
 const getAdminHomeHandler = async (_req, res) => {
@@ -434,6 +458,7 @@ app.get('/flight/search', getFlightSearchHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
+app.post('/booking/checkbyref', urlencodedParser, postBookingCheckByRefHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

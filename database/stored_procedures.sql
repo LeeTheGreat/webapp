@@ -1,3 +1,4 @@
+drop procedure if exists sp_airport_exist_in_country
 delimiter //
 CREATE PROCEDURE sp_airport_exist_in_country (IN airport_code VARCHAR(4), IN country_code CHAR(2), OUT result BOOLEAN)
 BEGIN
@@ -5,7 +6,7 @@ BEGIN
 END//
 delimiter ;
 
-DROP procedure sp_create_seats;
+DROP procedure if exists sp_create_seats;
 delimiter //
 CREATE PROCEDURE sp_create_seats (IN flt_id INT, IN msg VARCHAR(100))
 BEGIN
@@ -38,7 +39,7 @@ BEGIN
 END//
 delimiter ;
 
-drop procedure sp_flights_insert;
+drop procedure if exists sp_flights_insert;
 delimiter //
 CREATE PROCEDURE sp_flights_insert (IN flt_num INT, IN airline_id INT, IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN src_cy_code CHAR(2), IN dst_cy_code CHAR(2), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
 BEGIN
@@ -60,11 +61,17 @@ BEGIN
 END//
 delimiter ;
 
-drop procedure sp_ins_customer_and_booking;
+drop procedure if exists sp_ins_customer_and_booking;
 delimiter //
-CREATE PROCEDURE sp_ins_customer_and_booking (IN user_id INT, IN cust_email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_id INT)
+CREATE PROCEDURE sp_ins_customer_and_booking (IN user_id INT, IN cust_email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_id INT, IN ref_num CHAR(8))
 BEGIN
    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+		RESIGNAL;
+	END;
+
+  DECLARE EXIT HANDLER FOR SQLWARNING
 	BEGIN
 		ROLLBACK;
 		RESIGNAL;
@@ -76,8 +83,12 @@ BEGIN
 	ELSE
 		INSERT INTO customers VALUES (NULL,user_id,NULL,NULL,NULL,NULL,NULL);
 	END IF;
-	INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_id, NOW(), 'active', (SELECT LEFT(UUID(), 10)));
+	INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_id, NOW(), 'active', ref_num);
 	COMMIT;
 	
 END//
 delimiter ;
+
+drop procedure if exists sp_select_flights_named_detail;
+delimiter //
+CREATE procedure sp_select_flights_named_detail (IN )

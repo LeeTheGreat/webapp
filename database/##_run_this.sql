@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,`cust_id` INT NOT NULL
 	,`seat_id` INT NOT NULL
 	,`purchase_datetime` DATETIME NOT NULL
-	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
-	,`ref_num` INT NOT NULL
+	,`status` ENUM('active','cust_cancelled','flt_cancelled','cust_rescheduled','flt_rescheduled') NOT NULL /* need to differentiate between customer action or non-customer action */
+	,`ref_num` VARCHAR(8) NOT NULL
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS `flights_hist`(
 
 show tables;
 
+drop trigger if exists upd_flights_before;
 delimiter //
 CREATE TRIGGER upd_flights_before BEFORE UPDATE ON flights
 FOR EACH ROW
@@ -131,15 +132,43 @@ BEGIN
 END//
 delimiter ;
 
+drop trigger if exists upd_flights_after;
 delimiter //
 CREATE TRIGGER upd_flights_after AFTER UPDATE ON flights
 FOR EACH ROW
 BEGIN
-	IF NEW.status <> "active" THEN
-		UPDATE bookings SET bookings.status = NEW.status WHERE bookings.flt_id = NEW.id;
-END IF;
+	IF NEW.status = "cancelled" THEN
+		UPDATE bookings SET bookings.status = "flt_cancelled" WHERE bookings.flt_id = NEW.id;
+		UPDATE seats SET available = false WHERE seats.flt_id = NEW.id;
+	ELSEIF NEW.status = "rescheduled" THEN
+		UPDATE bookings SET bookings.status = "flt_rescheduled" WHERE bookings.flt_id = NEW.id;
+	END IF;
 END//
 delimiter ;
+
+/* automatically set seat availability to 0 if booking is added */
+drop trigger if exists ins_bookings_after;
+delimiter //
+CREATE TRIGGER ins_bookings_after AFTER INSERT ON bookings
+FOR EACH ROW
+BEGIN
+	UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
+END//
+delimiter ;
+
+drop trigger if exists upd_bookings_after;
+delimiter //
+CREATE TRIGGER upd_bookings_after AFTER UPDATE ON bookings
+FOR EACH ROW
+BEGIN
+	/* customer cancelleation or customer reschedule will free up the seat. For reschedule, we add a new booking, then update the old booking to 'rescheduled' */
+	/* need to differentiate between customer action or non-customer action */
+	IF NEW.status = "cust_cancelled" OR NEW.status = "cust_rescheduled" THEN
+		UPDATE seats SET seats.available = true WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
+	END iF;
+END//
+delimiter ;
+
 
 source mock_users.sql;
 source mock_customers_not_users_multi_pax.sql;

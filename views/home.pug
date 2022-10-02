@@ -1,5 +1,18 @@
 extends base.pug
 
 block append content
-    h1 VVV Airline
     include search_flight.pug
+
+    hr
+    div(class='container')
+        h3 Check Booking
+        form(action='/booking/checkbyref' method='POST')
+            div(class='form-group row col-6 mb-3')
+                label(class='col-sm-4 col-form-label') Reference Number
+                div(class='col-sm-8 mb-3')
+                    input(class='form-control form-control-md' type='text' name='ref_num' placeholder='8 characters booking Reference Number' max=8)
+                label(class='col-sm-4 col-form-label') Email
+                div(class='col-sm-8 mb-3')
+                    input(class='form-control form-control-md' type='email' name='email' placeholder='Email used for booking')
+                div(class='col-sm-8 ms-auto mb-3')
+                    button(type='submit' class="btn btn-primary") Check Booking
