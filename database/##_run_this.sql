@@ -169,11 +169,11 @@ BEGIN
 END//
 delimiter ;
 
-
+source stored_procedures.sql
 source mock_users.sql;
 source mock_customers_not_users_multi_pax.sql;
 source mock_customers_not_users_single_pax.sql;
 source mock_customers_users_multi_pax.sql;
 source mock_customers_users_single_pax.sql;
 source mock_flights.sql;
-source stored_procedures.sql
+
