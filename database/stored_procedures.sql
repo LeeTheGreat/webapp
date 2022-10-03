@@ -89,27 +89,10 @@ BEGIN
 END//
 delimiter ;
 
-/*
-drop procedure if exists sp_select_flights_named_detail;
+drop procedure if exists sp_select_flights_for_cust_flt_search;
 delimiter //
-CREATE procedure sp_select_flights_named_detail (IN dpt DATETIME, IN arr DATETIME, IN fm_cy INT, IN to_cy INT, IN fm_ap INT, IN to_ap INT)
+CREATE procedure sp_select_flights_for_cust_flt_search (IN dpt DATETIME, IN arr DATETIME, IN fm_cy INT, IN to_cy INT, IN fm_ap INT, IN to_ap INT)
 BEGIN
-	DECLARE query VARCHAR(200);
-	SET query = `SELECT flt.id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
-				join airlines as al on al.id = airline_id 
-				join airports as ap1 on ap1.iata_code = src_airport_code 
-				join airports as ap2 on ap2.iata_code = dst_airport_code 
-				join countries as ct1 on ct1.iso2 = src_country_code 
-				join countries as ct2 on ct2.iso2 = dst_country_code`;
-	IF(dpt = NULL AND arr = NULL AND fm_cy = NULL AND to_cy = NULL AND fm_ap NULL AND to_ap = NULL) THEN
-		PREPARE stmt FROM query;
-		EXECUTE stmt;
-	IF(dpt = NULL AND arr = NULL) THEN
-		SET query = CONCAT(query,';');
-	ELSE
-		SET query = CONCAT(query,' where Depart >= dpt and Arrive <= arr and src_country_code = fm_cy and dst_country_code = to_cy and src_airport_code = fm_ap and dst_airport_code = to_ap;')
-	END IF;
-	
 	SELECT flt.id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
 			join airlines as al on al.id = airline_id 
 			join airports as ap1 on ap1.iata_code = src_airport_code 
@@ -119,4 +102,16 @@ BEGIN
 			where Depart >= dpt and Arrive <= arr and src_country_code = fm_cy and dst_country_code = to_cy and src_airport_code = fm_ap and dst_airport_code = to_ap;
 END//
 delimiter ;
-*/
+
+drop procedure if exists sp_select_flights_for_admin;
+delimiter //
+CREATE procedure sp_select_flights_for_admin()
+BEGIN
+	SELECT flt.id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
+			join airlines as al on al.id = airline_id 
+			join airports as ap1 on ap1.iata_code = src_airport_code 
+			join airports as ap2 on ap2.iata_code = dst_airport_code 
+			join countries as ct1 on ct1.iso2 = src_country_code 
+			join countries as ct2 on ct2.iso2 = dst_country_code;
+END//
+delimiter ;
