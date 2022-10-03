@@ -300,22 +300,10 @@ const getAdminHomeHandler = async (_req, res) => {
 
 const getAdminFlightHandler = async (_req, res) => {
 	//console.log("getAdminFlightHandler")
-	/*
-	rows = await query(`SELECT 	al.name, flt_num, ct.name as fm_country, ct.name as to_country, 
-								ap.name as from_airport, ap.name as to_airport, depart, arrive, ac.company, ac.model
-								from flights fl, airlines al, airports ap, countries ct, aircrafts ac 
-								join on al.id = airline_id 
-								join airports on ap.id = src_airport_id and 
-						  title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
-	*/
-	var rows = await query(`SELECT flt.id as ID, flt_num as "Flt #", al.name as "Airline", CONCAT(ac.company, " ", ac.model) as "Aircraft", ct1.name as "From Country", ct2.name as "To Country", ap1.name as "From Airport", ap2.name as "To Airport", depart as Depart, arrive as Arrive, price as Price, status as Status from flights as flt
-							join airlines as al on al.id = airline_id
-							join airports as ap1 on ap1.iata_code = src_airport_code
-							join airports as ap2 on ap2.iata_code = dst_airport_code
-							join countries as ct1 on ct1.iso2 = src_country_code
-							join countries as ct2 on ct2.iso2 = dst_country_code
-							join aircrafts as ac on ac.id = aircraft_id order by Depart asc`)
-	var rowsJSON = JSON.parse(JSON.stringify(rows))
+
+	var rows = await query(`CALL sp_select_flights_for_admin();`)
+	var rowsJSON = JSON.parse(JSON.stringify(rows))[0] //[0] because rows also have data other data from mysql
+	//console.log(rowsJSON)
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
 	}
@@ -379,9 +367,9 @@ const getAdminFlightEditHandler = async (req, res) => {
 	}
 	rowsJSON[0].dpt_date = rowsJSON[0].depart.split(' ')[0]
 	rowsJSON[0].arr_date = rowsJSON[0].arrive.split(' ')[0]
-	rowsJSON[0].dpt_time = rowsJSON[0].depart.split(' ')[1]
-	rowsJSON[0].arr_time = rowsJSON[0].arrive.split(' ')[1]
-	//console.log(rowsJSON)
+	rowsJSON[0].dpt_time = (rowsJSON[0].depart.split(' ')[1]).padStart(5,0) //to make it like 09:30 instead of 9:30. Mainly for HTML purposes
+	rowsJSON[0].arr_time = (rowsJSON[0].arrive.split(' ')[1]).padStart(5,0) //to make it like 09:30 instead of 9:30. Mainly for HTML purposes
+	console.log(rowsJSON)
 	return res.send(pug.renderFile('views/admin_flight_edit.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
 }
 
