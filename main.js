@@ -187,33 +187,21 @@ const postFlightSearchHandler = async (req, res) => {
 	let sqlDpt = req.body.dpt + ' ' + timeSearch
 	//console.log(sqlDpt);
 	
-	var rows = await query(`SELECT flt.id, flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
-							join airlines as al on al.id = airline_id 
-							join airports as ap1 on ap1.iata_code = src_airport_code 
-							join airports as ap2 on ap2.iata_code = dst_airport_code 
-							join countries as ct1 on ct1.iso2 = src_country_code 
-							join countries as ct2 on ct2.iso2 = dst_country_code 
-							where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
-							[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
+	var rows = await query(`SELECT flt_id, src_country_name, dst_country_name, src_country_code, dst_country_code, src_airport_name, dst_airport_name, src_airport_code, dst_airport_code, depart, arrive, price FROM all_flights_informative 
+				where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
+				[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
+
+	console.log(rows)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
-	var rowsKey = Object.keys(rowsJSON[0])
-	delete rowsKey[0] //fc_iso2
-	delete rowsKey[4] //fc_iso2
-	delete rowsKey[5] //tc_iso2
-	delete rowsKey[8] //fa_iata
-	delete rowsKey[9] //ta_iata
-	var newRowsKey = rowsKey.filter(word => word)
-	var newRowsKeyJSON = JSON.parse(JSON.stringify(newRowsKey))
-	
-	//console.log(newRowsKeyJSON)
+
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
 	
-	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax, rowsKeyJSON: newRowsKeyJSON}))
+	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax}))
 }
 
 const getFlightSearchHandler = async (_req, res) => {
-	return res.status(500).send("No data for Flightt Search")
+	return res.status(500).send("No data for Flight Search")
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
@@ -299,19 +287,16 @@ const getAdminHomeHandler = async (_req, res) => {
 }
 
 const getAdminFlightHandler = async (_req, res) => {
-	//console.log("getAdminFlightHandler")
-
-	var rows = await query(`CALL sp_select_flights_for_admin();`)
-	var rowsJSON = JSON.parse(JSON.stringify(rows))[0] //[0] because rows also have data other data from mysql
+	var rows = await query(`SELECT flt_id, airline_name, aircraft, flt_num, src_country_name, dst_country_name, src_airport_name, src_airport_code, dst_airport_name, dst_airport_code, depart, arrive, price, status from all_flights_informative;`)
+	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	//console.log(rowsJSON)
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
 	}
-	var rowsKey = Object.keys(rowsJSON[0])
-	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	//var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
-	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
+	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON}))
 }
 
 const getAdminFlightAddHandler = async (_req, res) => {
