@@ -8,3 +8,10 @@ CREATE VIEW all_flights_informative AS
             join countries as ct1 on ct1.iso2 = src_country_code
             join countries as ct2 on ct2.iso2 = dst_country_code
             join aircrafts as ac on ac.id = aircraft_id;
+
+drop view all_bookings_informative;
+CREATE VIEW all_bookings_informative AS
+    SELECT * FROM bookings
+                JOIN all_flights_informative AS afi ON afi.flt_id = bookings.flt_id
+                JOIN seats on seat_id = seats.id
+                JOIN customers as custs on cust_id = custs.id;

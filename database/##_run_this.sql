@@ -96,13 +96,16 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,`cust_id` INT NOT NULL
 	,`seat_id` INT NOT NULL
 	,`purchase_datetime` DATETIME NOT NULL
-	,`status` ENUM('active','cust_cancelled','flt_cancelled','cust_rescheduled','flt_rescheduled') NOT NULL /* need to differentiate between customer action or non-customer action */
+	,`status` ENUM('active','cust_cancelled','flt_cancelled') NOT NULL /* need to differentiate between customer action or non-customer action. Removed cust_rescheduled because it serves no purpose, and will complicate triggers */
 	,`ref_num` VARCHAR(8) NOT NULL
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
-	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id) /*there cannot be two booking with same flt_id and seat_id*/
-	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id) /*for indexing unique key*/
+	/* there cannot be two booking with same flt_id and seat_id. But what if cancelled, and then someone else book? Will have same flt_id and seat_id. Unable to ensure it via CONSTRAINT
+	   CONSTRAINT must be (flt_id,seat_id,"active")
+	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id) 
+	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id)
+	*/
 	,CONSTRAINT fk_booking_flt_id_seat_id FOREIGN KEY (flt_id,seat_id) REFERENCES seats(flt_id,id) /*to prevent cases where bookings.flt_id = X but seat_id has flt_id = Y*/
 );
 
@@ -121,59 +124,12 @@ CREATE TABLE IF NOT EXISTS `flights_hist`(
 
 show tables;
 
-drop trigger if exists upd_flights_before;
-delimiter //
-CREATE TRIGGER upd_flights_before BEFORE UPDATE ON flights
-FOR EACH ROW
-BEGIN
-	IF NEW.status <> "active" THEN
-		INSERT INTO flights_hist VALUES (NULL, NEW.id, CONCAT_WS(';',NEW.flt_num,NEW.airline_id,NEW.aircraft_id,NEW.src_airport_code,NEW.dst_airport_code,NEW.src_country_code,NEW.dst_country_code,NEW.depart,NEW.arrive,NEW.price,NEW.status));
-	END IF;
-END//
-delimiter ;
-
-drop trigger if exists upd_flights_after;
-delimiter //
-CREATE TRIGGER upd_flights_after AFTER UPDATE ON flights
-FOR EACH ROW
-BEGIN
-	IF NEW.status = "cancelled" THEN
-		UPDATE bookings SET bookings.status = "flt_cancelled" WHERE bookings.flt_id = NEW.id;
-		UPDATE seats SET available = false WHERE seats.flt_id = NEW.id;
-	ELSEIF NEW.status = "rescheduled" THEN
-		UPDATE bookings SET bookings.status = "flt_rescheduled" WHERE bookings.flt_id = NEW.id;
-	END IF;
-END//
-delimiter ;
-
-/* automatically set seat availability to 0 if booking is added */
-drop trigger if exists ins_bookings_after;
-delimiter //
-CREATE TRIGGER ins_bookings_after AFTER INSERT ON bookings
-FOR EACH ROW
-BEGIN
-	UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
-END//
-delimiter ;
-
-drop trigger if exists upd_bookings_after;
-delimiter //
-CREATE TRIGGER upd_bookings_after AFTER UPDATE ON bookings
-FOR EACH ROW
-BEGIN
-	/* customer cancelleation or customer reschedule will free up the seat. For reschedule, we add a new booking, then update the old booking to 'rescheduled' */
-	/* need to differentiate between customer action or non-customer action */
-	IF NEW.status = "cust_cancelled" OR NEW.status = "cust_rescheduled" THEN
-		UPDATE seats SET seats.available = true WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
-	END iF;
-END//
-delimiter ;
-
+source trigger.sql
 source stored_procedures.sql
+source views.sql
 source mock_users.sql;
 source mock_customers_not_users_multi_pax.sql;
 source mock_customers_not_users_single_pax.sql;
 source mock_customers_users_multi_pax.sql;
 source mock_customers_users_single_pax.sql;
 source mock_flights.sql;
-

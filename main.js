@@ -337,9 +337,11 @@ const getAdminFlightEditHandler = async (req, res) => {
 	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
 	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
 	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
+	//console.log(airportsJSON)
+	//console.log(countriesJSON)
 	var rowsJSON = [{}]
 	try{
-		let rows = await query(`SELECT *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive FROM flights WHERE id=?`, [req.query.flt_id])
+		let rows = await query(`SELECT *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive FROM all_flights_informative WHERE flt_id=?`, [req.query.flt_id])
 		rowsJSON = JSON.parse(JSON.stringify(rows))
 	}
 	catch (err){
@@ -360,8 +362,11 @@ const getAdminFlightEditHandler = async (req, res) => {
 
 const postAdminFlightEditHandler = async (req, res) => {
 	console.log(req.body)
+	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
+	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		await query(`UPDATE flights SET status=? WHERE id=?`, [req.body.status, req.body.flt_id])
+		await query(`UPDATE all_flights_informative SET flt_num=?,airline_id=?,aircraft_id=?,src_airport_code=?,dst_airport_code=?,src_country_code=?,dst_country_code=?,depart=?,arrive=?,price=?,status=? WHERE flt_id=?`, 
+					[req.body.flt_num, req.body.airline, req.body.aircraft, req.body.fm_airport, req.body.to_airport, req.body.fm_country, req.body.to_country, sqlDptDate, sqlArrDate, req.body.price, req.body.status, req.body.flt_id])
 	}
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
