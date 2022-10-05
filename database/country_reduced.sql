@@ -12,6 +12,4 @@ INSERT INTO countries(id,name,iso3,iso2) VALUES (219,'Thailand','THA','TH');
 INSERT INTO countries(id,name,iso3,iso2) VALUES (102,'Indonesia','IDN','ID');
 INSERT INTO countries(id,name,iso3,iso2) VALUES (174,'Philippines','PHL','PH');
 INSERT INTO countries(id,name,iso3,iso2) VALUES (109,'Japan','JPN','JP');
-INSERT INTO countries(id,name,iso3,iso2) VALUES (216,'Taiwan','TWN','TW');
-INSERT INTO countries(id,name,iso3,iso2) VALUES (45,'China','CHN','CN');
 INSERT INTO countries(id,name,iso3,iso2) VALUES (132,'Malaysia','MYS','MY');

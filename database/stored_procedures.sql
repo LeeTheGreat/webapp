@@ -89,11 +89,12 @@ BEGIN
 END//
 delimiter ;
 
+/* TODO: test this */
 drop procedure if exists sp_select_flights_for_cust_flt_search;
 delimiter //
 CREATE procedure sp_select_flights_for_cust_flt_search (IN dpt DATETIME, IN arr DATETIME, IN fm_cy INT, IN to_cy INT, IN fm_ap INT, IN to_ap INT)
 BEGIN
-	SELECT flt.id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
+	SELECT id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
 			join airlines as al on al.id = airline_id 
 			join airports as ap1 on ap1.iata_code = src_airport_code 
 			join airports as ap2 on ap2.iata_code = dst_airport_code 
@@ -103,15 +104,39 @@ BEGIN
 END//
 delimiter ;
 
-drop procedure if exists sp_select_flights_for_admin;
+drop procedure if exists sp_select_booking_by_ref_and_email;
 delimiter //
-CREATE procedure sp_select_flights_for_admin()
+CREATE procedure sp_select_booking_by_ref_and_email (IN in_refnum CHAR(8), IN in_email VARCHAR(50))
 BEGIN
-	SELECT flt.id, flt_num as "Flt #", ct1.name as "From", ct2.name as "To", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
-			join airlines as al on al.id = airline_id 
-			join airports as ap1 on ap1.iata_code = src_airport_code 
-			join airports as ap2 on ap2.iata_code = dst_airport_code 
-			join countries as ct1 on ct1.iso2 = src_country_code 
-			join countries as ct2 on ct2.iso2 = dst_country_code;
+	/* get booking if the ref_num exists, and for all the bookings with ref_num, there's a customer with the specified email */
+	SELECT * FROM bookings
+			JOIN flights as flts on flt_id = flts.id
+			JOIN seats on seat_id = seats.id
+			JOIN customers as custs on cust_id = custs.id
+			WHERE cust_id IN (SELECT cust_id FROM bookings WHERE ref_num = in_refnum)
+			AND EXISTS(SELECT * FROM bookings JOIN customers as custs2 on cust_id = custs2.id AND cust_email = in_email);
 END//
 delimiter ;
+
+/*
+delimiter //
+CREATE procedure sp_select_airlines(IN id INT)
+BEGIN
+	SELECT * FROM airlines WHERE airlines.id = id;
+END//
+delimiter ;
+
+delimiter //
+CREATE procedure sp_select_airports(IN iata CHAR(3))
+BEGIN
+	SELECT * FROM airports WHERE iata_code = iata;
+END//
+delimiter ;
+
+delimiter //
+CREATE procedure sp_select_countries(IN code CHAR(2))
+BEGIN
+	SELECT * FROM countries WHERE iso2 = code;
+END//
+delimiter ;
+*/

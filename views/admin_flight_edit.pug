@@ -5,7 +5,7 @@ block append content
         form(action='/admin/flight/edit' method='POST')
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
-                    input(type='hidden' class='form-control' value=rowsJSON[0].id id='flt_id' name='flt_id')
+                    input(type='hidden' class='form-control' value=rowsJSON[0].flt_id id='flt_id' name='flt_id')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Airline
                     div(class='col-sm-6 ms-auto')
@@ -33,37 +33,37 @@ block append content
                     div(class='col-sm-6 ms-auto')
                         select(name="fm_country" class='form-select' id='fm_country' value=rowsJSON[0].src_country_id)
                             each country in countries 
-                                if country.id == rowsJSON[0].src_country_id
-                                    option(value=country.id selected) #{country.name}
+                                if country.iso2 == rowsJSON[0].src_country_code
+                                    option(value=country.iso2 selected) #{country.name}
                                 else
-                                    option(value=country.id) #{country.name}
+                                    option(value=country.iso2) #{country.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') To Country
                     div(class='col-sm-6 ms-auto')
                         select(name="to_country" class='form-select' id='to_country' value=rowsJSON[0].dst_country_id)
                             each country in countries 
-                                if country.id == rowsJSON[0].dst_country_id
-                                    option(value=country.id) #{country.name}
+                                if country.iso2 == rowsJSON[0].dst_country_code
+                                    option(value=country.iso2) #{country.name}
                                 else
-                                    option(value=country.id) #{country.name} 
+                                    option(value=country.iso2) #{country.name} 
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') From Airport
                     div(class='col-sm-6 ms-auto')
                         select(name="fm_airport" class='form-select' id='fm_airport' value=rowsJSON[0].src_airport_id)
                             each airport in airports
-                                if airport.id == rowsJSON[0].src_airport_id
-                                    option(value=airport.id selected) #{airport.name}
+                                if airport.iata_code == rowsJSON[0].src_airport_code
+                                    option(value=airport.iata_code selected) #{airport.name}
                                 else
-                                    option(value=airport.id) #{airport.name}
+                                    option(value=airport.iata_code) #{airport.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') To Airport
                     div(class='col-sm-6 ms-auto')
                         select(name="to_airport" class='form-select' id='to_airport' value=rowsJSON[0].dst_airport_id)
                             each airport in airports                                
-                                if airport.id == rowsJSON[0].dst_airport_id
-                                    option(value=airport.id selected) #{airport.name}
+                                if airport.iata_code == rowsJSON[0].dst_airport_code
+                                    option(value=airport.iata_code selected) #{airport.name}
                                 else
-                                    option(value=airport.id) #{airport.name}
+                                    option(value=airport.iata_code) #{airport.name}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Departure Date
                     div(class='col-sm-6 ms-auto')
@@ -96,6 +96,3 @@ block append content
                 div(class='row mb-3')
                     div(class='col-sm-6 ms-auto')            
                         button(type='submit' class="btn btn-primary my-3") Update Flight
-            if msg
-                span(class="border")
-                    label(class='col-sm-3 col-form-label') #{msg}

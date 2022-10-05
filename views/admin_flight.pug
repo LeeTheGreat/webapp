@@ -8,27 +8,36 @@ block append content
     table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
             tr
-                if rowsKeyJSON
-                    each row in rowsKeyJSON
-                        th(scope='col') #{row}
-                    th(scope='col') Edit
+                th ID
+                th Flight No.
+                th Airline
+                th Aircraft
+                th From Country
+                th To Country
+                th From Airport 
+                th To Airport 
+                th Depart 
+                th Arrive 
+                th Price
+                th Status
+                th(scope='col') Edit
         tbody
             if rowsJSON
                 each row in rowsJSON
                     tr
-                        td #{row.ID}
-                        td #{row["Flt #"]}
-                        td #{row["Airline"]}
-                        td #{row["Aircraft"]}
-                        td #{row["From Country"]}
-                        td #{row["To Country"]}
-                        td #{row["From Airport"]}
-                        td #{row["To Airport"]}
-                        td #{row["Depart"]}
-                        td #{row["Arrive"]}
-                        td #{row["Price"]}
-                        td #{row["Status"]}
+                        td #{row.flt_id}
+                        td #{row["flt_num"]}
+                        td #{row["airline_name"]}
+                        td #{row["aircraft"]}
+                        td #{row["src_country_name"]}
+                        td #{row["dst_country_name"]}
+                        td #{row["src_airport_name"]} (#{row["src_airport_code"]})
+                        td #{row["dst_airport_name"]} (#{row["dst_airport_code"]})
+                        td #{row["depart"]}
+                        td #{row["arrive"]}
+                        td #{row["price"]}
+                        td #{row["status"]}
                         td      
                             form(action='/admin/flight/edit' method='GET')
-                                input(type='hidden' class='form-control' value=row.ID id='flt_id' name='flt_id')
+                                input(type='hidden' class='form-control' value=row.flt_id id='flt_id' name='flt_id')
                                 button(type='submit' class="btn btn-primary") E

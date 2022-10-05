@@ -187,33 +187,21 @@ const postFlightSearchHandler = async (req, res) => {
 	let sqlDpt = req.body.dpt + ' ' + timeSearch
 	//console.log(sqlDpt);
 	
-	var rows = await query(`SELECT flt.id, flt_num as "Flt #", ct1.name as "From Country", ct2.name as "To Country", ct1.iso2 as "fc_iso2", ct2.iso2 as "tc_iso2", ap1.name as "From Airport", ap2.name as "To Airport", ap1.iata_code as "fa_iata", ap2.iata_code as "ta_iata", depart as Depart, arrive as Arrive, price as Price from flights as flt
-							join airlines as al on al.id = airline_id 
-							join airports as ap1 on ap1.iata_code = src_airport_code 
-							join airports as ap2 on ap2.iata_code = dst_airport_code 
-							join countries as ct1 on ct1.iso2 = src_country_code 
-							join countries as ct2 on ct2.iso2 = dst_country_code 
-							where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
-							[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
+	var rows = await query(`SELECT flt_id, src_country_name, dst_country_name, src_country_code, dst_country_code, src_airport_name, dst_airport_name, src_airport_code, dst_airport_code, depart, arrive, price FROM all_flights_informative 
+				where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
+				[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
+
+	console.log(rows)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
-	var rowsKey = Object.keys(rowsJSON[0])
-	delete rowsKey[0] //fc_iso2
-	delete rowsKey[4] //fc_iso2
-	delete rowsKey[5] //tc_iso2
-	delete rowsKey[8] //fa_iata
-	delete rowsKey[9] //ta_iata
-	var newRowsKey = rowsKey.filter(word => word)
-	var newRowsKeyJSON = JSON.parse(JSON.stringify(newRowsKey))
-	
-	//console.log(newRowsKeyJSON)
+
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
 	
-	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax, rowsKeyJSON: newRowsKeyJSON}))
+	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax}))
 }
 
 const getFlightSearchHandler = async (_req, res) => {
-	return res.status(500).send("No data for Flightt Search")
+	return res.status(500).send("No data for Flight Search")
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
@@ -299,31 +287,16 @@ const getAdminHomeHandler = async (_req, res) => {
 }
 
 const getAdminFlightHandler = async (_req, res) => {
-	//console.log("getAdminFlightHandler")
-	/*
-	rows = await query(`SELECT 	al.name, flt_num, ct.name as fm_country, ct.name as to_country, 
-								ap.name as from_airport, ap.name as to_airport, depart, arrive, ac.company, ac.model
-								from flights fl, airlines al, airports ap, countries ct, aircrafts ac 
-								join on al.id = airline_id 
-								join airports on ap.id = src_airport_id and 
-						  title, first_name, last_name, phone, dob FROM users WHERE id = ?`, [req.session.userid])
-	*/
-	var rows = await query(`SELECT flt.id as ID, flt_num as "Flt #", al.name as "Airline", CONCAT(ac.company, " ", ac.model) as "Aircraft", ct1.name as "From Country", ct2.name as "To Country", ap1.name as "From Airport", ap2.name as "To Airport", depart as Depart, arrive as Arrive, price as Price, status as Status from flights as flt
-							join airlines as al on al.id = airline_id
-							join airports as ap1 on ap1.iata_code = src_airport_code
-							join airports as ap2 on ap2.iata_code = dst_airport_code
-							join countries as ct1 on ct1.iso2 = src_country_code
-							join countries as ct2 on ct2.iso2 = dst_country_code
-							join aircrafts as ac on ac.id = aircraft_id order by Depart asc`)
+	var rows = await query(`SELECT flt_id, airline_name, aircraft, flt_num, src_country_name, dst_country_name, src_airport_name, src_airport_code, dst_airport_name, dst_airport_code, depart, arrive, price, status from all_flights_informative;`)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
+	//console.log(rowsJSON)
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
 	}
-	var rowsKey = Object.keys(rowsJSON[0])
-	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
+	//var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
 	//console.log(rowsJSON)
 	//console.log(rowsKeyJSON)
-	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
+	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON}))
 }
 
 const getAdminFlightAddHandler = async (_req, res) => {
@@ -364,9 +337,11 @@ const getAdminFlightEditHandler = async (req, res) => {
 	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
 	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
 	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
+	//console.log(airportsJSON)
+	//console.log(countriesJSON)
 	var rowsJSON = [{}]
 	try{
-		let rows = await query(`SELECT *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive FROM flights WHERE id=?`, [req.query.flt_id])
+		let rows = await query(`SELECT *, DATE_FORMAT(depart, '%Y-%m-%d %k:%i') as depart, DATE_FORMAT(arrive, '%Y-%m-%d %k:%i') as arrive FROM all_flights_informative WHERE flt_id=?`, [req.query.flt_id])
 		rowsJSON = JSON.parse(JSON.stringify(rows))
 	}
 	catch (err){
@@ -379,16 +354,19 @@ const getAdminFlightEditHandler = async (req, res) => {
 	}
 	rowsJSON[0].dpt_date = rowsJSON[0].depart.split(' ')[0]
 	rowsJSON[0].arr_date = rowsJSON[0].arrive.split(' ')[0]
-	rowsJSON[0].dpt_time = rowsJSON[0].depart.split(' ')[1]
-	rowsJSON[0].arr_time = rowsJSON[0].arrive.split(' ')[1]
-	//console.log(rowsJSON)
+	rowsJSON[0].dpt_time = (rowsJSON[0].depart.split(' ')[1]).padStart(5,0) //to make it like 09:30 instead of 9:30. Mainly for HTML purposes
+	rowsJSON[0].arr_time = (rowsJSON[0].arrive.split(' ')[1]).padStart(5,0) //to make it like 09:30 instead of 9:30. Mainly for HTML purposes
+	console.log(rowsJSON)
 	return res.send(pug.renderFile('views/admin_flight_edit.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
 }
 
 const postAdminFlightEditHandler = async (req, res) => {
 	console.log(req.body)
+	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
+	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		await query(`UPDATE flights SET status=? WHERE id=?`, [req.body.status, req.body.flt_id])
+		await query(`UPDATE all_flights_informative SET flt_num=?,airline_id=?,aircraft_id=?,src_airport_code=?,dst_airport_code=?,src_country_code=?,dst_country_code=?,depart=?,arrive=?,price=?,status=? WHERE flt_id=?`, 
+					[req.body.flt_num, req.body.airline, req.body.aircraft, req.body.fm_airport, req.body.to_airport, req.body.fm_country, req.body.to_country, sqlDptDate, sqlArrDate, req.body.price, req.body.status, req.body.flt_id])
 	}
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
