@@ -5,11 +5,11 @@ FOR EACH ROW
 BEGIN
     /* only cancels active bookings of flight if flight gets cancelled*/
     IF NEW.status = "cancelled" THEN
-		UPDATE bookings SET bookings.status = "flt_cancelled" WHERE flt_id = NEW.id AND status = 'active';
+        UPDATE bookings SET bookings.status = "flt_cancelled" WHERE flt_id = NEW.id AND status = 'active';
 
     /* only reactivate bookings that were previously affected by flight changes */
-	ELSEIF NEW.status = "active" OR NEW.status = "rescheduled" THEN    
-		UPDATE bookings SET bookings.status = "active" WHERE flt_id = NEW.id AND status LIKE 'flt_%';
+    ELSEIF NEW.status = "active" OR NEW.status = "rescheduled" THEN    
+        UPDATE bookings SET bookings.status = "active" WHERE flt_id = NEW.id AND status LIKE 'flt_%';
         /* only set those seats which are not part of active bookings to available. Those which are part of active bookings , ignore as those seats would still be unavailable */
         /*UPDATE seats SET available = true WHERE seats.flt_id NOT IN (SELECT seat_id FROM bookings WHERE flt_id = NEW.id AND status = 'active')*/
     END IF;
@@ -49,7 +49,7 @@ CREATE TRIGGER ins_bookings_after AFTER INSERT ON bookings
 FOR EACH ROW
 BEGIN
     /* automatically set seat availability to false if booking is added */
-	UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
+    UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
 END//
 delimiter ;
 
