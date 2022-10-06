@@ -276,9 +276,12 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	*/
 }
 
-const postBookingCheckByRefHandler = async (req, res) => {
-	console.log(req.body)
-	var rows = await query(`SELECT `)
+const postBookingSearchHandler = async (req, res) => {
+	var rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
+	console.log(rows)
+	var rowsJSON = JSON.parse(JSON.stringify(rows))
+	
+
 }
 
 const getAdminHomeHandler = async (_req, res) => {
@@ -287,9 +290,9 @@ const getAdminHomeHandler = async (_req, res) => {
 }
 
 const getAdminFlightHandler = async (_req, res) => {
-	var rows = await query(`SELECT flt_id, airline_name, aircraft, flt_num, src_country_name, dst_country_name, src_airport_name, src_airport_code, dst_airport_name, dst_airport_code, depart, arrive, price, status from all_flights_informative;`)
+	var rows = await query(`SELECT * from view_flights_informative;`)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rowsJSON)
+	console.log(rowsJSON)
 	if(rowsJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_flight.pug'))
 	}
@@ -436,7 +439,7 @@ app.get('/flight/search', getFlightSearchHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
-app.post('/booking/checkbyref', urlencodedParser, postBookingCheckByRefHandler)
+app.post('/booking/search', urlencodedParser, postBookingSearchHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

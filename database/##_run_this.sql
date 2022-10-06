@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`dob` DATE
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields */
-	,CONSTRAINT chk_existing_user CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
+	,CONSTRAINT chk_cust_detail CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
 );
 
 CREATE TABLE IF NOT EXISTS `seats`(

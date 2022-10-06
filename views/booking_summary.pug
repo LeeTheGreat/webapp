@@ -1,0 +1,40 @@
+extends base.pug
+
+block append content
+    div(class='container')
+        h3 Booking Summary
+            h4 Passenger 1
+                
+                div(class='row mb-3') 
+                    label(class='col-sm-3 col-form-label') Date of Birth
+                    div(class='col-sm-6 ms-auto')
+                        input(class='form-control form-control-md' type='date' name='dob_1' value='1999-11-11')
+            - var n = 1;
+            while n < prev['pax']
+                - ++n
+                hr
+                h4 Passenger !{n}
+                div(class='form-group row col-6 mb-3')
+                    div(class='row mb-3')
+                        label(class='col-sm-4 col-form-label') Email
+                        div(class='col-sm-6 ms-auto')
+                            input(type='text',class='form-control' name='email_'+n value=n+'@'+n+'.com')
+                    div(class='row mb-3')
+                        label(class='col-sm-4 col-form-label') First Name
+                        div(class='col-sm-6 ms-auto')
+                            input(type='text',class='form-control' name='fn_'+n value=n+'fn')
+                    div(class='row mb-3')
+                        label(class='col-sm-4 col-form-label') Last Name
+                        div(class='col-sm-6 ms-auto')
+                            input(type='text',class='form-control' name='ln_'+n value=n+'ln')
+                    div(class='row mb-3')
+                        label(class='col-sm-3 col-form-label') Gender
+                        div(class='col-sm-6 ms-auto')
+                            select(name='gender_'+n class='form-select')
+                                option(value='F') F
+                                option(value='M') M
+                    div(class='row mb-3') 
+                        label(class='col-sm-3 col-form-label') Date of Birth
+                        div(class='col-sm-6 ms-auto')
+                            input(class='form-control form-control-md' type='date' name='dob_'+n value='1999-11-11')
+            button(type='submit' class="btn btn-primary") Submit

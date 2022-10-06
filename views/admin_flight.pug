@@ -25,7 +25,7 @@ block append content
             if rowsJSON
                 each row in rowsJSON
                     tr
-                        td #{row.flt_id}
+                        td #{row["flt_id"]}
                         td #{row["flt_num"]}
                         td #{row["airline_name"]}
                         td #{row["aircraft"]}
@@ -36,7 +36,7 @@ block append content
                         td #{row["depart"]}
                         td #{row["arrive"]}
                         td #{row["price"]}
-                        td #{row["status"]}
+                        td #{row["flt_status"]}
                         td      
                             form(action='/admin/flight/edit' method='GET')
                                 input(type='hidden' class='form-control' value=row.flt_id id='flt_id' name='flt_id')

@@ -78,9 +78,9 @@ BEGIN
 	END;
 
 	START TRANSACTION; /* need a TRANSACTION here as the whole process involves adding customers, then adding bookings. If any step went wrong, need to roll back */
-	IF(user_id IS NULL) THEN
+	IF user_id IS NULL THEN
 		INSERT INTO customers VALUES (NULL,NULL,cust_email,fn,ln,gender,dob);
-	ELSE
+	ELSEIF user_id IS NOT NULL THEN
 		INSERT INTO customers VALUES (NULL,user_id,NULL,NULL,NULL,NULL,NULL);
 	END IF;
 	INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_id, NOW(), 'active', ref_num);
@@ -109,12 +109,9 @@ delimiter //
 CREATE procedure sp_select_booking_by_ref_and_email (IN in_refnum CHAR(8), IN in_email VARCHAR(50))
 BEGIN
 	/* get booking if the ref_num exists, and for all the bookings with ref_num, there's a customer with the specified email */
-	SELECT * FROM bookings
-			JOIN flights as flts on flt_id = flts.id
-			JOIN seats on seat_id = seats.id
-			JOIN customers as custs on cust_id = custs.id
-			WHERE cust_id IN (SELECT cust_id FROM bookings WHERE ref_num = in_refnum)
-			AND EXISTS(SELECT * FROM bookings JOIN customers as custs2 on cust_id = custs2.id AND cust_email = in_email);
+	SELECT * FROM view_bookings_informative vbi1
+		WHERE vbi1.cust_id IN (SELECT cust_id FROM view_bookings WHERE ref_num = in_refnum)
+		AND EXISTS(SELECT 1 FROM view_bookings_informative vbi2 WHERE vbi2.email = in_email);
 END//
 delimiter ;
 

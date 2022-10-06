@@ -10,8 +10,6 @@ BEGIN
     /* only reactivate bookings that were previously affected by flight changes */
     ELSEIF NEW.status = "active" OR NEW.status = "rescheduled" THEN    
         UPDATE bookings SET bookings.status = "active" WHERE flt_id = NEW.id AND status LIKE 'flt_%';
-        /* only set those seats which are not part of active bookings to available. Those which are part of active bookings , ignore as those seats would still be unavailable */
-        /*UPDATE seats SET available = true WHERE seats.flt_id NOT IN (SELECT seat_id FROM bookings WHERE flt_id = NEW.id AND status = 'active')*/
     END IF;
 
     INSERT INTO flights_hist VALUES (NULL, NEW.id, CONCAT_WS(';',OLD.flt_num,OLD.airline_id,OLD.aircraft_id,OLD.src_airport_code,OLD.dst_airport_code,OLD.src_country_code,OLD.dst_country_code,OLD.depart,OLD.arrive,OLD.price,OLD.status));
