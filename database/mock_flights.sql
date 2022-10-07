@@ -41,9 +41,9 @@ call sp_flights_insert (0251, 3, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/20 13:00:
 call sp_flights_insert (0251, 2, 2, 'BTH', 'HND', 'ID', 'ID', '2022/11/20 08:00:00', '2022/11/20 15:00:00', 286,'active');
 call sp_flights_insert (6552, 1, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/21 20:00:00', '2022/11/22 02:00:00', 507,'active');
 
-call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/10/25 13:00:00', '2022/10/25 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'HND', 'BKI', 'ID', 'MY', '2022/10/26 13:00:00', '2022/10/26 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/10/27 13:00:00', '2022/10/27 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'HND', 'BKI', 'ID', 'MY', '2022/10/28 13:00:00', '2022/10/28 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BKI', 'HND', 'MY', 'ID', '2022/10/29 13:00:00', '2022/10/29 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'HND', 'BKI', 'ID', 'MY', '2022/10/30 13:00:00', '2022/10/30 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/25 13:00:00', '2022/10/25 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/26 13:00:00', '2022/10/26 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/27 13:00:00', '2022/10/27 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/28 13:00:00', '2022/10/28 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/29 13:00:00', '2022/10/29 17:00:00', 230,'active');
+call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/30 13:00:00', '2022/10/30 17:00:00', 230,'active');

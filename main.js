@@ -187,7 +187,7 @@ const postFlightSearchHandler = async (req, res) => {
 	let sqlDpt = req.body.dpt + ' ' + timeSearch
 	//console.log(sqlDpt);
 	
-	var rows = await query(`SELECT flt_id, src_country_name, dst_country_name, src_country_code, dst_country_code, src_airport_name, dst_airport_name, src_airport_code, dst_airport_code, depart, arrive, price FROM all_flights_informative 
+	var rows = await query(`SELECT flt_id, src_country_name, dst_country_name, src_country_code, dst_country_code, src_airport_name, dst_airport_name, src_airport_code, dst_airport_code, depart, arrive, price FROM view_flights_informative 
 				where Depart >= ? and Arrive <= ? and src_country_code = ? and dst_country_code = ? and src_airport_code = ? and dst_airport_code = ?;`, 
 				[sqlDpt, req.body.ret, req.body.from_cty, req.body.to_cty, req.body.from_ap, req.body.to_ap])
 

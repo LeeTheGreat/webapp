@@ -2,23 +2,15 @@ extends base.pug
 
 block append content
     div(class='container')
-        h3 Booking Summary
-            h4 Passenger 1
-                
-                div(class='row mb-3') 
-                    label(class='col-sm-3 col-form-label') Date of Birth
-                    div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dob_1' value='1999-11-11')
-            - var n = 1;
-            while n < prev['pax']
-                - ++n
+        h3 Booking Summary                
+            if rowsJSON
+                each row in rowsJSON
+                - var n = 1;       
+                - ++n;
                 hr
                 h4 Passenger !{n}
-                div(class='form-group row col-6 mb-3')
-                    div(class='row mb-3')
-                        label(class='col-sm-4 col-form-label') Email
-                        div(class='col-sm-6 ms-auto')
-                            input(type='text',class='form-control' name='email_'+n value=n+'@'+n+'.com')
+
+                    input(type='hidden',class='form-control' name='email_'+n value=n+'@'+n+'.com')
                     div(class='row mb-3')
                         label(class='col-sm-4 col-form-label') First Name
                         div(class='col-sm-6 ms-auto')
