@@ -10,27 +10,32 @@ block append content
         table(class="table")
             thead
                 tr
-                    if rowsKey
-                        each row in rowsKey
-                            th(scope='col') #{row}
-                        th(scope='col') Action
+                    th Customer ID
+                    th Reference ID
+                    th Flight ID
+                    th Name
+                    th Status
+                    th(scope='col') Action
                     
             tbody
-                if customers
-                    each row in customers
-                        tr
-                            td #{row["id"]}
-                            td #{row["flt_num"]}
-                            td #{row["fname"]}
-                            td #{row["lname"]}
-                            td #{row["status"]}
-
-                            td      
-                                div(class="d-flex flex-row mb-1")
-                                    div                 
-                                        button(type="button" class="btn")
+            if customers
+                each row in customers
+                    tr
+                        td #{row["id"]}
+                        td #{row["ref_num"]}
+                        td #{row["flt_num"]} 
+                        td #{row["fname"]} #{row["lname"]}
+                        td #{row["status"]}
+                        td      
+                            div(class="d-flex flex-row mb-1")
+                                div   
+                                    form(action='/booking/edit' method='GET')
+                                        input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
+                                        button(type="submit" class="btn")
                                             i(class="material-icons text-warning") Edit
-                                    div      
-                                        button(type="button" class="btn")
+                                div 
+                                    form(action='/admin/booking' method='POST')
+                                        input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
+                                        button(type="submit" class="btn")
                                             i(class="material-icons text-danger") Delete
-                    
+                        

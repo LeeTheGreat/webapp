@@ -379,40 +379,25 @@ const postAdminFlightEditHandler = async (req, res) => {
 
 const getAdminBookingHandler = async (_req, res) => {
 	console.log("getAdminBookingHandler")
-	var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT b.id as "Customer ID" , f.flt_num as "Flight ID", c.fname as "Fname", c.lname as "Lname", b.status as "Status" FROM bookings b, flights f, customers c WHERE b.id = c.id AND b.flt_id = f.id`)))
-	
+	var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT b.id, b.ref_num, f.flt_num, c.fname, c.lname, b.status FROM bookings b, flights f, customers c WHERE b.id = c.id AND b.flt_id = f.id`)))
+
 	if(customersJSON.length == 0){
 		return res.send(pug.renderFile('views/admin_booking.pug'))
 	}
 
-	var rowsKey = Object.keys(customersJSON[0])
-	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
-	
-	return res.send(pug.renderFile('views/admin_booking.pug', {customers : customersJSON, rowsKey: rowsKeyJSON}))
-
-
-	/*var rowsJSON = JSON.parse(JSON.stringify(rows))
-	if(rowsJSON.length == 0){
-		return res.send(pug.renderFile('views/admin_flight.pug'))
-	}
-	var rowsKey = Object.keys(rowsJSON[0])
-	var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
-	//console.log(rowsJSON)
-	//console.log(rowsKeyJSON)
-	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON, rowsKeyJSON: rowsKeyJSON}))
-*/
+	return res.send(pug.renderFile('views/admin_booking.pug', {customers : customersJSON}))
 
 }
 
 const postAdminBookingHandler = async (req, res) => {
 	console.log(req.body)
-	/*try{
-		await query (`SELECT * FROM customers`, [req.body.status, req.book.flt_id])
+	try{
+		await query (`DELETE FROM bookings WHERE ref_num=?`, [req.body.ref_num])
 	}
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
-	}*/
-	return res.redirect('views/admin_booking.pug')
+	}
+	return res.redirect('/admin/booking')
 }
 
 /*const getBooking = async (req, res) => {
