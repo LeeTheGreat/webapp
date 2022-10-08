@@ -1,0 +1,21 @@
+extends base.pug
+
+block append content
+    div(class='container')
+        h3 Edit Booking
+        form(action='/booking/edit' method='POST')
+            div(class='form-group row col-4 mb-3')
+                input(type='hidden' name='booking_id' value=booking_id)
+            div(class='row mb-3')
+                label(class='col-sm-2 col-form-label') Current Seat:
+                label(class='col-sm-1 col-form-label') #{currSeatJSON.seat_num}
+            div(class='row mb-3')
+                label(class='col-sm-2 col-form-label') New Seat:
+                div(class='col-sm-1')
+                    select(name="seat_id" class="form-select" id="seat")
+                        each seat in seatsJSON
+                            option(value=seat.id)=seat.seat_num
+            div(class='row mb-3')
+                label(class='col-sm-2 col-form-label')
+                div(class='col-sm-2')  
+                    button(type='submit' class="btn btn-primary") Change Seat

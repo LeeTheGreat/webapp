@@ -22,8 +22,6 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,`aircraft_id` INT NOT NULL	
 	,`src_airport_code` VARCHAR(4) NOT NULL
 	,`dst_airport_code` VARCHAR(4) NOT NULL
-	,`src_country_code` CHAR(2) NOT NULL
-	,`dst_country_code` CHAR(2) NOT NULL
 	,`depart` DATETIME NOT NULL
 	,`arrive` DATETIME NOT NULL
 	,`price` INT NOT NULL
@@ -31,8 +29,6 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airlines(id)
 	,CONSTRAINT fk_flight_src_airport_code FOREIGN KEY (src_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flight_dst_airport_code FOREIGN KEY (dst_airport_code) REFERENCES airports(iata_code)
-	,CONSTRAINT fk_flight_src_country_code FOREIGN KEY (src_country_code) REFERENCES countries(iso2)
-	,CONSTRAINT fk_flight_dst_country_code FOREIGN KEY (dst_country_code) REFERENCES countries(iso2)
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
 	,CONSTRAINT chk_flights_arrive_gt_depart CHECK (arrive > depart)
@@ -103,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
 	/* there cannot be two booking with same flt_id and seat_id. But what if cancelled, and then someone else book? Will have same flt_id and seat_id. Unable to ensure it via CONSTRAINT
 	   CONSTRAINT must be (flt_id,seat_id,"active")
-	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id) 
+	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id,'active') 
 	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id)
 	*/
 	,CONSTRAINT fk_booking_flt_id_seat_id FOREIGN KEY (flt_id,seat_id) REFERENCES seats(flt_id,id) /*to prevent cases where bookings.flt_id = X but seat_id has flt_id = Y*/

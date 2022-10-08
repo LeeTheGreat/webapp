@@ -17,7 +17,8 @@ block append content
                 th From Airport 
                 th To Airport 
                 th Depart 
-                th Arrive 
+                th Arrive
+                th Seats Free / Total
                 th Price
                 th Status
                 th(scope='col') Edit
@@ -35,6 +36,7 @@ block append content
                         td #{row["dst_airport_name"]} (#{row["dst_airport_code"]})
                         td #{row["depart"]}
                         td #{row["arrive"]}
+                        td #{row["total_seat_available"]} / #{row["total_seat"]}
                         td #{row["price"]}
                         td #{row["flt_status"]}
                         td      

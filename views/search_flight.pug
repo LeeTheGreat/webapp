@@ -1,28 +1,32 @@
 div(class='container')
     h3 Search Flight
-    form(action='/flight/search' method='POST')
+    form(action='/flight/search' method='GET')
         div(class='form-group row col-6 mb-3')
-            label(class='col-sm-4 col-form-label') From
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='from_cty' value='SG')
-            label(class='col-sm-4 col-form-label') To
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='to_cty' value='JP')
-            label(class='col-sm-4 col-form-label') From Airport
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='from_ap' value='SIN')
-            label(class='col-sm-4 col-form-label') To Airport
-            div(class='col-sm-8 mb-3')            
-                input(class='form-control form-control-md' type='text' name='to_ap' value='HND')
-            label(class='col-sm-4 col-form-label') Depart Date
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='date' name='dpt' value='2022-11-01')
-            label(class='col-sm-4 col-form-label') Return Date
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='date' name='ret' value='2022-11-30')
-            label(class='col-sm-4 col-form-label') No. of Pax
-            div(class='col-sm-8 mb-3')
-                input(class='form-control form-control-md' type='text' name='pax')
-            div(class='col-sm-8 ms-auto mb-3')
-                button(type='submit' class="btn btn-primary") Search Flight
+            datalist(id='airport_list')
+                each row in rowsJSON
+                    option(value=row.airport_code) #{row.airport_name}
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label') From Airport:
+                div(class='col-sm-6')
+                    input(list='airport_list' class='form-control' id='src_airport' name='src_airport' value = 'SIN')
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label') To Airport
+                div(class='col-sm-6')
+                    input(list='airport_list' class='form-control' id='to_airport' name='dst_airport' value = 'HND')
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label') Depart Date
+                div(class='col-sm-6')
+                    input(class='form-control form-control-md' type='date' name='dpt' value='2022-11-01')
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label') Return Date
+                div(class='col-sm-6')
+                    input(class='form-control form-control-md' type='date' name='arr' value='2022-11-30')
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label') No. of Pax
+                div(class='col-sm-6')
+                    input(class='form-control form-control-md' type='text' name='pax')
+            div(class='row mb-3')
+                label(class='col-sm-4 col-form-label')
+                div(class='col-sm-6')  
+                    button(type='submit' class="btn btn-primary") Search Flight
             
