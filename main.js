@@ -305,18 +305,35 @@ const getBookingEditHandler = async (req, res) => {
 }
 
 const getBookingActionHandler = async (req, res) => {
-	console.log(req.body)
-	if(req.body.edit_action){
+	console.log(req.query)
+	let param = `?booking_id=${req.query.booking_id}`
+	if(req.query.edit_action){
 		//console.log('edit action')
-		let url = `/booking/edit?booking_id=${req.body.booking_id}`
+		let url = '/booking/edit' + param;
 		return res.redirect(url)
 	}
-	if(req.body.edit_action){
-		return res.redirect(307, '/booking/cancel')
+	if(req.query.cancel_action){
+		let url = '/booking/cancel' + param;
+		return res.redirect(307, url)
 	}
 }
 
+const getBookingCancelHandler = async (req, res) => {
+	//console.log(req.query)
+	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id}))
+}
+
 const postBookingCancelHandler = async (req, res) => {
+	//console.log(req.body)
+	try{
+		var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
+	}
+	catch(e){
+		console.log(e);
+		return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
+	}
+	return res.send('Booking cancelled')
+
 }
 
 const getAdminHomeHandler = async (_req, res) => {
@@ -456,9 +473,10 @@ app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingP
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
 app.get('/booking/search', urlencodedParser, getBookingSearchHandler)
-app.post('/booking/action', urlencodedParser, getBookingActionHandler)
+app.get('/booking/action', urlencodedParser, getBookingActionHandler)
 app.post('/booking/edit', urlencodedParser, postBookingEditHandler)
 app.get('/booking/edit', urlencodedParser, getBookingEditHandler)
+app.get('/booking/cancel', urlencodedParser, getBookingCancelHandler)
 app.post('/booking/cancel', urlencodedParser, postBookingCancelHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)

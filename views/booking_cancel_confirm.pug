@@ -1,0 +1,11 @@
+extends base.pug
+
+block append content
+    div(class='container')
+        h3 Booking Cancellation Confirmation
+        form(action='/booking/cancel' method='POST')
+            input(type='hidden' name='booking_id' value=booking_id)
+            div(class='row mb-3')
+                label(class='col-sm-2 col-form-label') Confirm Cancel?
+                div(class='col-sm-2')  
+                    button(type='submit' class="btn btn-primary") Confirm

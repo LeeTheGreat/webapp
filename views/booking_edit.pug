@@ -4,8 +4,7 @@ block append content
     div(class='container')
         h3 Edit Booking
         form(action='/booking/edit' method='POST')
-            div(class='form-group row col-4 mb-3')
-                input(type='hidden' name='booking_id' value=booking_id)
+            input(type='hidden' name='booking_id' value=booking_id)
             div(class='row mb-3')
                 label(class='col-sm-2 col-form-label') Current Seat:
                 label(class='col-sm-1 col-form-label') #{currSeatJSON.seat_num}
