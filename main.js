@@ -74,7 +74,7 @@ const indexHandler = async (req, res) => {
     //return res.send(pug.renderFile('templates/index.pug'))
     //session = req.session;
 	//console.log("indexHandler(): " + String(req.session))
-	console.log(req.session)
+	//console.log(req.session)
 	var rows = await query('SELECT airport_name, airport_code FROM view_airports;')
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	//console.log(rowsJSON)
@@ -196,7 +196,8 @@ const getFlightSearchHandler = async (req, res) => {
 	//console.log(rows)
 	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	//console.log(rowsJSON)	
-	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.body.pax}))
+	console.log(req.query.pax)
+	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.query.pax}))
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
@@ -264,11 +265,11 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	//rows = await query('')
 }
 
-const getBookingSearchHandler = async (req, res) => {
+const postBookingSearchHandler = async (req, res) => {
 	//console.log(req.query)
-	var rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.query.ref_num, req.query.email])
+	var rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
 	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
-	console.log(rowsJSON)
+	//console.log(rowsJSON)
 	for(let i = 0; i < rowsJSON.length; i++){
 		if(rowsJSON[i].booking_status == 'flt_cancelled'){
 			
@@ -472,7 +473,7 @@ app.get('/flight/search', urlencodedParser, getFlightSearchHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
-app.get('/booking/search', urlencodedParser, getBookingSearchHandler)
+app.post('/booking/search', urlencodedParser, postBookingSearchHandler)
 app.get('/booking/action', urlencodedParser, getBookingActionHandler)
 app.post('/booking/edit', urlencodedParser, postBookingEditHandler)
 app.get('/booking/edit', urlencodedParser, getBookingEditHandler)

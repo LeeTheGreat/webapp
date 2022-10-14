@@ -14,7 +14,6 @@ block append content
         thead(class='table-dark')
             tr
                 th Depart 
-                th Stop Overs
                 th Arrive 
                 th Price
                 th Seats Available
@@ -24,7 +23,6 @@ block append content
                 each row in rowsJSON
                     tr
                         td #{row["depart"]}
-                        td
                         td #{row["arrive"]}
                         td #{row["price"]}
                         td #{row["total_seat_available"]}
