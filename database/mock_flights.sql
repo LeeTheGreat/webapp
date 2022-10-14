@@ -1,49 +1,199 @@
-call sp_flights_insert (3873, 3, 1, 'KUL', 'SOC', 'MY', 'ID', '2022/11/16 13:00:00', '2022/11/16 18:00:00', 471,'active');
-call sp_flights_insert (1111, 2, 2, 'SOC', 'KUL', 'ID', 'MY', '2022/11/17 08:00:00', '2022/11/17 13:00:00', 286,'active');
-call sp_flights_insert (6552, 1, 1, 'KUL', 'SOC', 'MY', 'ID', '2022/11/18 13:00:00', '2022/11/18 18:00:00', 507,'active');
-call sp_flights_insert (2966, 3, 6, 'SOC', 'KUL', 'ID', 'MY', '2022/11/19 08:00:00', '2022/11/19 13:00:00', 330,'active');
-call sp_flights_insert (6552, 1, 1, 'KUL', 'SOC', 'MY', 'ID', '2022/11/20 13:00:00', '2022/11/20 18:00:00', 507,'active');
-call sp_flights_insert (2966, 3, 6, 'SOC', 'KUL', 'ID', 'MY', '2022/11/21 08:00:00', '2022/11/21 13:00:00', 330,'active');
+/* normal flights */
+call sp_flights_insert (3873, 3, 1, 'KUL', 'SOC', '2022/11/16 13:00:00', '2022/11/16 18:00:00', 471,'active');
+call sp_flights_insert (1111, 2, 2, 'SOC', 'KUL', '2022/11/17 08:00:00', '2022/11/17 13:00:00', 286,'active');
+call sp_flights_insert (6552, 1, 1, 'KUL', 'SOC', '2022/11/18 13:00:00', '2022/11/18 18:00:00', 507,'active');
+call sp_flights_insert (2966, 3, 6, 'SOC', 'KUL', '2022/11/19 08:00:00', '2022/11/19 13:00:00', 330,'active');
+call sp_flights_insert (6552, 1, 1, 'KUL', 'SOC', '2022/11/20 13:00:00', '2022/11/20 18:00:00', 507,'active');
+call sp_flights_insert (2966, 3, 6, 'SOC', 'KUL', '2022/11/21 08:00:00', '2022/11/21 13:00:00', 330,'active');
 
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/01 09:30:00', '2022/11/01 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/01 20:30:00', '2022/11/02 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/02 09:30:00', '2022/11/02 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/02 20:30:00', '2022/11/03 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/03 09:30:00', '2022/11/03 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/03 20:30:00', '2022/11/04 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/04 09:30:00', '2022/11/04 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/04 20:30:00', '2022/11/05 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/05 09:30:00', '2022/11/05 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/05 20:30:00', '2022/11/06 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', 'SG', 'JP', '2022/11/06 09:30:00', '2022/11/06 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', 'JP', 'SG', '2022/11/06 20:30:00', '2022/11/07 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/01 09:30:00', '2022/11/01 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/01 20:30:00', '2022/11/02 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/02 09:30:00', '2022/11/02 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/02 20:30:00', '2022/11/03 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/03 09:30:00', '2022/11/03 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/03 20:30:00', '2022/11/04 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/04 09:30:00', '2022/11/04 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/04 20:30:00', '2022/11/05 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/05 09:30:00', '2022/11/05 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/05 20:30:00', '2022/11/06 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'ITM', '2022/11/06 09:30:00', '2022/11/06 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'ITM', 'SIN', '2022/11/06 20:30:00', '2022/11/07 04:30:00', 464,'active');
 
-call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', 'SG', 'JP', '2022/11/01 09:30:00', '2022/11/01 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', 'JP', 'SG', '2022/11/01 20:30:00', '2022/11/02 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', 'SG', 'JP', '2022/11/02 09:30:00', '2022/11/02 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', 'JP', 'SG', '2022/11/02 20:30:00', '2022/11/03 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', 'SG', 'JP', '2022/11/03 09:30:00', '2022/11/03 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', 'JP', 'SG', '2022/11/03 20:30:00', '2022/11/04 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', 'SG', 'JP', '2022/11/04 09:30:00', '2022/11/04 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', 'JP', 'SG', '2022/11/04 20:30:00', '2022/11/05 04:30:00', 464,'active');
-call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', 'SG', 'JP', '2022/11/05 09:30:00', '2022/11/05 17:30:00', 900,'active');
-call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', 'JP', 'SG', '2022/11/05 20:30:00', '2022/11/06 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', '2022/11/01 09:30:00', '2022/11/01 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', '2022/11/01 20:30:00', '2022/11/02 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', '2022/11/02 09:30:00', '2022/11/02 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', '2022/11/02 20:30:00', '2022/11/03 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', '2022/11/03 09:30:00', '2022/11/03 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', '2022/11/03 20:30:00', '2022/11/04 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', '2022/11/04 09:30:00', '2022/11/04 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', '2022/11/04 20:30:00', '2022/11/05 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'HND', '2022/11/05 09:30:00', '2022/11/05 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'HND', 'SIN', '2022/11/05 20:30:00', '2022/11/06 04:30:00', 464,'active');
 
-call sp_flights_insert (3873, 3, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/16 13:00:00', '2022/11/16 18:00:00', 422,'active');
-call sp_flights_insert (3873, 2, 2, 'BTH', 'HND', 'ID', 'ID', '2022/11/16 08:00:00', '2022/11/16 15:00:00', 286,'active');
-call sp_flights_insert (8851, 1, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/17 20:00:00', '2022/11/17 02:00:00', 507,'active');
-call sp_flights_insert (8851, 3, 6, 'BTH', 'HND', 'ID', 'ID', '2022/11/17 13:00:00', '2022/11/17 18:00:00', 330,'active');
-call sp_flights_insert (3873, 3, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/18 13:00:00', '2022/11/18 18:00:00', 422,'active');
-call sp_flights_insert (3873, 2, 2, 'BTH', 'HND', 'ID', 'ID', '2022/11/18 08:00:00', '2022/11/18 15:00:00', 286,'active');
-call sp_flights_insert (6923, 1, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/19 20:00:00', '2022/11/20 02:00:00', 507,'active');
-call sp_flights_insert (6923, 3, 6, 'BTH', 'HND', 'ID', 'ID', '2022/11/19 13:00:00', '2022/11/19 18:00:00', 330,'active');
-call sp_flights_insert (0251, 3, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/20 13:00:00', '2022/11/20 18:00:00', 422,'active');
-call sp_flights_insert (0251, 2, 2, 'BTH', 'HND', 'ID', 'ID', '2022/11/20 08:00:00', '2022/11/20 15:00:00', 286,'active');
-call sp_flights_insert (6552, 1, 1, 'HND', 'BTH', 'JP', 'ID', '2022/11/21 20:00:00', '2022/11/22 02:00:00', 507,'active');
+call sp_flights_insert (3873, 3, 1, 'HND', 'BTH', '2022/11/16 13:00:00', '2022/11/16 18:00:00', 422,'active');
+call sp_flights_insert (3873, 2, 2, 'BTH', 'HND', '2022/11/16 08:00:00', '2022/11/16 15:00:00', 286,'active');
+call sp_flights_insert (8851, 1, 1, 'HND', 'BTH', '2022/11/17 20:00:00', '2022/11/17 02:00:00', 507,'active');
+call sp_flights_insert (8851, 3, 6, 'BTH', 'HND', '2022/11/17 13:00:00', '2022/11/17 18:00:00', 330,'active');
+call sp_flights_insert (3873, 3, 1, 'HND', 'BTH', '2022/11/18 13:00:00', '2022/11/18 18:00:00', 422,'active');
+call sp_flights_insert (3873, 2, 2, 'BTH', 'HND', '2022/11/18 08:00:00', '2022/11/18 15:00:00', 286,'active');
+call sp_flights_insert (6923, 1, 1, 'HND', 'BTH', '2022/11/19 20:00:00', '2022/11/20 02:00:00', 507,'active');
+call sp_flights_insert (6923, 3, 6, 'BTH', 'HND', '2022/11/19 13:00:00', '2022/11/19 18:00:00', 330,'active');
+call sp_flights_insert (0251, 3, 1, 'HND', 'BTH', '2022/11/20 13:00:00', '2022/11/20 18:00:00', 422,'active');
+call sp_flights_insert (0251, 2, 2, 'BTH', 'HND', '2022/11/20 08:00:00', '2022/11/20 15:00:00', 286,'active');
+call sp_flights_insert (6552, 1, 1, 'HND', 'BTH', '2022/11/21 20:00:00', '2022/11/22 02:00:00', 507,'active');
 
-call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/25 13:00:00', '2022/10/25 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/26 13:00:00', '2022/10/26 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/27 13:00:00', '2022/10/27 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/28 13:00:00', '2022/10/28 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BKI', 'BTH', 'MY', 'ID', '2022/10/29 13:00:00', '2022/10/29 17:00:00', 230,'active');
-call sp_flights_insert (4425, 2, 2, 'BTH', 'BKI', 'ID', 'MY', '2022/10/30 13:00:00', '2022/10/30 17:00:00', 230,'active');
+/****************/
+/* indirect flight from SIN to YIA to HND. To test 1 hop indirect flight from SIN to HND */
+/****************/
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/01 09:30:00', '2022/11/01 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/01 11:30:00', '2022/11/01 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/01 16:00:00', '2022/11/01 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/01 20:30:00', '2022/11/02 01:30:00', 464,'active');
+
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/02 09:30:00', '2022/11/02 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/02 11:30:00', '2022/11/02 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/02 16:00:00', '2022/11/02 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/02 20:30:00', '2022/11/03 01:30:00', 464,'active');
+
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/03 09:30:00', '2022/11/03 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/03 11:30:00', '2022/11/03 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/03 16:00:00', '2022/11/03 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/03 20:30:00', '2022/11/04 01:30:00', 464,'active');
+
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/04 09:30:00', '2022/11/04 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/04 11:30:00', '2022/11/04 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/04 16:00:00', '2022/11/04 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/04 20:30:00', '2022/11/05 01:30:00', 464,'active');
+
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/05 09:30:00', '2022/11/05 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/05 11:30:00', '2022/11/05 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/05 16:00:00', '2022/11/05 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/05 20:30:00', '2022/11/06 01:30:00', 464,'active');
+
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/06 09:30:00', '2022/11/06 14:30:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/06 11:30:00', '2022/11/06 16:30:00', 464,'active');
+call sp_flights_insert (3351, 3, 4, 'SIN', 'YIA', '2022/11/06 16:00:00', '2022/11/06 21:00:00', 464,'active');
+call sp_flights_insert (0158, 3, 4, 'YIA', 'SIN', '2022/11/06 20:30:00', '2022/11/07 01:30:00', 464,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/01 08:00:00', '2022/11/01 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/01 08:00:00', '2022/11/01 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/01 20:00:00', '2022/11/02 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/01 20:00:00', '2022/11/02 04:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/02 08:00:00', '2022/11/01 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/02 08:00:00', '2022/11/01 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/02 20:00:00', '2022/11/03 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/02 20:00:00', '2022/11/03 04:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/03 08:00:00', '2022/11/03 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/03 08:00:00', '2022/11/03 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/03 20:00:00', '2022/11/04 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/03 20:00:00', '2022/11/04 04:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/04 08:00:00', '2022/11/04 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/04 08:00:00', '2022/11/04 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/04 20:00:00', '2022/11/05 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/04 20:00:00', '2022/11/05 04:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/05 08:00:00', '2022/11/05 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/05 08:00:00', '2022/11/05 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/05 20:00:00', '2022/11/06 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/05 20:00:00', '2022/11/06 04:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/06 08:00:00', '2022/11/06 16:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/06 08:00:00', '2022/11/06 16:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'YIA', 'HND', '2022/11/06 20:00:00', '2022/11/07 04:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'YIA', '2022/11/06 20:00:00', '2022/11/07 04:00:00', 1000,'active');
+
+/****************/
+/* indirect flight from SIN to BTH to PER to HND. To 2 hop indirect flight from SIN to HND */
+/****************/
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'SIN', 'BTH', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'SIN', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'BTH', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'BTH', 'PER', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/01 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/01 20:00:00', '2022/11/02 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/02 08:00:00', '2022/11/01 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/02 20:00:00', '2022/11/03 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/03 08:00:00', '2022/11/03 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/03 20:00:00', '2022/11/04 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/04 08:00:00', '2022/11/04 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/04 20:00:00', '2022/11/05 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/05 08:00:00', '2022/11/05 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/05 20:00:00', '2022/11/06 02:00:00', 1000,'active');
+
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
+call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
