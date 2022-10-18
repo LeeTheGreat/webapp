@@ -64,14 +64,40 @@ BEGIN
 END//
 delimiter ;
 
-/* TODO: test this */
-drop procedure if exists sp_select_flights_for_cust_flt_search;
+/*
+drop procedure if exists sp_select_flights_direct;
 delimiter //
-CREATE procedure sp_select_flights_for_cust_flt_search (IN dpt DATETIME, IN arr DATETIME, IN src_ap_code CHAR(3), IN dst_ap_code CHAR(3), IN pax INT)
+CREATE procedure sp_select_flights_direct (IN dpt DATETIME, IN arr DATETIME, IN src_ap_code CHAR(3), IN dst_ap_code CHAR(3), IN pax INT)
 BEGIN
-	/*SELECT * FROM view_flights_informative WHERE depart >= '2022-11-01 18:32:00' AND arrive <= '2022-11-30 23:59:00' AND src_airport_code = 'SIN' AND dst_airport_code = 'HND' AND total_seat_available >= 3;*/
-	/*SELECT dpt,arr,src_ap_code,dst_ap_code,pax;*/
-	SELECT * FROM view_flights_informative WHERE depart >= dpt AND arrive <= arr AND src_airport_code = src_ap_code AND dst_airport_code = dst_ap_code AND total_seat_available >= pax;
+	SELECT * FROM view_flights_informative WHERE depart >= dpt AND arrive <= arr AND src_airport_code = src_ap_code AND dst_airport_code = dst_ap_code AND total_seat_available >= pax;	
+END//
+delimiter ;
+*/
+
+drop procedure if exists sp_select_flights_recurse;
+delimiter //
+CREATE procedure sp_select_flights_recurse (IN dpt DATETIME, IN arr DATETIME, IN src_ap_code CHAR(3), IN dst_ap_code CHAR(3), IN pax INT)
+BEGIN
+	WITH RECURSIVE base AS
+	(
+		SELECT cast(dst_airport_code as char(100)) as ap_path, cast(flt_id as char(100)) as id_path, dst_airport_code, src_airport_code as src, depart, arrive, cast(concat(depart,',',arrive) as char(200)) as dpt_arv, 1 as hops, hours as total_flt_hours, TIMESTAMPDIFF(HOUR,depart,depart) as total_wait_hours
+		FROM view_flights_informative_orderby_depart_asc WHERE src_airport_code = src_ap_code AND depart >= dpt AND flt_status AND flt_status = 'active'
+		
+		UNION ALL 
+		
+		SELECT cast(concat(ap_path,'-',f.dst_airport_code) as char(100)), cast(concat(id_path,'-',f.flt_id) as char(100)), f.dst_airport_code, b.src, f.depart, f.arrive, cast(concat(b.dpt_arv,'@',f.depart,',',f.arrive) as char(200)), b.hops+1, b.total_flt_hours+f.hours, TIMESTAMPDIFF(HOUR,b.arrive,f.depart)+b.total_wait_hours
+		FROM view_flights_informative_orderby_depart_asc f
+		JOIN base b ON b.dst_airport_code = f.src_airport_code 
+		AND b.ap_path NOT LIKE concat('%',f.dst_airport_code,'%') /* prevent recursion from having cycle with multi hops. E.g., SIN > PER > HND > PER > ... */
+		AND b.arrive < f.depart /* incoming flight must arrive before next flight */
+		AND f.arrive <= arr
+		AND f.dst_airport_code <> b.src /* prevent recursion from having cycle back to the src. E.g., SIN > HND > SIN */
+		AND total_seat_available >= pax
+		/*ORDER BY depart ASC*//* doesn't yet support 'ORDER BY over UNION in recursive Common Table Expression' */
+		AND b.dst_airport_code <> dst_ap_code /* if reach destination, then stop. Otherwise, continue to recurse until end */	
+		AND f.flt_status = 'active'
+	)
+	SELECT * FROM base WHERE dst_airport_code = dst_ap_code;
 END//
 delimiter ;
 

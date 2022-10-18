@@ -197,3 +197,9 @@ call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/06 08:00:00', '2022/1
 call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/06 08:00:00', '2022/11/06 14:00:00', 1000,'active');
 call sp_flights_insert (5852, 3, 4, 'PER', 'HND', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
 call sp_flights_insert (2217, 3, 4, 'HND', 'PER', '2022/11/06 20:00:00', '2022/11/07 02:00:00', 1000,'active');
+
+
+call sp_flights_insert (2257, 3, 4, 'SIN', 'PER', '2022/11/02 09:30:00', '2022/11/02 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'PER', 'SIN', '2022/11/02 20:30:00', '2022/11/03 04:30:00', 464,'active');
+call sp_flights_insert (2257, 3, 4, 'SIN', 'PER', '2022/11/01 09:30:00', '2022/11/01 17:30:00', 900,'active');
+call sp_flights_insert (2257, 3, 4, 'PER', 'SIN', '2022/11/01 20:30:00', '2022/11/02 04:30:00', 464,'active');

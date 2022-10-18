@@ -15,9 +15,8 @@ block append content
             tr
                 th Depart 
                 th Stop Overs
-                th Arrive 
+                th Arrive
                 th Price
-                th Seats Available
                 th Book
         tbody
             if rowsJSON
@@ -27,7 +26,6 @@ block append content
                         td
                         td #{row["arrive"]}
                         td #{row["price"]}
-                        td #{row["total_seat_available"]}
                         td
                             form(action='/flight/booking/pax_information' method='POST')
                                 input(type='hidden' class='form-control' value=row.flt_id id='flt_id' name='flt_id')

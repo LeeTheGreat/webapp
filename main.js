@@ -190,7 +190,7 @@ const getFlightSearchHandler = async (req, res) => {
 	let sqlArr = req.query.arr + ' ' + '23:59'
 	//console.log(sqlDpt);
 
-	var rows = await query(`CALL sp_select_flights_for_cust_flt_search(?,?,?,?,?)`, 
+	var rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
 				[sqlDpt, sqlArr, req.query.src_airport, req.query.dst_airport, Number(req.query.pax)])
 
 	//console.log(rows)
