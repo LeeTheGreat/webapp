@@ -193,11 +193,11 @@ const getFlightSearchHandler = async (req, res) => {
 	var rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
 				[sqlDpt, sqlArr, req.query.src_airport, req.query.dst_airport, Number(req.query.pax)])
 
-	//console.log(rows)
+	console.log(rows[0])
 	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	//console.log(rowsJSON)	
 	console.log(req.query.pax)
-	return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.query.pax}))
+	//return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.query.pax}))
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
@@ -414,7 +414,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 }
 
 const postAdminFlightEditHandler = async (req, res) => {
-	console.log(req.body)
+	//console.log(req.body)
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
