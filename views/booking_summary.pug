@@ -4,32 +4,29 @@ block append content
     div(class='container')
         h3 Booking Summary
         if rowsJSON
-            - var n = 0;
             each row in rowsJSON
-                - ++n;
                 hr
-                h4 Passenger !{n}
                 div(class='row mb-3')
                     div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Reference Number:
+                        label(class='col-sm-3 col-form-label') #[strong Reference Number:]
                         label(class='col-sm col-form-label') #{row["ref_num"]}
+                    div(class='row mb-3')
+                        label(class='col-sm-3 col-form-label') #[strong Name:]
+                        label(class='col-sm col-form-label') #{row['fname']} #{row['lname']}
+                    div(class='row mb-3')
+                        label(class='col-sm-3 col-form-label') #[strong Registered email:]
+                        label(class='col-sm col-form-label') #{row['email']}                        
                     div(class='row mb-3') 
-                        label(class='col-sm-3 col-form-label') From:
-                        label(class='col-sm col-form-label') #{row['src_airport_name']} (#{row['src_airport_code']}), #{row['src_country_name']}
+                        label(class='col-sm-3 col-form-label') #[strong From >>> To:]
+                        label(class='col-sm col-form-label') #{row['src_airport_name']} (#{row['src_airport_code']}), #{row['src_country_name']} >>> (#{row.dst_airport_code}), #{row['dst_country_name']}
                     div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') To:
-                        label(class='col-sm col-form-label') #{row['dst_airport_name']} (#{row.dst_airport_code}), #{row['dst_country_name']}
+                        label(class='col-sm-3 col-form-label') #[strong Departure >>> Arrival]
+                        label(class='col-sm col-form-label') #{row['depart']} >>> #{row['arrive']}
                     div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Departure:
-                        label(class='col-sm col-form-label') #{row['depart']}
-                    div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Arrival:
-                        label(class='col-sm col-form-label') #{row['arrive']}
-                    div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Flight Number / Seat Number:
+                        label(class='col-sm-3 col-form-label') #[strong Flight Number / Seat Number:]
                         label(class='col-sm col-form-label') #{row['flt_num']} / #{row['seat_num']}
                     div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Status:
+                        label(class='col-sm-3 col-form-label') #[strong Status:]
                         label(class='col-sm col-form-label') #{row['booking_status']}
                     if row['booking_status'] == 'Active'
                         form(action='/booking/action' method='GET')

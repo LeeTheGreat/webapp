@@ -190,84 +190,128 @@ const getFlightSearchHandler = async (req, res) => {
 	let sqlArr = req.query.arr + ' ' + '23:59'
 	//console.log(sqlDpt);
 
-	var rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
+	let rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
 				[sqlDpt, sqlArr, req.query.src_airport, req.query.dst_airport, Number(req.query.pax)])
 
-	console.log(rows[0])
-	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
+	// convert the concated fields into array
+	for(let i = 0; i < rows[0].length; i++){
+		rows[0][i]['dpt_arv'] = rows[0][i]['dpt_arv'].split("||")
+		for(let j = 0; j < rows[0][i]['dpt_arv'].length; j++){
+			rows[0][i]['dpt_arv'][j] = rows[0][i]['dpt_arv'][j].split(',')
+		}
+		rows[0][i]['path_ap_code'] = rows[0][i]['path_ap_code'].split("||")
+		rows[0][i]['path_flt_id'] = rows[0][i]['path_flt_id'].split("||")
+		rows[0][i]['path_ap_name'] = rows[0][i]['path_ap_name'].split("||")
+		//console.log(rows[0][i]['dpt_arv'])
+	}
+	let src_airport_name = rows[0][0]['path_ap_name'][0]
+	let dst_airport_name = rows[0][0]['path_ap_name'][rows[0][0]['path_ap_name'].length - 1]
+	rows = JSON.parse(JSON.stringify(rows[0]))
 	//console.log(rowsJSON)	
-	console.log(req.query.pax)
-	//return res.send(pug.renderFile('views/flight_search_result.pug', {rowsJSON: rowsJSON, pax: req.query.pax}))
+	return res.send(pug.renderFile('views/flight_search_result.pug', {rows: rows, pax: req.query.pax, src_airport_name: src_airport_name, dst_airport_name: dst_airport_name}))
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
 	//console.log(req.body)
 	if(req.session.userid){
 		var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
-		rowsJSON = JSON.parse(JSON.stringify(rows))
-		return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rowsJSON : rowsJSON}))
+		return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rows : rows}))
 	}
-	prevStageJSON = JSON.parse(JSON.stringify(req.body))
-	//console.log(prevStageJSON)
+	req.body['flt_id'] = JSON.parse(req.body['flt_id'])
 	//return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
-	return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {prev : prevStageJSON}))
+	return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {prev : req.body}))
 }
 
 const postFlightBookingSeatSelectHandler = async (req, res) => {
-	prevJSON = JSON.parse(req.body.prev)
-	delete req.body.prev
+	let prevJSON = JSON.parse(req.body.prev)
+	delete req.body.prev // delete the submitted JSON values from previous stage, then reassign them as JSON objects to the request body so that we can pass them to .pug as a whole
 	req.body = Object.assign(prevJSON, req.body)
-	var rows = await query('SELECT id,seat_num FROM seats WHERE flt_id=? AND available=true', [req.body.flt_id])
-	rowsJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(req.body)
-	prevStageJSON = JSON.parse(JSON.stringify(req.body))
-	//console.log(prevStageJSON)
+	//let rows = await query('SELECT id,seat_num FROM seats WHERE flt_id=? AND available=true', [req.body.flt_id])
+	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, group_concat(id) as seat_ids, count(id) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [req.body.flt_id])
+	for(let i = 0; i < seats.length; i++){ // convert the seat_nums and seat_ids to array
+		seats[i]['seat_nums'] = seats[i]['seat_nums'].split(',')
+		seats[i]['seat_ids'] = seats[i]['seat_ids'].split(',')
+	}
+	seats = JSON.parse(JSON.stringify(seats))
+	//console.log(seats)
+	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_informative WHERE flt_id in (?)', [req.body.flt_id])
+	flt_info = JSON.parse(JSON.stringify(flt_info))
 	//return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, seats : rowsJSON}))
-	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {prev : prevStageJSON, seats : rowsJSON}))
+	//console.log(req.body)
+	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {prev : req.body, seats : seats, flt_info: flt_info, hops: flt_info.length}))
 }
 
 
 const postFlightBookingConfirmHandler = async (req, res) => {
 	prevJSON = JSON.parse(req.body.prev)
-	delete req.body.prev
 	//console.log(prevJSON)
 	//console.log(req.body)
-	let seats = [];
-	for(let i = 0; i < prevJSON.pax; i++){
-		let seat = 'seat_' + (i+1).toString()
-		if(seats.includes(req.body[seat])){
-			return res.status(500).send("Duplicate seats selected: " + seat)
+	let seats_check = []
+	let conflict = []
+	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_informative WHERE flt_id in (?)', [prevJSON['flt_id']])
+	let pax = prevJSON['pax']
+	flt_info = JSON.parse(JSON.stringify(flt_info))
+	for(let i = 0; i < pax; i++){
+		for(let j = 0; j < prevJSON['flt_id'].length; j++){
+			let seat_form_id = ['seat',(i+1).toString(),prevJSON['flt_id'][j]].join('_')
+			let seat_form_value = req.body[seat_form_id]
+			let seat_db = [prevJSON['flt_id'][j],seat_form_value].join('_')
+			//console.log(seat_db)
+			if(seats_check.includes(seat_db)){
+				let src_dst = [flt_info[j]['src_airport_code'],flt_info[j]['dst_airport_code']].join(' to ')
+				conflict.push('Duplicate seats for passenger ' + Number(i+1) + ' on flight ' + src_dst)
+				continue
+			}
+			seats_check.push(seat_db)
+			//console.log(seats_check)
 		}
-		seats.push(req.body[seat])
 	}
+	//console.log(conflict.length)
+	if(conflict.length > 0){
+		let error = '<p>' + conflict.join('</p><p>')
+		return res.status(500).send(error)
+	}
+	//console.log(seats_check)
 	var ref_num = uuid.v4().substring(0,8)
 	var email_for_retrieve = ''
-	for (let i = 0; i < prevJSON.pax; i++){
-		let email = 'email_' + (i+1).toString()
-		let fn = 'fn_' + (i+1).toString()
-		let ln = 'ln_' + (i+1).toString()
-		let gender = 'gender_' + (i+1).toString()
-		let dob = 'dob_' + (i+1).toString()
-		let seat = 'seat_' + (i+1).toString()
-		//db.beginTransaction()
+	for (let i = 0; i < seats_check.length; i++){
+		let pax_num = (i % pax)+1
+		let email = ['email', pax_num.toString()].join('_')
+		let fn = ['fn', pax_num.toString()].join('_')
+		let ln = ['ln', pax_num.toString()].join('_')
+		let gender = ['gender', pax_num.toString()].join('_')
+		let dob = ['dob', pax_num.toString()].join('_')
+		let flt_id = seats_check[i].split('_')[0]
+		let seat_id = seats_check[i].split('_')[1]
 		try{
 			//console.log(ref_num)
 			//rows = await query('INSERT INTO customers VALUES (NULL,NULL,NULL,NULL,NULL,NULL,NULL)')
 			//var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob]]);
-			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],prevJSON.flt_id,req.body[seat],ref_num])
+			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_id,ref_num])
 		}
 		catch(e){
 			console.log(e);
 			return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
 		}		
 	}
-	return res.status(200).send('Booking successful. Use reference number ' + ref_num + ' and registered email to check booking')
+	let msg = 'Booking successful. Use reference number ' + ref_num + ' and registered email to check booking'
+	return res.send(pug.renderFile('views/booking_success.pug', {msg: msg}))
 	//rows = await query('')
 }
 
 const postBookingSearchHandler = async (req, res) => {
 	//console.log(req.query)
-	var rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
+	console.log(res.locals)
+	let result
+	let rows
+	if(res.locals.booking_id){
+		result = await query(`SELECT ref_num, email FROM view_bookings_informative WHERE booking_id = ?`,[res.locals.booking_id])
+		result = JSON.parse(JSON.stringify(result[0]))
+		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[result['ref_num'], result['email']])
+	}
+	else{
+		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
+	}
 	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	//console.log(rowsJSON)
 	for(let i = 0; i < rowsJSON.length; i++){
@@ -289,20 +333,22 @@ const postBookingSearchHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/booking_summary.pug', {rowsJSON: rowsJSON}))
 }
 
-const postBookingEditHandler = async (req, res) => {
-	console.log(req.body)
-	var rows = await query(`UPDATE bookings SET seat_id = ? WHERE id = ?`,[Number(req.body.seat_id), Number(req.body.booking_id)])
+const postBookingEditHandler = async (req, res, next) => {
+	//console.log(req.body)
+	let rows = await query(`UPDATE bookings SET seat_id = ? WHERE id = ?`,[Number(req.body.seat_id), Number(req.body.booking_id)])
 	//console.log(rowsJSON)
-	//return res.send(pug.renderFile('views/booking_summary.pug', {rowsJSON: rowsJSON}))
+	res.locals.booking_id = req.body.booking_id
+	next()
+	//return res.redirect('/booking/edit')
 }
 
 const getBookingEditHandler = async (req, res) => {
-	var seats = await query(`SELECT id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
-	var currSeat = await query(`SELECT seat_id, seat_num FROM view_bookings_informative WHERE booking_id = ?`, [req.query.booking_id])
-	var seatsJSON = JSON.parse(JSON.stringify(seats))
-	var currSeatJSON = JSON.parse(JSON.stringify(currSeat[0]))
+	let seats = await query(`SELECT id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
+	let curr_seat = await query(`SELECT seat_id, seat_num FROM view_bookings_informative WHERE booking_id = ?`, [req.query.booking_id])
+	seats = JSON.parse(JSON.stringify(seats))
+	curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
 	//console.log(currSeatJSON)
-	return res.send(pug.renderFile('views/booking_edit.pug', {currSeatJSON : currSeatJSON, seatsJSON: seatsJSON, booking_id: req.query.booking_id, }))
+	return res.send(pug.renderFile('views/booking_edit.pug', {curr_seat : curr_seat, seats: seats, booking_id: req.query.booking_id}))
 }
 
 const getBookingActionHandler = async (req, res) => {
@@ -324,7 +370,7 @@ const getBookingCancelHandler = async (req, res) => {
 	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id}))
 }
 
-const postBookingCancelHandler = async (req, res) => {
+const postBookingCancelHandler = async (req, res, next) => {
 	//console.log(req.body)
 	try{
 		var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
@@ -333,8 +379,8 @@ const postBookingCancelHandler = async (req, res) => {
 		console.log(e);
 		return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
 	}
-	return res.send('Booking cancelled')
-
+	res.locals.booking_id = req.body.booking_id
+	next()
 }
 
 const getAdminHomeHandler = async (_req, res) => {
@@ -475,10 +521,10 @@ app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSe
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
 app.post('/booking/search', urlencodedParser, postBookingSearchHandler)
 app.get('/booking/action', urlencodedParser, getBookingActionHandler)
-app.post('/booking/edit', urlencodedParser, postBookingEditHandler)
+app.post('/booking/edit', urlencodedParser, postBookingEditHandler, postBookingSearchHandler)
 app.get('/booking/edit', urlencodedParser, getBookingEditHandler)
 app.get('/booking/cancel', urlencodedParser, getBookingCancelHandler)
-app.post('/booking/cancel', urlencodedParser, postBookingCancelHandler)
+app.post('/booking/cancel', urlencodedParser, postBookingCancelHandler, postBookingSearchHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)

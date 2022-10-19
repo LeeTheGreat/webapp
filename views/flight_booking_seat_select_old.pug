@@ -1,0 +1,19 @@
+extends base.pug
+
+block append content    
+    div(class='container')
+        h3 Passenger Seats Selection
+        form(action='/flight/booking/confirm' method='POST')
+            input(type='hidden' name='prev' value=prev)
+            div(class='form-group row col-6 mb-3')
+                
+                - var n = 0;
+                while n < prev['pax']
+                    - ++n
+                    div(class='row mb-3')
+                        label(class='col-sm-3 col-form-label') Passenger !{n} Seat
+                        div(class='col-sm-6 ms-auto')
+                            select(name='seat_'+n class='form-select')
+                                each seat in seats
+                                    option(value=seat.id) #{seat.seat_num}
+            button(type='submit' class="btn btn-primary") Submit

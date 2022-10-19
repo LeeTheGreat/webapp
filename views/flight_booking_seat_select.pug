@@ -2,17 +2,27 @@ extends base.pug
 
 block append content    
     div(class='container')
-        h3 Passenger Seats Selection
+        h3 Seats Selection
+        hr
         form(action='/flight/booking/confirm' method='POST')
+            - var h = 0;
+            while h < hops
+                h5(class='mb-3') #{flt_info[h]['src_airport_name']} (#{flt_info[h]['src_airport_code']}) to #{flt_info[h]['dst_airport_name']} (#{flt_info[h]['dst_airport_code']})
+                h5(class='mb-3') #{flt_info[h]['depart']} to #{flt_info[h]['arrive']}
+                div(class='form-group row col-6 mb-3')
+                    - var n = 0;
+                    while n < prev['pax']
+                        - ++n;
+                        div(class='row mb-3')
+                            label(class='col-sm-3 col-form-label') Passenger !{n} Seat
+                            div(class='col-sm-6 ms-auto')
+                                select(name='seat_'+n+'_'+prev['flt_id'][h] class='form-select')
+                                    - var s = 0;
+                                    while s < seats[h]['seat_count']
+                                        option(value=seats[h]['seat_ids'][s]) #{seats[h]['seat_nums'][s]}
+                                        - ++s;
+                - ++h;
+                hr
             input(type='hidden' name='prev' value=prev)
-            div(class='form-group row col-6 mb-3')
-                - var n = 0;
-                while n < prev['pax']
-                    - ++n
-                    div(class='row mb-3')
-                        label(class='col-sm-3 col-form-label') Passenger !{n} Seat
-                        div(class='col-sm-6 ms-auto')
-                            select(name='seat_'+n class='form-select')
-                                each seat in seats
-                                    option(value=seat.id) #{seat.seat_num}
-            button(type='submit' class="btn btn-primary") Submit
+            button(type='submit' class="btn btn-primary mb-3") Submit
+                

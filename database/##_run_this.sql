@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,`seat_num` CHAR(3) NOT NULL
 	,`available` BOOLEAN NOT NULL
 	,CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_id (flt_id,id)
+	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_num (flt_id,seat_num)
 	,INDEX idx_seats_flt_id_seat_id (flt_id,id)
 );
 

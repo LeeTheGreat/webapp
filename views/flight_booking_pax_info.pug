@@ -4,7 +4,6 @@ block append content
     div(class='container')
         h3 Passenger Details
         form(action='/flight/booking/seat_selection' method='POST')
-            input(type='hidden' name='prev' value=prev)
             hr
             h4 Passenger 1
             div(class='form-group row col-6 mb-3')
@@ -58,4 +57,5 @@ block append content
                         label(class='col-sm-3 col-form-label') Date of Birth
                         div(class='col-sm-6 ms-auto')
                             input(class='form-control form-control-md' type='date' name='dob_'+n value='1999-11-11')
+            input(type='hidden' name='prev' value=prev)
             button(type='submit' class="btn btn-primary") Submit
