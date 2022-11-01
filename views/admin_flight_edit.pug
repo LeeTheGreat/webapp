@@ -10,15 +10,6 @@ block append content
                 div(class='row mb-3')
                     input(type='hidden' class='form-control' value=rowsJSON.flt_id id='flt_id' name='flt_id')
                 div(class='row mb-3')
-                    label(class='col-sm-4 col-form-label') Airline
-                    div(class='col-sm-6 ms-auto')
-                        select(name="airline" class="form-select" id="airline")
-                            each airline in airlines
-                                if airline.id == rowsJSON.airline_id
-                                    option(value=airline.id selected) #{airline.name}
-                                else 
-                                    option(value=airline.id) #{airline.name}
-                div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Aircraft
                     div(class='col-sm-6 ms-auto')
                         select(name="aircraft" class="form-select" id="aircraft" value=value=rowsJSON.aircraft_id)

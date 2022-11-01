@@ -21,7 +21,7 @@ BEGIN
         UPDATE bookings SET bookings.status = "active" WHERE flt_id = NEW.id AND status LIKE 'flt_%';
     END IF;
 
-    INSERT INTO flights_hist VALUES (NULL, NEW.id, CONCAT_WS(';',OLD.flt_num,OLD.airline_id,OLD.aircraft_id,OLD.src_airport_code,OLD.dst_airport_code,OLD.depart,OLD.arrive,OLD.price,OLD.status));
+    -- INSERT INTO flights_hist VALUES (NULL, NEW.id, CONCAT_WS(';',OLD.flt_num,OLD.aircraft_id,OLD.src_airport_code,OLD.dst_airport_code,OLD.depart,OLD.arrive,OLD.price,OLD.status));
 END//
 delimiter ;
 

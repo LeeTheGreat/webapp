@@ -31,9 +31,9 @@ delimiter ;
 
 drop procedure if exists sp_flights_insert;
 delimiter //
-CREATE PROCEDURE sp_flights_insert (IN flt_num CHAR(4), IN airline_id INT, IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
+CREATE PROCEDURE sp_flights_insert (IN flt_num CHAR(4), IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
 BEGIN
-	INSERT INTO flights VALUES(NULL,flt_num,airline_id,ac_id,src_ap_code,dst_ap_code,dpt,arr,price,status);
+	INSERT INTO flights VALUES(NULL,flt_num,ac_id,src_ap_code,dst_ap_code,dpt,arr,price,status);
 END//
 delimiter ;
 
@@ -114,31 +114,8 @@ delimiter ;
 
 drop procedure if exists sp_update_flights;
 delimiter //
-CREATE procedure sp_update_flights (IN flt_id INT, IN flt_num CHAR(4), IN airline_id INT, IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
+CREATE procedure sp_update_flights (IN flt_id INT, IN flt_num CHAR(4), IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
 BEGIN
-	UPDATE flights f SET f.flt_num=flt_num, f.airline_id=airline_id, aircraft_id=ac_id, src_airport_code=src_ap_code,dst_airport_code=dst_ap_code,depart=dpt,arrive=arr,f.price=price,f.status=status WHERE id=flt_id;
+	UPDATE flights f SET f.flt_num=flt_num, aircraft_id=ac_id, src_airport_code=src_ap_code,dst_airport_code=dst_ap_code,depart=dpt,arrive=arr,f.price=price,f.status=status WHERE id=flt_id;
 END//
 delimiter ;
-
-/*
-delimiter //
-CREATE procedure sp_select_airlines(IN id INT)
-BEGIN
-	SELECT * FROM airlines WHERE airlines.id = id;
-END//
-delimiter ;
-
-delimiter //
-CREATE procedure sp_select_airports(IN iata CHAR(3))
-BEGIN
-	SELECT * FROM airports WHERE iata_code = iata;
-END//
-delimiter ;
-
-delimiter //
-CREATE procedure sp_select_countries(IN code CHAR(2))
-BEGIN
-	SELECT * FROM countries WHERE iso2 = code;
-END//
-delimiter ;
-*/

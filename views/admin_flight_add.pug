@@ -8,12 +8,6 @@ block append content
                     each airport in airports 
                         option(value=airport.iata_code) #{airport.name}  
                 div(class='row mb-3')
-                    label(class='col-sm-4 col-form-label') Airline
-                    div(class='col-sm-6 ms-auto')
-                        select(name="airline" class="form-select" id="airline")
-                            each airline in airlines
-                                option(value=airline.id) #{airline.name}
-                div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Aircraft
                     div(class='col-sm-6 ms-auto')
                         select(name="aircraft" class="form-select" id="aircraft")

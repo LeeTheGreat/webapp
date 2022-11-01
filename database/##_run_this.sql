@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 CREATE TABLE IF NOT EXISTS `flights`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
 	,`flt_num` VARCHAR(4) NOT NULL
-	,`airline_id` INT NOT NULL
 	,`aircraft_id` INT NOT NULL	
 	,`src_airport_code` VARCHAR(4) NOT NULL
 	,`dst_airport_code` VARCHAR(4) NOT NULL
@@ -26,24 +25,15 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,`arrive` DATETIME NOT NULL
 	,`price` INT NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
-	,CONSTRAINT fk_flight_airline_id FOREIGN KEY (airline_id) REFERENCES airlines(id)
 	,CONSTRAINT fk_flight_src_airport_code FOREIGN KEY (src_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flight_dst_airport_code FOREIGN KEY (dst_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
 	,CONSTRAINT chk_flights_price CHECK (price >= 0)
 	,CONSTRAINT chk_flights_arrive_gt_depart CHECK (arrive > depart)
-	,CONSTRAINT chk_flights_src_aiport_ne_dst_airport CHECK (src_airport_code <> dst_airport_code) /* src airport != dst airport */
-	/*
-		TODO: add check constraint on src_airport_id and dst_airport_id such that only airports in src_country and dst_country are allowed
-		Based on stackoverflow, need to use User-Defined Function. https://stackoverflow.com/questions/3880698/can-a-check-constraint-relate-to-another-table
-
-	/*
-		shouldn't have duplicate active flights with these same details
-		can't implement it using unique key because I can't specify static values for status='active'
-		may need to use WHERE NOT EXISTS (...) to check for duplicate, instead of UNIQUE KEY
-	*/
-	,UNIQUE KEY uk_flight (flt_num, src_airport_code, dst_airport_code, src_country_code, dst_country_code, depart, arrive, status)
-	,INDEX idx_flight_uk (flt_num, src_airport_code, dst_airport_code, src_country_code, dst_country_code, depart, arrive, status)
+	,CONSTRAINT chk_flights_src_aiport_ne_dst_airport CHECK (src_airport_code <> dst_airport_code)
+	-- no duplicate flights with same flt_num, src_airport, dst_airport, depart, arrive
+	,UNIQUE KEY uk_flight (flt_num, src_airport_code, dst_airport_code, depart, arrive)
+	,INDEX idx_flight_uk (flt_num, src_airport_code, dst_airport_code, depart, arrive)
 );
 
 CREATE TABLE IF NOT EXISTS `users`(
@@ -71,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`gender` ENUM('M','F')
 	,`dob` DATE
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
-	 /* if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields */
+	 -- if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields
 	,CONSTRAINT chk_cust_detail CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
 );
 
@@ -119,10 +109,9 @@ CREATE TABLE IF NOT EXISTS `flights_hist`(
 );
 
 show tables;
-
+source views.sql
 source trigger.sql
 source stored_procedures.sql
-source views.sql
 source mock_users.sql;
 source mock_customers_not_users_multi_pax.sql;
 source mock_customers_not_users_single_pax.sql;

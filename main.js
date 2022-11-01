@@ -401,14 +401,14 @@ const getAdminFlightHandler = async (_req, res) => {
 }
 
 const getAdminFlightAddHandler = async (_req, res) => {
-	var airlines = await query(`SELECT * FROM airlines`)
+	//var airlines = await query(`SELECT * FROM airlines`)
 	var aircrafts = await query(`SELECT * FROM aircrafts`)
 	var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
-	var airlinesJSON = JSON.parse(JSON.stringify(airlines))
+	//var airlinesJSON = JSON.parse(JSON.stringify(airlines))
 	var aircraftsJSON = JSON.parse(JSON.stringify(aircrafts))
 	var airportsJSON = JSON.parse(JSON.stringify(airports))
 	//console.log(countriesJSON)
-	return res.send(pug.renderFile('views/admin_flight_add.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON}))
+	return res.send(pug.renderFile('views/admin_flight_add.pug', {aircrafts: aircraftsJSON, airports: airportsJSON}))
 }
 
 const postAdminFlightAddHandler = async (req, res) => {
@@ -416,7 +416,7 @@ const postAdminFlightAddHandler = async (req, res) => {
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?,?);`, [req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?);`, [req.body.flt_num, Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 		//var rowsJSON = JSON.stringify(rows)
 		//var rowsObj = JSON.parse(rowsJSON)
 		//console.log(rowsJSON)
@@ -432,7 +432,7 @@ const postAdminFlightAddHandler = async (req, res) => {
 }
 
 const getAdminFlightEditHandler = async (req, res) => {
-	var airlinesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airlines`)))
+	//var airlinesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airlines`)))
 	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
 	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
 	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
@@ -456,7 +456,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 	rowsJSON.dpt_time = rowsJSON.depart.split(' ')[1]
 	rowsJSON.arr_time = rowsJSON.arrive.split(' ')[1]
 	//console.log(rowsJSON)
-	return res.send(pug.renderFile('views/admin_flight_edit.pug', {airlines: airlinesJSON, aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
+	return res.send(pug.renderFile('views/admin_flight_edit.pug', {aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
 }
 
 const postAdminFlightEditHandler = async (req, res) => {
@@ -464,8 +464,8 @@ const postAdminFlightEditHandler = async (req, res) => {
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
-		await query(`CALL sp_update_flights(?,?,?,?,?,?,?,?,?,?)`, 
-					[Number(req.body.flt_id), req.body.flt_num, Number(req.body.airline), Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
+		await query(`CALL sp_update_flights(?,?,?,?,?,?,?,?,?)`, 
+					[Number(req.body.flt_id), req.body.flt_num, Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
 	}
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
