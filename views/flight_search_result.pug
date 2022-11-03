@@ -5,7 +5,7 @@ block append content
         div(class='row mb-3')
             h3 Flight Search Result
         div(class='row mb-3')
-            h5(class='col-sm-11 mb-3') #{src_airport_name} (#{rows[0]["src_airport_code"]}) to #{dst_airport_name} (#{rows[0]["dst_airport_code"]})
+            h5(class='col-sm-11 mb-3') #{src_airport_name} (#{rows[0]["src_airport_code"]}) >>> #{dst_airport_name} (#{rows[0]["dst_airport_code"]})
     table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
             tr
@@ -28,7 +28,7 @@ block append content
                             td
                                 while n < parseFloat(row['hops']) + 1
                                     div(class='row mb-3')
-                                        label(class='col-label') #{row['path_ap_name'][n]} (#{row['path_ap_code'][n]}) to #{row['path_ap_name'][n+1]} (#{row['path_ap_code'][n+1]})
+                                        label(class='col-label') #{row['path_ap_name'][n]} (#{row['path_ap_code'][n]}) >>> #{row['path_ap_name'][n+1]} (#{row['path_ap_code'][n+1]})
                                         div(class='row')
                                             label(class='col-label') #{row['dpt_arv'][n][0]} to #{row['dpt_arv'][n][1]}
                                         label(class='col-label')

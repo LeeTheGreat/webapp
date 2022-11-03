@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,CONSTRAINT chk_flights_arrive_gt_depart CHECK (arrive > depart)
 	,CONSTRAINT chk_flights_src_aiport_ne_dst_airport CHECK (src_airport_code <> dst_airport_code)
 	-- no duplicate flights with same flt_num, src_airport, dst_airport, depart, arrive
-	,UNIQUE KEY uk_flight (flt_num, src_airport_code, dst_airport_code, depart, arrive)
+	,CONSTRAINT uk_flight UNIQUE (flt_num, src_airport_code, dst_airport_code, depart, arrive)
 	,INDEX idx_flight_uk (flt_num, src_airport_code, dst_airport_code, depart, arrive)
 );
 
@@ -57,12 +57,12 @@ CREATE TABLE IF NOT EXISTS `customers`(
 	,`user_id` INT DEFAULT NULL
 	,`cust_email` VARCHAR(50)
 	,`fname` CHAR(30)
-	,`lname` CHAR(30) DEFAULT ''
+	,`lname` CHAR(30)
 	,`gender` ENUM('M','F')
 	,`dob` DATE
 	,CONSTRAINT fk_customers_user_id FOREIGN KEY (user_id) REFERENCES users(id)
 	 -- if user_id is present, the other fields can be null as it's an existing user. If user_id is not present, we need to fill the other fields
-	,CONSTRAINT chk_cust_detail CHECK (user_id IS NOT NULL or (cust_email IS NOT NULL and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
+	,CONSTRAINT chk_cust_detail CHECK (user_id IS NOT NULL or ((TRIM(cust_email) != '' and cust_email IS NOT NULL) and fname IS NOT NULL and gender IS NOT NULL and dob IS NOT NULL))
 );
 
 CREATE TABLE IF NOT EXISTS `seats`(
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,`seat_num` CHAR(3) NOT NULL
 	,`available` BOOLEAN NOT NULL
 	,CONSTRAINT fk_seat_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-	,CONSTRAINT UNIQUE KEY uk_seats_flt_id_seat_num (flt_id,seat_num)
+	,CONSTRAINT uk_seats_flt_id_seat_num UNIQUE (flt_id,seat_num)
 	,INDEX idx_seats_flt_id_seat_id (flt_id,id)
 );
 
@@ -82,17 +82,13 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,`cust_id` INT NOT NULL
 	,`seat_id` INT NOT NULL
 	,`purchase_datetime` DATETIME NOT NULL
-	,`status` ENUM('active','cust_cancelled','flt_cancelled') NOT NULL /* need to differentiate between customer action or non-customer action. Removed cust_rescheduled because it serves no purpose, and will complicate triggers */
+	,`status` ENUM('active','inactive') NOT NULL
 	,`ref_num` VARCHAR(8) NOT NULL
 	,CONSTRAINT fk_booking_cust_id FOREIGN KEY (cust_id) REFERENCES customers(id)
 	,CONSTRAINT fk_booking_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
 	,CONSTRAINT fk_booking_seat_id FOREIGN KEY (seat_id) REFERENCES seats(id)
-	/* there cannot be two booking with same flt_id and seat_id. But what if cancelled, and then someone else book? Will have same flt_id and seat_id. Unable to ensure it via CONSTRAINT
-	   CONSTRAINT must be (flt_id,seat_id,"active")
-	,CONSTRAINT UNIQUE KEY uk_bookings_flt_id_seat_id (flt_id,seat_id,'active') 
-	,INDEX idx_bookings_flt_id_seat_id (flt_id,seat_id)
-	*/
 	,CONSTRAINT fk_booking_flt_id_seat_id FOREIGN KEY (flt_id,seat_id) REFERENCES seats(flt_id,id) /*to prevent cases where bookings.flt_id = X but seat_id has flt_id = Y*/
+	,CONSTRAINT uk_flt_id_seat_id UNIQUE (flt_id,seat_id)
 );
 
 CREATE TABLE IF NOT EXISTS `admins`(
@@ -118,3 +114,4 @@ source mock_customers_not_users_single_pax.sql;
 source mock_customers_users_multi_pax.sql;
 source mock_customers_users_single_pax.sql;
 source mock_flights.sql;
+source mock_bookings.sql

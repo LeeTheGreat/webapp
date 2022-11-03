@@ -291,7 +291,7 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		}
 		catch(e){
 			console.log(e);
-			return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
+			return res.status(500).send('Internal Server Error')
 		}		
 	}
 	let msg = 'Booking successful. Use reference number ' + ref_num + ' and registered email to check booking'
@@ -304,32 +304,33 @@ const postBookingSearchHandler = async (req, res) => {
 	console.log(res.locals)
 	let result
 	let rows
-	if(res.locals.booking_id){
-		result = await query(`SELECT ref_num, email FROM view_bookings_informative WHERE booking_id = ?`,[res.locals.booking_id])
-		result = JSON.parse(JSON.stringify(result[0]))
-		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[result['ref_num'], result['email']])
+	if(res.locals.refno){ // if present, it means that we're direct from the cancel booking page. We query
+		result = await query(`SELECT ref_num, email FROM view_bookings_informative WHERE booking_id = ?`,[res.locals.refno])
+		if(result[0].length > 0){
+			result = JSON.parse(JSON.stringify(result[0]))
+			rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[result['ref_num'], result['email']])
+		}
 	}
 	else{
 		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
 	}
+
+	//var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	//console.log(rowsJSON)
 	for(let i = 0; i < rowsJSON.length; i++){
-		if(rowsJSON[i].booking_status == 'flt_cancelled'){
-			
+		if(rowsJSON[i].flt_status == 'flt_cancelled'){
 			rowsJSON[i].booking_status = "Cancelled by Flight Cancellation"
-			continue
-		}
-		if(rowsJSON[i].booking_status == 'cust_cancelled'){
-			rowsJSON[i].booking_status = "Cancelled by Passenger"
 			continue
 		}
 		if(rowsJSON[i].booking_status == 'active'){
 			rowsJSON[i].booking_status = "Active"
 			continue
 		}
-	}	
+	}
+	//req.session.booking_ids = rowsJSON[]
 	//console.log(rowsJSON)
+
 	return res.send(pug.renderFile('views/booking_summary.pug', {rowsJSON: rowsJSON}))
 }
 
@@ -367,19 +368,20 @@ const getBookingActionHandler = async (req, res) => {
 
 const getBookingCancelHandler = async (req, res) => {
 	//console.log(req.query)
-	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id}))
+	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id, ref_no: req.query.refno}))
 }
 
 const postBookingCancelHandler = async (req, res, next) => {
 	//console.log(req.body)
 	try{
-		var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
+		//var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
+		var rows = await query('DELETE FROM bookings WHERE id=?', [req.body.booking_id])
 	}
 	catch(e){
 		console.log(e);
 		return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
 	}
-	res.locals.booking_id = req.body.booking_id
+	res.locals.refno = req.body.refno
 	next()
 }
 
