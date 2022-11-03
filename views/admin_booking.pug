@@ -31,11 +31,9 @@ block append content
                                 div   
                                     form(action='/booking/edit' method='GET')
                                         input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
-                                        button(type="submit" class="btn")
-                                            i(class="material-icons text-warning") Edit
-                                div 
+                                        button(type='submit' class="btn btn-primary") Edit
+                                div(class="mx-3")
                                     form(action='/admin/booking' method='POST')
                                         input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
-                                        button(type="submit" class="btn")
-                                            i(class="material-icons text-danger") Delete
+                                        button(type="submit" class="btn btn-primary") Delete
                         

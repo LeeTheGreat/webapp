@@ -7,7 +7,7 @@ block append content
         form(action='/flight/booking/confirm' method='POST')
             - var h = 0;
             while h < hops
-                h5(class='mb-3') #{flt_info[h]['src_airport_name']} (#{flt_info[h]['src_airport_code']}) to #{flt_info[h]['dst_airport_name']} (#{flt_info[h]['dst_airport_code']})
+                h5(class='mb-3') #{flt_info[h]['src_airport_name']} (#{flt_info[h]['src_airport_code']}) >>> #{flt_info[h]['dst_airport_name']} (#{flt_info[h]['dst_airport_code']})
                 h5(class='mb-3') #{flt_info[h]['depart']} to #{flt_info[h]['arrive']}
                 div(class='form-group row col-6 mb-3')
                     - var n = 0;
