@@ -39,7 +39,7 @@ delimiter ;
 
 drop procedure if exists sp_ins_customer_and_booking;
 delimiter //
-CREATE PROCEDURE sp_ins_customer_and_booking (IN user_id INT, IN cust_email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_id INT, IN ref_num CHAR(8))
+CREATE PROCEDURE sp_ins_customer_and_booking (IN email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_num CHAR(3), IN ref_num CHAR(8))
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
@@ -55,12 +55,8 @@ BEGIN
 
 	-- need a TRANSACTION here as the whole process involves adding customers, then adding bookings. If any step went wrong, need to roll back
 	START TRANSACTION;
-	IF user_id IS NULL THEN
-		INSERT INTO customers VALUES (NULL,NULL,cust_email,fn,ln,gender,dob);
-	ELSEIF user_id IS NOT NULL THEN
-		INSERT INTO customers VALUES (NULL,user_id,NULL,NULL,NULL,NULL,NULL);
-	END IF;
-	INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_id, NOW(), 'active', ref_num);
+	INSERT INTO customers VALUES (NULL,email,,'customer');
+	INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_num, NOW(), 'active', ref_num);
 	COMMIT;
 END//
 delimiter ;

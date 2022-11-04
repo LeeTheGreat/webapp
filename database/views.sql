@@ -14,23 +14,15 @@ CREATE VIEW view_flights AS
 
 drop view if exists view_bookings;
 CREATE VIEW view_bookings AS
-    SELECT id as booking_id, flt_id, cust_id, seat_id, purchase_datetime, status as booking_status, ref_num FROM bookings;
+    SELECT id as booking_id, flt_id, cust_id, seat_num, purchase_datetime, status as booking_status, ref_num FROM bookings;
 
 drop view if exists view_customers;
 CREATE VIEW view_customers AS
-    SELECT id as cust_id, user_id, cust_email as email, fname, lname, gender, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age FROM customers;
-
-drop view if exists view_users;
-CREATE VIEW view_users AS
-    SELECT id as user_id, email as email, fname, lname, gender, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS user_age FROM users;
-
-drop view if exists view_customers_and_users;
-CREATE VIEW view_customers_and_users AS
-    SELECT * FROM view_customers WHERE user_id IS NULL UNION SELECT cust_id, view_users.* FROM view_customers JOIN view_users USING (user_id);
+    SELECT id as cust_id, email, password, fname, lname, gender, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS user_age, role FROM users;
 
 drop view if exists view_seats;
 CREATE VIEW view_seats AS
-    SELECT id as seat_id, flt_id, seat_num FROM seats;
+    SELECT flt_id, seat_num, available FROM seats;
 
 drop view if exists view_flights_informative;
 CREATE VIEW view_flights_informative AS
@@ -47,5 +39,5 @@ CREATE VIEW view_bookings_informative AS
     SELECT * FROM view_bookings
             -- since we SELECT *, we use USING to combine the common ids. otherwise, there'll be multiple columns of ids
             JOIN view_flights_informative USING (flt_id)
-            JOIN view_customers_and_users USING (cust_id)
-            JOIN view_seats USING (seat_id,flt_id);
+            JOIN view_customers USING (cust_id)
+            JOIN view_seats USING (seat_num,flt_id);
