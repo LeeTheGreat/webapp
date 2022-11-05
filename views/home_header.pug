@@ -13,14 +13,13 @@ nav(class="navbar navbar-expand-lg navbar-light bg-light")
         //input(class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search")
         //button(class="btn btn-outline-success" type="submit") Search
     div(class="collapse navbar-collapse" id="navbarSupportedContent")
-      if profileJSON || fn
+      if profile
         ul(class="navbar-nav ms-auto mb-2 mb-lg-0")
           li(class="nav-item")
-            a(class="nav-link" href="/profile") #{fn}
+            a(class="nav-link" href="/profile") Profile
           li(class="nav-item")
             a(class="nav-link" href="/logout") Logout
           li(class="nav-item")
-            a(class="nav-link" href="/profile") Profile
       else
         ul(class="navbar-nav ms-auto mb-2 mb-lg-0")
           li(class="nav-item")

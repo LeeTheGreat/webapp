@@ -19,7 +19,7 @@ block append content
                                 select(name='seat_'+n+'_'+prev['flt_id'][h] class='form-select')
                                     - var s = 0;
                                     while s < seats[h]['seat_count']
-                                        option(value=seats[h]['seat_ids'][s]) #{seats[h]['seat_nums'][s]}
+                                        option(value=seats[h]['seat_nums'][s]) #{seats[h]['seat_nums'][s]}
                                         - ++s;
                 - ++h;
                 hr

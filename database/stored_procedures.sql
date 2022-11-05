@@ -39,10 +39,19 @@ BEGIN
 END//
 delimiter ;
 
+drop procedure if exists sp_ins_user;
 delimiter //
-CREATE procedure sp_ins_user(IN email VARCHAR(50), IN password VARCHAR(32), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE)
+CREATE procedure sp_ins_user(IN email VARCHAR(50), IN password CHAR(60), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE)
 BEGIN
-	INSERT INTO users VALUES (NULL,TRIM(email),SHA2(CONCAT(email,password),'256'),fname,lname,gender,REPLACE(dob,'/','-'),'user');
+	INSERT INTO users VALUES (NULL,TRIM(email),password,fn,ln,gender,REPLACE(dob,'/','-'),'user');
+END//
+delimiter ;
+
+drop procedure if exists sp_ins_admin;
+delimiter //
+CREATE procedure sp_ins_admin(IN username VARCHAR(50), IN password CHAR(60), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE)
+BEGIN
+	INSERT INTO users VALUES (NULL,TRIM(username),password,fn,ln,gender,REPLACE(dob,'/','-'),'admin');
 END//
 delimiter ;
 
@@ -51,7 +60,8 @@ delimiter //
 CREATE PROCEDURE sp_ins_user_and_booking (IN email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_num CHAR(3), IN ref_num CHAR(8))
 BEGIN
 	DECLARE cust_id INT DEFAULT 0;
-
+	DECLARE ref_num_uuid CHAR(8) DEFAULT (SELECT UPPER(SUBSTRING(UUID(),1,8)));
+	DECLARE ref_num_count INT DEFAULT 0;
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
@@ -63,17 +73,32 @@ BEGIN
 		ROLLBACK;
 		RESIGNAL;
 	END;
+
+	-- if ref_num is not empty, use it
+	IF (TRIM(ref_num) <> '') THEN
+		SET ref_num_uuid = ref_num;
+	-- if ref_num is empty, then generate a new one
+	END IF;
+	
+	IF (TRIM(ref_num) = '') THEN
+		WHILE (SELECT COUNT(id) FROM bookings WHERE ref_num = ref_num_uuid) > 0 DO
+			-- check if ref_num exists. If yes, regenerate new one. Else ok		
+			SET ref_num_uuid = (SELECT UPPER(SUBSTRING(UUID(),1,8)));
+		END WHILE;
+	END IF;
+	
 	-- check if customer exists by email. If exists, then just need to insert booking
 	SET cust_id = (SELECT id FROM users c WHERE c.email = email);
-	IF (cust_id > 0) THEN
-		INSERT INTO bookings VALUES(NULL, flt_id, cust_id, seat_num, NOW(), 'active', ref_num);
+	IF cust_id > -1 THEN
+		INSERT INTO bookings VALUES(NULL, flt_id, cust_id, seat_num, NOW(), 'active', ref_num_uuid);
 	ELSE
 		-- need a TRANSACTION here as the whole process involves adding customers, then adding bookings. If any step went wrong, need to roll back
 		START TRANSACTION;
-		INSERT INTO users VALUES (NULL,TRIM(email),NULL,fname,lname,gender,REPLACE(dob,'/','-'),'user');
-		INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_num, NOW(), 'active', UPPER(ref_num));
+		INSERT INTO users VALUES (NULL,TRIM(email),NULL,fn,ln,gender,REPLACE(dob,'/','-'),'user');
+		INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_num, NOW(), 'active');
 		COMMIT;
 	END IF;
+	SELECT ref_num_uuid;
 END//
 delimiter ;
 
@@ -114,14 +139,17 @@ BEGIN
 END//
 delimiter ;
 
-drop procedure if exists sp_select_booking_by_ref_and_email;
+drop procedure if exists sp_verify_refnum_email;
 delimiter //
-CREATE procedure sp_select_booking_by_ref_and_email (IN in_refnum CHAR(8), IN in_email VARCHAR(50))
+CREATE procedure sp_verify_refnum_email (IN in_refnum CHAR(8), IN in_email VARCHAR(50))
 BEGIN
 	/* get booking if the ref_num exists, and for all the bookings with ref_num, there's a customer with the specified email */
+	/*
 	SELECT * FROM view_bookings_join vbi1
-		WHERE vbi1.cust_id IN (SELECT cust_id FROM view_bookings WHERE ref_num = in_refnum)
+		WHERE vbi1.user_id IN (SELECT user_id FROM view_bookings WHERE ref_num = in_refnum)
 		AND EXISTS(SELECT 1 FROM view_bookings_join vbi2 WHERE vbi2.email = in_email);
+	*/
+	SELECT ref_num FROM view_bookings_join WHERE ref_num = in_refnum AND email = in_email LIMIT 1;
 END//
 delimiter ;
 

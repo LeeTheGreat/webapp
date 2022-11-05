@@ -8,25 +8,25 @@ block append content
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') First Name
                     div(class='col-sm-6 ms-auto')            
-                        input(type='text',class='form-control' id='fn' name='fn' value=profileJSON[0].fname)                        
+                        input(type='text',class='form-control' id='fn' name='fn' value=profile.fname)                        
                 div(class='row mb-3')
                     label(class='col-sm-2 col-form-label') Last Name
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control' id='ln' name='ln' value=profileJSON[0].lname)
+                        input(type='text',class='form-control' id='ln' name='ln' value=profile.lname)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Date of Birth
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dob' value=profileJSON[0].dob)
+                        input(class='form-control form-control-md' type='date' name='dob' value=profile.dob)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Gender
                     div(class='col-sm-6 ms-auto')
-                        select(name='gender' class='form-select' value=profileJSON[0].gender)
+                        select(name='gender' class='form-select' value=profile.gender)
                             option(value='F') F
                             option(value='M') M                        
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Email
                     div(class='col-sm-6 ms-auto')
-                        input(type='email',class='form-control',id='email',name='email' value=profileJSON[0].email)
+                        input(type='email',class='form-control',id='email',name='email' value=profile.email)
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Password
                     div(class='col-sm-6 ms-auto')            
