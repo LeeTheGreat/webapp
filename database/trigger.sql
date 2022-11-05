@@ -3,7 +3,31 @@ delimiter //
 CREATE TRIGGER ins_flights_after AFTER INSERT ON flights
 FOR EACH ROW
 BEGIN
-    CALL sp_create_seats(NEW.id, NEW.aircraft_id);
+    -- CALL sp_create_seats(NEW.id, NEW.aircraft_id);
+    DECLARE k INT DEFAULT 0;
+	DECLARE seat_num CHAR(3);
+	DECLARE num INT;
+	DECLARE totalseat INT DEFAULT 0;
+	SELECT total_seat FROM aircrafts WHERE id = NEW.aircraft_id INTO totalseat;
+	WHILE k < totalseat DO			
+		IF(k < totalseat/4) THEN
+			SET seat_num = CONCAT('A', LPAD(k+1,2,0));
+			INSERT INTO seats VALUES(NEW.id,seat_num,true);
+		ELSEIF(k < totalseat/4 * 2) THEN
+			SET num = k+1 - totalseat/4;
+			SET seat_num = CONCAT('B', LPAD(num,2,0));
+			INSERT INTO seats VALUES(NEW.id,seat_num,true);
+		ELSEIF(k < totalseat/4 * 3) THEN
+			SET num = k+1 - totalseat/4 * 2;
+			SET seat_num = CONCAT('C', LPAD(num,2,0));
+			INSERT INTO seats VALUES(NEW.id,seat_num,true);
+		ELSEIF(k < totalseat/4 * 4) THEN
+			SET num = k+1 - totalseat/4 * 3;
+			SET seat_num = CONCAT('D', LPAD(num,2,0));
+			INSERT INTO seats VALUES(NEW.id,seat_num,true);
+		END IF;
+		SET k = k + 1;
+	END WHILE;
 END//
 delimiter ;
 
@@ -37,8 +61,9 @@ BEGIN
     END IF;
 
     -- check if there's insertion of booking where flight is not active
+    -- also triggers if flt_id not exists in flights table
     IF NEW.status = 'active' AND NOT EXISTS (SELECT status FROM flights WHERE id = NEW.flt_id AND status = 'active') THEN
-        SET @error_msg = CONCAT('Invalid Bookings INSERT. Booking id ', NEW.id, ' is active, but flt_id ', NEW.flt_id, ' status is non-active');
+        SET @error_msg = CONCAT('Invalid Bookings INSERT. Booking id ', NEW.id, ' is active, but no active flight for flt_id ', NEW.flt_id);
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @error_msg;
     END IF;
     
@@ -50,9 +75,7 @@ delimiter //
 CREATE TRIGGER ins_bookings_after AFTER INSERT ON bookings
 FOR EACH ROW
 BEGIN
-
-    UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seats.id = NEW.seat_id;
-
+    UPDATE seats SET seats.available = false WHERE seats.flt_id = NEW.flt_id and seat_num = NEW.seat_num;
 END//
 delimiter ;
 
@@ -68,7 +91,7 @@ BEGIN
     END IF;
  
     -- ensure that a booking to be set as not active won't have fields other than status being modified
-    IF NEW.status <> 'active' AND (NEW.id,NEW.flt_id,NEW.cust_id,NEW.seat_id,NEW.purchase_datetime,NEW.ref_num) <> (OLD.id,OLD.flt_id,OLD.cust_id,OLD.seat_id,OLD.purchase_datetime,OLD.ref_num) THEN
+    IF NEW.status <> 'active' AND (NEW.id,NEW.flt_id,NEW.user_id,NEW.seat_num,NEW.purchase_datetime,NEW.ref_num) <> (OLD.id,OLD.flt_id,OLD.user_id,OLD.seat_num,OLD.purchase_datetime,OLD.ref_num) THEN
         SET @error_msg = CONCAT('Invalid Bookings UPDATE. Booking id ', NEW.id, ' to be updated as not active, but other fields except status were modified');
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @error_msg;
     END IF;
@@ -110,7 +133,7 @@ CREATE TRIGGER del_bookings_after AFTER DELETE ON bookings
 FOR EACH ROW
 BEGIN
     
-    UPDATE seats SET seats.available = true WHERE seats.id = OLD.seat_id;
+    UPDATE seats SET seats.available = true WHERE seat_num = OLD.seat_num AND flt_id = OLD.flt_id;
 
 END//
 delimiter ;

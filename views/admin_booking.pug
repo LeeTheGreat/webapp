@@ -2,7 +2,7 @@ extends admin_base.pug
 
 block append content
     div(class='container')
-        div(class="title") Customer Booking Tracker
+        div(class="title") User Booking Tracker
         
         div(class="search_box")
             input(type='text' id="search_input" placeholder="Input your search here")
@@ -10,7 +10,7 @@ block append content
         table(class='table table-striped table-hover table-condensed')  
             thead(class='table-dark')
             tr
-                th Customer ID
+                th User ID
                 th Reference ID
                 th Flight ID
                 th Name
@@ -18,10 +18,10 @@ block append content
                 th(scope='col') Action
                     
             tbody
-            if customers
-                each row in customers
+            if users
+                each row in users
                     tr
-                        td #{row["cust_id"]}
+                        td #{row["id"]}
                         td #{row["ref_num"]}
                         td #{row["flt_num"]} 
                         td #{row["fname"]} #{row["lname"]}

@@ -234,7 +234,7 @@ const postFlightBookingSeatSelectHandler = async (req, res) => {
 	}
 	seats = JSON.parse(JSON.stringify(seats))
 	//console.log(seats)
-	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_informative WHERE flt_id in (?)', [req.body.flt_id])
+	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [req.body.flt_id])
 	flt_info = JSON.parse(JSON.stringify(flt_info))
 	//return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, seats : rowsJSON}))
 	//console.log(req.body)
@@ -248,7 +248,7 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	//console.log(req.body)
 	let seats_check = []
 	let conflict = []
-	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_informative WHERE flt_id in (?)', [prevJSON['flt_id']])
+	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_join WHERE flt_id in (?)', [prevJSON['flt_id']])
 	let pax = prevJSON['pax']
 	flt_info = JSON.parse(JSON.stringify(flt_info))
 	for(let i = 0; i < pax; i++){
@@ -272,7 +272,7 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		return res.status(500).send(error)
 	}
 	//console.log(seats_check)
-	var ref_num = uuid.v4().substring(0,8)
+	var ref_num = uuid.v4().substring(0,8).toUpperCase()
 	var email_for_retrieve = ''
 	for (let i = 0; i < seats_check.length; i++){
 		let pax_num = (i % pax)+1
@@ -285,9 +285,7 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		let seat_id = seats_check[i].split('_')[1]
 		try{
 			//console.log(ref_num)
-			//rows = await query('INSERT INTO customers VALUES (NULL,NULL,NULL,NULL,NULL,NULL,NULL)')
-			//var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob]]);
-			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_id,ref_num])
+			var rows = await query('CALL sp_ins_user_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_id,ref_num])
 		}
 		catch(e){
 			console.log(e);
@@ -296,7 +294,6 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	}
 	let msg = 'Booking successful. Use reference number ' + ref_num + ' and registered email to check booking'
 	return res.send(pug.renderFile('views/booking_success.pug', {msg: msg}))
-	//rows = await query('')
 }
 
 const postBookingSearchHandler = async (req, res) => {
@@ -305,7 +302,7 @@ const postBookingSearchHandler = async (req, res) => {
 	let result
 	let rows
 	if(res.locals.refno){ // if present, it means that we're direct from the cancel booking page. We query
-		result = await query(`SELECT ref_num, email FROM view_bookings_informative WHERE booking_id = ?`,[res.locals.refno])
+		result = await query(`SELECT ref_num, email FROM view_bookings_join WHERE booking_id = ?`,[res.locals.refno])
 		if(result[0].length > 0){
 			result = JSON.parse(JSON.stringify(result[0]))
 			rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[result['ref_num'], result['email']])
@@ -345,7 +342,7 @@ const postBookingEditHandler = async (req, res, next) => {
 
 const getBookingEditHandler = async (req, res) => {
 	let seats = await query(`SELECT id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
-	let curr_seat = await query(`SELECT seat_id, seat_num FROM view_bookings_informative WHERE booking_id = ?`, [req.query.booking_id])
+	let curr_seat = await query(`SELECT seat_id, seat_num FROM view_bookings_join WHERE booking_id = ?`, [req.query.booking_id])
 	seats = JSON.parse(JSON.stringify(seats))
 	curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
 	//console.log(currSeatJSON)
@@ -390,7 +387,7 @@ const getAdminHomeHandler = async (_req, res) => {
 }
 
 const getAdminFlightHandler = async (_req, res) => {
-	var rows = await query(`SELECT * from view_flights_informative ORDER BY flt_id ASC;`)
+	var rows = await query(`SELECT * from view_flights_join ORDER BY flt_id ASC;`)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	//console.log(rowsJSON)
 	if(rowsJSON.length == 0){
@@ -442,7 +439,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 	//console.log(countriesJSON)
 	var rowsJSON = [{}]
 	try{
-		let rows = await query(`SELECT * FROM view_flights_informative WHERE flt_id=?`, [req.query.flt_id])
+		let rows = await query(`SELECT * FROM view_flights_join WHERE flt_id=?`, [req.query.flt_id])
 		rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	}
 	catch (err){
@@ -477,13 +474,12 @@ const postAdminFlightEditHandler = async (req, res) => {
 
 const getAdminBookingHandler = async (_req, res) => {
 	//console.log("getAdminBookingHandler")
-	//var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT b.id, b.ref_num, f.flt_num, c.fname, c.lname, b.status FROM bookings b, flights f, customers c WHERE b.id = c.id AND b.flt_id = f.id`)))
-	var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT cust_id, booking_id, ref_num, flt_num, fname, lname, booking_status FROM view_bookings_informative;`)))
-	if(customersJSON.length == 0){
+	var users = await query(`SELECT id, booking_id, ref_num, flt_num, fname, lname, booking_status FROM view_bookings_join;`)
+	if(users.length == 0){
 		return res.send(pug.renderFile('views/admin_booking.pug'))
 	}
 
-	return res.send(pug.renderFile('views/admin_booking.pug', {customers : customersJSON}))
+	return res.send(pug.renderFile('views/admin_booking.pug', {users : users}))
 
 }
 

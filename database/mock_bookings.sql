@@ -1,7 +1,6 @@
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (1, 3, 1, 557, '2022-09-29 08:00:42','active', '23422654');
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (2, 2, 2, 228, '2022-05-02 10:10:12','active', '23232654');
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (3, 2, 3, 230, '2022-09-29 17:50:32','active', '23422232');
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (4, 3, 4, 401, '2022-09-29 03:00:42','active', '27521254');
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (5, 3, 5, 402, '2022-09-29 06:40:12','active', '23422653');
-INSERT INTO bookings(id, flt_id, cust_id, seat_id, purchase_datetime, status, ref_num) VALUES (6, 3, 6, 410, '2022-09-29 05:00:44','active', '23429754');
+-- sp_ins_customer_and_booking (IN email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_num CHAR(3), IN ref_num CHAR(8))
+
+CALL sp_ins_user_and_booking('noemail@email.com', 'noemail_fn', 'noemail_ln', 'M', '1999-09-29', 16, 'A04', '23422654');
+CALL sp_ins_user_and_booking('mshemminga@networksolutions.com', 'mshemminga', 'mshemminga', 'M', '1988-10-01', 16, 'A05', '23422654');
+CALL sp_ins_user_and_booking('kfitzgilbert0@mapy.cz', 'kfitzgilbert0', 'kfitzgilbert0', 'M', '1987-01-10', 16, 'A06', '23422654');
 

@@ -14,18 +14,18 @@ CREATE VIEW view_flights AS
 
 drop view if exists view_bookings;
 CREATE VIEW view_bookings AS
-    SELECT id as booking_id, flt_id, cust_id, seat_num, purchase_datetime, status as booking_status, ref_num FROM bookings;
+    SELECT id as booking_id, flt_id, user_id, seat_num, purchase_datetime, status as booking_status, ref_num FROM bookings;
 
-drop view if exists view_customers;
-CREATE VIEW view_customers AS
-    SELECT id as cust_id, email, password, fname, lname, gender, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS user_age, role FROM users;
+drop view if exists view_users;
+CREATE VIEW view_users AS
+    SELECT id as user_id, email, password, fname, lname, gender, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS user_age, role FROM users;
 
 drop view if exists view_seats;
 CREATE VIEW view_seats AS
     SELECT flt_id, seat_num, available FROM seats;
 
-drop view if exists view_flights_informative;
-CREATE VIEW view_flights_informative AS
+drop view if exists view_flights_join;
+CREATE VIEW view_flights_join AS
     -- SELECT flts.id as flt_id, flt_num, airline_id, aircraft_id, src_airport_code, dst_airport_code, src_country_code, dst_country_code, depart, arrive, price, status, CONCAT(ac.company, " ", ac.model) as aircraft, ct1.name as src_country_name, ct2.name as dst_country_name, ap1.name as src_airport_name, ap2.name as dst_airport_name, icao_code as airline_icao, al.name as airline_name from flights as flts*/
     SELECT view_flights.*, CONCAT(ac.company, " ", ac.model) as aircraft, ap1.country as src_country_name, ap2.country as dst_country_name, ap1.airport_name as src_airport_name
             ,ap2.airport_name as dst_airport_name, (SELECT total_seat FROM aircrafts ac WHERE ac.id = view_flights.aircraft_id) as total_seat
@@ -34,10 +34,10 @@ CREATE VIEW view_flights_informative AS
             JOIN view_airports as ap2 on ap2.airport_code = dst_airport_code
             JOIN aircrafts as ac on ac.id = aircraft_id;
 
-drop view if exists view_bookings_informative;
-CREATE VIEW view_bookings_informative AS
+drop view if exists view_bookings_join;
+CREATE VIEW view_bookings_join AS
     SELECT * FROM view_bookings
             -- since we SELECT *, we use USING to combine the common ids. otherwise, there'll be multiple columns of ids
-            JOIN view_flights_informative USING (flt_id)
-            JOIN view_customers USING (cust_id)
+            JOIN view_flights_join USING (flt_id)
+            JOIN view_users USING (user_id)
             JOIN view_seats USING (seat_num,flt_id);
