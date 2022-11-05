@@ -1,7 +1,7 @@
 extends base.pug
 
 block append content
-    div(class='container')
+    div(class='container-fluid')
         h3 Edit Booking
         form(action='/booking/edit' method='POST')
             input(type='hidden' name='booking_id' value=booking_id)

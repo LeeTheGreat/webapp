@@ -1,7 +1,7 @@
 extends admin_base.pug
 
 block append content
-    div(class='container')
+    div(class='container-fluid')
         form(action='/admin/flight/add' method='POST')              
             div(class='form-group row col-6 mb-3')
                 datalist(id='airport_list')

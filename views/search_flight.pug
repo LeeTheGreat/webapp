@@ -1,10 +1,10 @@
-div(class='container')
+div(class='container-fluid')
     h3 Search Flight
     form(action='/flight/search' method='GET')
         div(class='form-group row col-6 mb-3')
             datalist(id='airport_list')
                 each row in rows
-                    option(value=row.airport_code) #{row.airport_name}
+                    option(value=row.airport_code) #{row.airport_name}, #{row.region}, #{row.country}
             div(class='row mb-3')
                 label(class='col-sm-4 col-form-label') From Airport:
                 div(class='col-sm-6')

@@ -3,11 +3,10 @@ const express = require('express')
 const session = require('express-session')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const crypto = require('crypto')
 const util = require('util')
 const mysqlstore = require('express-mysql-session')(session);
 const pug = require('pug')
-const uuid = require("uuid")
+const cookieParser = require('cookie-parser');
 
 const app = express()
 const bodyParser = require('body-parser')
@@ -49,10 +48,10 @@ app.use(session({
 }))
 
 app.use(express.static('static'))
+app.use(cookieParser())
 
 const authenticationMiddleware = async (req, res, next) => {
 	if(req.session.profile){
-		//console.log(req.session)
 		next()
 	}
 	else{
@@ -62,7 +61,6 @@ const authenticationMiddleware = async (req, res, next) => {
 
 const adminAuthenticationMiddleware = async (req, res, next) => {
 	if(req.session.admin == 'admin'){
-		//console.log(req.session)
 		next()
 	}
 	else{
@@ -77,24 +75,24 @@ const refNumMiddleware = async (req, res, next) => {
 	next()
 }
 
-const SQLError = async (req,res,error) => {
-	console.log(error);
-	return res.status(500).send("Server Error: " + error.sqlMessage);
+const InternalServerError_500 = async (req, res) => {
+	return res.status(500).send('500 Internal Server Error')
 }
 
 const indexHandler = async (req, res) => {
-    //return res.send(pug.renderFile('templates/index.pug'))
-    //session = req.session;
-	//console.log("indexHandler(): " + String(req.session))
-	//console.log(req.session)
-	var rows = await query('SELECT airport_name, airport_code FROM view_airports;')
-	//var rowsJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rows)
-	if(req.session.profile){
-		res.send(pug.renderFile('views/home.pug', {rows: rows, profile: JSON.parse(req.session.profile)}))
+	try{
+		var rows = await query(`SELECT REPLACE(airport_name,'International','Intl') as airport_name, airport_code, country, region FROM view_airports;`)
+	
+		if(req.session.profile){
+			res.send(pug.renderFile('views/home.pug', {rows: rows, profile: JSON.parse(req.session.profile)}))
+		}
+		else{
+			res.send(pug.renderFile('views/home.pug', {rows: rows}))
+		}
 	}
-	else{
-		res.send(pug.renderFile('views/home.pug', {rows: rows}))
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
 }
 
@@ -110,58 +108,54 @@ const getRegisterHandler = async (req, res) => {
 }
 
 const postRegisterHandler = async (req, res) => {
-	let { fn, pass, ln, gender, dob, email} = req.body
-	const salt = await bcrypt.genSalt(10);
-    pass = await bcrypt.hash(pass, salt);
-	console.log(pass)
-	
 	try{
+		let { fn, pass, ln, gender, dob, email} = req.body
+		const salt = await bcrypt.genSalt(10)
+		pass = await bcrypt.hash(pass, salt)	
 		let rows = await query(`CALL sp_ins_user(?, ?, ?, ?, ?, ?)`, [email, pass, fn, ln, gender, dob])
-		//res.status(200).send("Registration successful. Redirecting to home page...");
 		let profile = {'email' : email, 'fname': fn, 'lname': ln, 'gender': gender, 'dob': dob}
 		req.session.profile = JSON.stringify(profile)
-		res.redirect("/");
+		res.redirect("/")
 	}
-	catch (err){
-		//console.log('MY SQL ERROR', err);
-		console.log(err.sqlMessage);
-		res.send(pug.renderFile('views/register.pug', {msg: "Error creating user"}))
+	catch (e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
-	
-	//return res.send(pug.renderFile('views/home.pug')
 }
 
 const postLoginHandler = async (req, res) => {
-	//console.log(req.body)
-	let { email, password } = req.body
-    if (!email || !password){
-		return res.send(pug.renderFile('/login'))
+	try{
+		let { email, password } = req.body
+		if (!email || !password){
+			return res.send(pug.renderFile('/login'))
+		}
+		let rows = await query(`SELECT * FROM users WHERE email = ? AND password = ? AND role = 'user'`, [email, hashed_pass])
+		if(rows.length == 0){
+			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+		}
+		rows = rows[0]
+		const verified = bcrypt.compareSync('password', rows.password)
+		if(!verified){
+			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+		}
+		let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': gender, 'dob': dob}
+		req.session.profile = JSON.parse(profile)
+		return res.redirect("/")
 	}
-	let rows = await query(`SELECT * FROM users WHERE email = ? AND password = ? AND role = 'user'`, [email, hashed_pass])
-	if(rows.length == 0){
-		return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
-	rows = rows[0]
-	const verified = bcrypt.compareSync('password', rows.password)
-	if(!verified){
-		return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
-	}
-	//console.log(rows[0].email);
-	let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': gender, 'dob': dob}
-	req.session.profile = JSON.parse(profile)
-	//console.log(req.session)
-    return res.redirect("/")
 }
 
 const getProfileHandler = async (req, res) => {
-	//console.log(rows)
 	return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(req.session.profile)}))
 }
 
 const postProfileHandler = async (req, res) => {
-	const { title, fn, ln, gender, email, dob, pass} = req.body
-	console.log(req.body)
 	try{
+		const { title, fn, ln, gender, email, dob, pass} = req.body
+		console.log(req.body)
 		if(!pass){
 			var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=? WHERE id=?`, [email, fn, ln, gender, dob, req.session.userid])
 		}
@@ -172,174 +166,186 @@ const postProfileHandler = async (req, res) => {
 		req.session.name = fn + " " + ln
 		return res.status(200).send("Profile updated")
 	}
-	catch (err){
-		/*
-		var rows = await query(`UPDATE users SET email=?, fname=?, lname=?, gender=?, dob=? WHERE email=?`, [email, title, fn, ln, gender, dob, req.session.email])
-		profileJSON = JSON.parse(JSON.stringify(rows))
-		console.log(err.sqlMessage);
-		return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, msg: err.sqlMessage}))
-		*/
-		return res.status(500).send(err.sqlMessage)
+	catch (e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
 }
 
 
 const getLogoutHandler = async (req, res) => {
-	let admin = false;
-	if(req.session.admin){
-		admin = true;
+	try{
+		let admin = false;
+		if(req.session.admin){
+			admin = true;
+		}
+		req.session.destroy();
+		if(admin){
+			return res.redirect('/admin')
+		}
+		return res.redirect('/');
 	}
-	req.session.destroy();
-	if(admin){
-		return res.redirect('/admin')
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
-	return res.redirect('/');
 }
 
 const getFlightSearchHandler = async (req, res) => {
-	//console.log(req.query)
-	let ts = Date.now() + (2 * 60 * 60 * 1000)
+	try{
+		let ts = Date.now() + (2 * 60 * 60 * 1000)
+		let date_ob = new Date(ts)
+		let date = ("0" + date_ob.getDate()).slice(-2)
+		let month = ("0" + (date_ob.getMonth() + 1)).slice(-2)
+		let year = date_ob.getFullYear()
+		let hours = ("0" + (date_ob.getHours())).slice(-2)
+		let minutes = ("0" + (date_ob.getMinutes())).slice(-2)
+		let timeSearch = hours + ':' + minutes
+		let sqlDpt = req.query.dpt + ' ' + timeSearch
+		let sqlArr = req.query.arr + ' ' + '23:59'
+		let rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
+					[sqlDpt, sqlArr, req.query.src_airport, req.query.dst_airport, Number(req.query.pax)])
 
-	let date_ob = new Date(ts)
-	let date = ("0" + date_ob.getDate()).slice(-2)
-	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2)
-	let year = date_ob.getFullYear()
-	let hours = ("0" + (date_ob.getHours())).slice(-2)
-	let minutes = ("0" + (date_ob.getMinutes())).slice(-2)
-	let timeSearch = hours + ':' + minutes
-	//console.log(timeSearch);
-	let sqlDpt = req.query.dpt + ' ' + timeSearch
-	let sqlArr = req.query.arr + ' ' + '23:59'
-	//console.log(sqlDpt);
-
-	let rows = await query(`CALL sp_select_flights_recurse(?,?,?,?,?)`, 
-				[sqlDpt, sqlArr, req.query.src_airport, req.query.dst_airport, Number(req.query.pax)])
-
-	// convert the concated fields into array
-	for(let i = 0; i < rows[0].length; i++){
-		rows[0][i]['dpt_arv'] = rows[0][i]['dpt_arv'].split("||")
-		for(let j = 0; j < rows[0][i]['dpt_arv'].length; j++){
-			rows[0][i]['dpt_arv'][j] = rows[0][i]['dpt_arv'][j].split(',')
+		// convert the concated fields into array
+		if(rows[0].length == 0){
+			return res.send(pug.renderFile('views/flight_search_result.pug', {msg: 'No flights available'}))	
 		}
-		rows[0][i]['path_ap_code'] = rows[0][i]['path_ap_code'].split("||")
-		rows[0][i]['path_flt_id'] = rows[0][i]['path_flt_id'].split("||")
-		rows[0][i]['path_ap_name'] = rows[0][i]['path_ap_name'].split("||")
-		//console.log(rows[0][i]['dpt_arv'])
+		for(let i = 0; i < rows[0].length; i++){
+			rows[0][i]['dpt_arv'] = rows[0][i]['dpt_arv'].split("||")
+			for(let j = 0; j < rows[0][i]['dpt_arv'].length; j++){
+				rows[0][i]['dpt_arv'][j] = rows[0][i]['dpt_arv'][j].split(',')
+			}
+			rows[0][i]['path_ap_code'] = rows[0][i]['path_ap_code'].split("||")
+			rows[0][i]['path_flt_id'] = rows[0][i]['path_flt_id'].split("||")
+			rows[0][i]['path_ap_name'] = rows[0][i]['path_ap_name'].split("||")
+		}
+		
+		let src_airport_name = rows[0][0]['path_ap_name'][0]
+		let dst_airport_name = rows[0][0]['path_ap_name'][rows[0][0]['path_ap_name'].length - 1]
+		rows = JSON.parse(JSON.stringify(rows[0]))
+		res.cookie('booking_data', JSON.stringify({'pax': req.query.pax}), { maxAge: 1800000, httpOnly: true }) // 30 minutes
+		//res.cookie('flt_data', JSON.stringify(rows[0]))
+		//return res.send(pug.renderFile('views/flight_search_result.pug', {rows: rows, pax: req.query.pax, src_airport_name: src_airport_name, dst_airport_name: dst_airport_name}))
+		return res.send(pug.renderFile('views/flight_search_result.pug', {rows: rows, src_airport_name: src_airport_name, dst_airport_name: dst_airport_name}))
 	}
-	let src_airport_name = rows[0][0]['path_ap_name'][0]
-	let dst_airport_name = rows[0][0]['path_ap_name'][rows[0][0]['path_ap_name'].length - 1]
-	rows = JSON.parse(JSON.stringify(rows[0]))
-	//console.log(rowsJSON)	
-	return res.send(pug.renderFile('views/flight_search_result.pug', {rows: rows, pax: req.query.pax, src_airport_name: src_airport_name, dst_airport_name: dst_airport_name}))
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
-	//console.log(req.body)
-	if(req.session.userid){
-		var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
-		return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rows : rows}))
+	if(req.cookies.booking_data == undefined){ // user skipped first part (search flight). A client-side validation, but not really an issue
+		res.redirect('/')
 	}
-	req.body['flt_id'] = JSON.parse(req.body['flt_id'])
-	//return res.send(pug.renderFile('views/flight_pax.pug', {pax : req.body.pax, flt_id : req.body.flt_id}))
-	return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {prev : req.body}))
+	try{
+		if(req.session.userid){
+			var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
+			return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rows : rows}))
+		}
+		let booking_data = JSON.parse(req.cookies.booking_data)
+		booking_data.flt_id = JSON.parse(req.body.flt_id)
+		res.cookie('booking_data', JSON.stringify(booking_data), { maxAge: 1800000, httpOnly: true }) // 30 minutes
+		return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax: booking_data.pax}))
+	}
+	catch(e){
+		console.log(e)
+	}
 }
 
 const postFlightBookingSeatSelectHandler = async (req, res) => {
-	let prevJSON = JSON.parse(req.body.prev)
-	delete req.body.prev // delete the submitted JSON values from previous stage, then reassign them as JSON objects to the request body so that we can pass them to .pug as a whole
-	req.body = Object.assign(prevJSON, req.body)
-	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, count(seat_num) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [req.body.flt_id])
+	if(req.cookies.booking_data == undefined){ // user skipped first or second part (search flight, pax info). A client-side validation, but not really an issue as it's all client data
+		res.redirect('/')
+	}
+	let booking_data = JSON.parse(req.cookies.booking_data)
+	booking_data['pax_info'] = req.body
+	res.cookie('booking_data', JSON.stringify(booking_data), { maxAge: 1800000, httpOnly: true })
+	console.log(res.cookie.booking_data)
+	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, count(seat_num) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [booking_data.flt_id])
 	for(let i = 0; i < seats.length; i++){ // convert the seat_nums array
 		seats[i]['seat_nums'] = seats[i]['seat_nums'].split(',')
 	}
-	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [req.body.flt_id])
-	flt_info = JSON.parse(JSON.stringify(flt_info))
-	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {prev : req.body, seats : seats, flt_info: flt_info, hops: flt_info.length}))
+	// query again to make sure we are getting the latest data
+	let flt_info = await query('SELECT flt_id,depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [booking_data.flt_id])
+	//console.log(flt_info)
+	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {pax : booking_data.pax, seats : seats, flt_info: flt_info, hops: flt_info.length}))
 }
 
 
 const postFlightBookingConfirmHandler = async (req, res) => {
-	prevJSON = JSON.parse(req.body.prev)
-	//console.log(prevJSON)
-	//console.log(req.body)
-	let seats_check = []
-	let conflict = []
-	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_join WHERE flt_id in (?)', [prevJSON['flt_id']])
-	let pax = prevJSON['pax']
-	//flt_info = JSON.parse(JSON.stringify(flt_info))
-	for(let i = 0; i < pax; i++){
-		for(let j = 0; j < prevJSON['flt_id'].length; j++){
-			let seat_form_num = ['seat',(i+1).toString(),prevJSON['flt_id'][j]].join('_')
-			let seat_form_value = req.body[seat_form_num]
-			let seat_db = [prevJSON['flt_id'][j],seat_form_value].join('_')
-			//console.log(seat_db)
-			if(seats_check.includes(seat_db)){
-				let src_dst = [flt_info[j]['src_airport_code'],flt_info[j]['dst_airport_code']].join(' to ')
-				conflict.push('Duplicate seats ' + seat_form_value + ' for passenger ' + Number(i+1) + ' on flight ' + src_dst)
-				continue
+	try{
+		let booking_data = JSON.parse(req.cookies.booking_data)
+		let seats_check = []
+		let conflict = []
+		// query again to make sure we are getting the latest data
+		let flt_info = await query('SELECT src_airport_name, src_airport_code, dst_airport_name, dst_airport_code FROM view_flights_join WHERE flt_id in (?)', [booking_data.flt_id])
+		let pax = booking_data.pax
+		for(let i = 0; i < pax; i++){
+			for(let j = 0; j < booking_data.flt_id.length; j++){
+				let seat_form_num = ['seat',(i+1).toString(),booking_data['flt_id'][j]].join('_')
+				let seat_form_value = req.body[seat_form_num]
+				let seat_db = [booking_data['flt_id'][j],seat_form_value].join('_')
+				if(seats_check.includes(seat_db)){
+					let src_dst = [flt_info[j]['src_airport_code'],flt_info[j]['dst_airport_code']].join(' to ')
+					conflict.push('Duplicate seats ' + seat_form_value + ' for passenger ' + Number(i+1) + ' on flight ' + src_dst)
+					continue
+				}
+				seats_check.push(seat_db)
 			}
-			seats_check.push(seat_db)
-			//console.log(seats_check)
 		}
-	}
-	//console.log(conflict.length)
-	if(conflict.length > 0){
-		let error = '<p>' + conflict.join('</p><p>')
-		return res.status(500).send(error)
-	}
-	//console.log(seats_check)
-	var ref_num = ''
-	var ref_num_all = []
-	for (let i = 0; i < seats_check.length; i++){
-		let pax_num = (i % pax)+1
-		let email = ['email', pax_num.toString()].join('_')
-		let fn = ['fn', pax_num.toString()].join('_')
-		let ln = ['ln', pax_num.toString()].join('_')
-		let gender = ['gender', pax_num.toString()].join('_')
-		let dob = ['dob', pax_num.toString()].join('_')
-		let flt_id = seats_check[i].split('_')[0]
-		let seat_num = seats_check[i].split('_')[1]
-		
-		try{
+		if(conflict.length > 0){
+			let error = '<p>' + conflict.join('</p><p>')
+			return res.status(500).send(error)
+		}
+		let ref_num = ''
+		let ref_num_all = []
+		let pax_info = booking_data.pax_info
+		for (let i = 0; i < seats_check.length; i++){
+			// here, we form the dictionary key according to the pax_info in the cookie
+			let pax_num = (i % pax)+1
+			let email = ['email', pax_num.toString()].join('_')
+			let fn = ['fn', pax_num.toString()].join('_')
+			let ln = ['ln', pax_num.toString()].join('_')
+			let gender = ['gender', pax_num.toString()].join('_')
+			let dob = ['dob', pax_num.toString()].join('_')
+			let flt_id = seats_check[i].split('_')[0]
+			let seat_num = seats_check[i].split('_')[1]
 			// for multi flight, we use the pax_num to help us determine if we're adding seats for a new flt_id
 			// whenever pax_num cycles back to 1, we're adding another flt_id. So, reset ref_num back to blank
 			if(pax_num == 1){ 
 				ref_num = '';
-				//console.log("reset ref_num due to pax_num == 1")
 			}
-			//console.log(ref_num)
-			if(ref_num == ''){ // after inseting the first user, we get the ref_num, and use it for all subsequent users
-				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_num,''])
+			if(ref_num == ''){ // for the first user, the ref_num will be blank as we generate it using MySQL
+				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [pax_info[email],pax_info[fn],pax_info[ln],pax_info[gender],pax_info[dob],flt_id,seat_num,''])
 				let rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 				ref_num = rowsJSON[0].ref_num_uuid
-				//console.log("ref_num: " + ref_num)
 				ref_num_all.push(ref_num)
 			}
-			else{ // for subsequent users where the ref_num is already set
-				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_num,ref_num])
+			else{ // for subsequent users, the ref_num would be set. So, we use it so that all bookings will have same ref_num
+				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [pax_info[email],pax_info[fn],pax_info[ln],pax_info[gender],pax_info[dob],flt_id,seat_num,ref_num])
 			}
 		}
-		catch(e){
-			console.log(e);
-			return res.status(500).send('Internal Server Error')
-		}		
+		var msg = []
+		for (let i = 0; i < ref_num_all.length; i++){
+			let src_msg = flt_info[i]['src_airport_name'] + ' (' + flt_info[i]['src_airport_code'] + ')'
+			let dst_msg = flt_info[i]['dst_airport_name'] + ' (' + flt_info[i]['dst_airport_code'] + ')'
+			msg[i] = 'Booking successful. Use reference number ' + ref_num_all[i] + ' and registered email to check booking for flight ' + src_msg + ' >>> ' + dst_msg
+		}
+		return res.send(pug.renderFile('views/booking_success.pug', {msgs: msg}))
 	}
-	var msg = []
-	for (let i = 0; i < ref_num_all.length; i++){
-		msg[i] = 'Booking successful. Use reference number ' + ref_num_all[i] + ' and registered email to check booking for flight ' + [flt_info[i]['src_airport_code'],flt_info[i]['dst_airport_code']].join(' to ')
-	}
-	return res.send(pug.renderFile('views/booking_success.pug', {msgs: msg}))
+	catch(e){
+		console.log(e);
+		return res.status(500).send('Internal Server Error')
+	}		
 }
 
 const postBookingSearchHandler = async (req, res, next) => {
-	//console.log(req.body)
 	let rows
 	let rowsJSON
 	req.session.authorized_ref_num = ''
 	try{
 		rows = await query(`CALL sp_verify_refnum_email(?,?)`,[req.body.ref_num, req.body.email])
 		if(rows[0].length > 0){
-			console.log('set authorized_ref_num as ' + req.body.ref_num)
 			req.session.authorized_ref_num = req.body.ref_num
 		}
 	}

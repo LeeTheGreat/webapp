@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	,CONSTRAINT fk_bookings_flt_id_seat_num FOREIGN KEY (flt_id,seat_num) REFERENCES seats(flt_id,seat_num)
 	-- cannot have two flights with same flt_id having same seat_num
 	,CONSTRAINT uk_bookings_flt_id_seat_num UNIQUE (flt_id,seat_num)
-	,CONSTRAINT uk_bookings_ref_num UNIQUE (ref_num)
+	-- to prevent same user_id from having the same ref_num
+	,CONSTRAINT uk_bookings_user_id_ref_num UNIQUE (user_id,ref_num)
 );
 
 /*

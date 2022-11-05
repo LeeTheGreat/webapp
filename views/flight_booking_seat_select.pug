@@ -1,7 +1,7 @@
 extends base.pug
 
 block append content    
-    div(class='container')
+    div(class='container-fluid')
         h3 Seats Selection
         hr
         form(action='/flight/booking/confirm' method='POST')
@@ -11,18 +11,17 @@ block append content
                 h5(class='mb-3') #{flt_info[h]['depart']} to #{flt_info[h]['arrive']}
                 div(class='form-group row col-6 mb-3')
                     - var n = 0;
-                    while n < prev['pax']
+                    while n < pax
                         - ++n;
                         div(class='row mb-3')
                             label(class='col-sm-3 col-form-label') Passenger !{n} Seat
                             div(class='col-sm-6 ms-auto')
-                                select(name='seat_'+n+'_'+prev['flt_id'][h] class='form-select')
+                                select(name='seat_'+n+'_'+flt_info[h]['flt_id'] class='form-select')
                                     - var s = 0;
                                     while s < seats[h]['seat_count']
                                         option(value=seats[h]['seat_nums'][s]) #{seats[h]['seat_nums'][s]}
                                         - ++s;
                 - ++h;
                 hr
-            input(type='hidden' name='prev' value=prev)
             button(type='submit' class="btn btn-primary mb-3") Submit
                 
