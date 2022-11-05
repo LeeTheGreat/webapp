@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,`arrive` DATETIME NOT NULL
 	,`price` INT NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
+	-- ,FULLTEXT(flt_num,src_airport_code,dst_airport_code)
+	-- ,FULLTEXT(depart, arrive)
 	,CONSTRAINT fk_flights_src_airport_code FOREIGN KEY (src_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flights_dst_airport_code FOREIGN KEY (dst_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flights_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)

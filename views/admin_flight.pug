@@ -2,8 +2,9 @@ extends admin_base.pug
 
 block append content
     div(class='container')
+        h3 Flight Management Page
         div(class='row mb-3')
-            div(class='col-sm-6 ms-auto')            
+            div(class='col-sm-12 ms-auto')            
                 a(href="/admin/flight/add" class="btn btn-primary my-3") Add Flight    
     table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
@@ -20,7 +21,7 @@ block append content
                 th Seats Free / Total
                 th Price
                 th Status
-                th(scope='col') Edit
+                th Edit
         tbody
             if rowsJSON
                 each row in rowsJSON

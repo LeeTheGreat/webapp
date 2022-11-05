@@ -6,6 +6,7 @@ CREATE TABLE `airports`(
   ,`country` char(20) NOT NULL
   ,`region` char(50) NOT NULL
   ,INDEX idx_airports_iata_code (iata_code)
+  -- ,FULLTEXT(name, iata_code, country_iso2, country, region)
 );
 
 INSERT INTO `airports` VALUES (NULL,'Betong International Airport','BTZ','TH','Thailand','Betong');

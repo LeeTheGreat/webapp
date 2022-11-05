@@ -2,40 +2,41 @@ extends admin_base.pug
 
 block append content
     div(class='container')
+        h3 Booking Management Page
         div(class="title") User Booking Tracker
         
         div(class="search_box")
             input(type='text' id="search_input" placeholder="Input your search here")
 
-        table(class='table table-striped table-hover table-condensed')  
-            thead(class='table-dark')
-            tr
-                th Booking ID
-                th Reference ID
-                th Flight ID
-                th Email
-                th Name
-                th Status
-                th(scope='col') Action
-                    
-            tbody
-            if users
-                each row in users
-                    tr
-                        td #{row["booking_id"]}
-                        td #{row["ref_num"]}
-                        td #{row["flt_num"]} 
-                        td #{row["email"]}
-                        td #{row["fname"]} #{row["lname"]}
-                        td #{row["booking_status"]}
-                        td      
-                            div(class="d-flex flex-row mb-1")
-                                div   
-                                    form(action='/booking/edit' method='GET')
-                                        input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
-                                        button(type='submit' class="btn btn-primary") Edit
-                                div(class="mx-3")
-                                    form(action='/admin/booking' method='POST')
-                                        input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
-                                        button(type="submit" class="btn btn-primary") Delete
+    table(class='table table-striped table-hover table-condensed')  
+        thead(class='table-dark')
+        tr
+            th Booking ID
+            th Reference ID
+            th Flight ID
+            th Email
+            th Name
+            th Status
+            th(scope='col') Action
+                
+        tbody
+        if users
+            each row in users
+                tr
+                    td #{row["booking_id"]}
+                    td #{row["ref_num"]}
+                    td #{row["flt_num"]} 
+                    td #{row["email"]}
+                    td #{row["fname"]} #{row["lname"]}
+                    td #{row["booking_status"]}
+                    td      
+                        div(class="d-flex flex-row mb-1")
+                            div   
+                                form(action='/booking/edit' method='GET')
+                                    input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
+                                    button(type='submit' class="btn btn-primary") Edit
+                            div(class="mx-3")
+                                form(action='/admin/booking' method='POST')
+                                    input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
+                                    button(type="submit" class="btn btn-primary") Delete
                         

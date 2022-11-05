@@ -95,7 +95,7 @@ BEGIN
 		-- need a TRANSACTION here as the whole process involves adding customers, then adding bookings. If any step went wrong, need to roll back
 		START TRANSACTION;
 		INSERT INTO users VALUES (NULL,TRIM(email),NULL,fn,ln,gender,REPLACE(dob,'/','-'),'user');
-		INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_num, NOW(), 'active');
+		INSERT INTO bookings VALUES(NULL, flt_id, LAST_INSERT_ID(), seat_num, NOW(), 'active', ref_num_uuid);
 		COMMIT;
 	END IF;
 	SELECT ref_num_uuid;
