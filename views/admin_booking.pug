@@ -12,8 +12,9 @@ block append content
         thead(class='table-dark')
         tr
             th Booking ID
-            th Reference ID
+            th Reference Num
             th Flight ID
+            th Flight Num
             th Email
             th Name
             th Status
@@ -25,6 +26,7 @@ block append content
                 tr
                     td #{row["booking_id"]}
                     td #{row["ref_num"]}
+                    td #{row["flt_id"]}
                     td #{row["flt_num"]} 
                     td #{row["email"]}
                     td #{row["fname"]} #{row["lname"]}
@@ -32,11 +34,11 @@ block append content
                     td      
                         div(class="d-flex flex-row mb-1")
                             div   
-                                form(action='/booking/edit' method='GET')
-                                    input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
+                                form(action='/admin/booking/edit' method='GET')
+                                    input(type='hidden' class='form-control' value=row.booking_id id='booking_id' name='booking_id')        
                                     button(type='submit' class="btn btn-primary") Edit
                             div(class="mx-3")
-                                form(action='/admin/booking' method='POST')
-                                    input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
+                                form(action='/admin/booking/delete' method='POST')
+                                    input(type='hidden' class='form-control' value=row.booking_id id='booking_id' name='booking_id')
                                     button(type="submit" class="btn btn-primary") Delete
                         

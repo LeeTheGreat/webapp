@@ -357,20 +357,26 @@ const postBookingSearchHandler = async (req, res, next) => {
 }
 
 const getBookingSearchHandler = async (req, res) => {
-	let rows = []
-	let rowsJSON
-	if(req.session.authorized_ref_num){ // we don't submit GET query for booking search as it reveals the info on the URL. So, we check if the user has successfully verified him/herself via cookie
-		rows = await query(`SELECT * FROM view_bookings_join WHERE ref_num = ?`,[req.session.authorized_ref_num])
-	}
-	for(let i = 0; i < rows.length; i++){
-		if(rows[i].flt_status == 'flt_cancelled'){
-			rows[i].booking_status = "Flight Cancelled"
+	try{
+		let rows = []
+		let rowsJSON
+		if(req.session.authorized_ref_num){ // we don't submit GET query for booking search as it reveals the info on the URL. So, we check if the user has successfully verified him/herself via cookie
+			rows = await query(`SELECT * FROM view_bookings_join WHERE ref_num = ?`,[req.session.authorized_ref_num])
 		}
-		else if(rows[i].booking_status == 'active'){
-			rows[i].booking_status = "Active"
+		for(let i = 0; i < rows.length; i++){
+			if(rows[i].flt_status == 'flt_cancelled'){
+				rows[i].booking_status = "Flight Cancelled"
+			}
+			else if(rows[i].booking_status == 'active'){
+				rows[i].booking_status = "Active"
+			}
 		}
+		return res.send(pug.renderFile('views/booking_summary.pug', {rows: rows}))
 	}
-	return res.send(pug.renderFile('views/booking_summary.pug', {rows: rows}))
+	catch(e){
+		console.log(e);
+		return res.status(500).send('Internal Server Error')
+	}
 }
 
 const postBookingEditHandler = async (req, res, next) => {
@@ -542,15 +548,27 @@ const postAdminFlightEditHandler = async (req, res) => {
 
 const getAdminBookingHandler = async (req, res) => {
 	//console.log("getAdminBookingHandler")
-	let users = await query(`SELECT booking_id, ref_num, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
+	let users = await query(`SELECT booking_id, ref_num, flt_id, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
 	return res.send(pug.renderFile('views/admin_booking.pug', {users : users}))
 
 }
 
-const postAdminBookingHandler = async (req, res) => {
-	console.log(req.body)
+const getAdminBookingEditHandler = async (req, res) => {
 	try{
-		await query (`DELETE FROM bookings WHERE ref_num=?`, [req.body.ref_num])
+		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[req.query.booking_id])
+		rows = rows[0]
+		return res.send(pug.renderFile('views/admin_booking_edit.pug', {rows: rows}))
+	}
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
+}
+
+const postAdminBookingEditHandler = async (req, res) => {
+	
+	try{
+		await query (`UPDATE bookings WHERE ref_num=?`, [req.body.ref_num])
 	}
 	catch(err){
 		return res.status(500).send(err.sqlMessage)
@@ -558,26 +576,8 @@ const postAdminBookingHandler = async (req, res) => {
 	return res.redirect('/admin/booking')
 }
 
-/*const getBooking = async (req, res) => {
-	const fromcountrySQL = 'SELECT name FROM country WHERE name like ?'
-	const tocountrySQL = 'SELECT name FROM country WHERE name like ?'
-	const departdateSQL = 'SELECT depart_time FROM flights WHERE depart_time like ?'
-	const arrivaldateSQL = 'SELECT arrival_time FROM flights where arrival_time like ?'
-	const flightSQL = 'SELECT f.id , c.name , f.depart_time , f.arrival_time FROM flights f , country c WHERE FromCountry like ? AND ToCountry like ? AND DepartDate like ? AND ArriveDate like ? 
-	AND c.id = f.src_country_id AND c.id = f.dst_country_id WHERE 
-	let fromcountry = {};
-	let tocountry = {};
-	let departdate = {};
-	let arrivaldate = {};
-	try{
-		fromcountry = await queryAsync(fromcountrySQL)
-	await query(
-	}
-}*/
-
 app.get('/', indexHandler)
 app.get('/flight/search', urlencodedParser, getFlightSearchHandler)
-//app.get('/flight/pax', getFlightPaxHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
@@ -600,7 +600,8 @@ app.post('/admin/login', urlencodedParser, postAdminLoginHandler)
 app.get('/admin', adminAuthenticationMiddleware, getAdminHomeHandler)
 app.get('/admin/flight', adminAuthenticationMiddleware, getAdminFlightHandler)
 app.get('/admin/booking', adminAuthenticationMiddleware, getAdminBookingHandler)
-app.post('/admin/booking', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingHandler)
+app.get('/admin/booking/edit', adminAuthenticationMiddleware, getAdminBookingEditHandler)
+app.post('/admin/booking/edit', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingEditHandler)
 app.get('/admin/flight/add', adminAuthenticationMiddleware, getAdminFlightAddHandler)
 app.post('/admin/flight/add', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, getAdminFlightEditHandler)

@@ -1,0 +1,43 @@
+extends admin_base.pug
+
+
+block append content
+    div(class='container-fluid')
+        form(action='/admin/booking/edit' method='POST')
+            div(class='form-group row col-6 mb-3')
+                div(class='row mb-3')
+                    input(type='hidden' class='form-control' value=rows.booking_id id='booking_id' name='booking_id')
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Current Seat
+                    label(class='col-sm-2 col-form-label') #{rows.seat_num}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Flight Number
+                    label(class='col-sm-2 col-form-label') #{rows.flt_num}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Flight Status
+                    label(class='col-sm-2 col-form-label') #{rows.flt_status}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Src >>> Dst
+                    label(class='col-sm-8 col-form-label') #{rows.src_airport_name} (#{rows.src_airport_code}) >>> #{rows.dst_airport_name} (#{rows.dst_airport_code})
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Departure (GMT) >>> Arrival (GMT)
+                    label(class='col-sm-8 col-form-label') #{rows.depart} >>> #{rows.arrive}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Price
+                    label(class='col-sm-8 col-form-label') #{rows.price}
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Booking Status
+                    div(class='col-sm-5')
+                        select(name='status' class='form-select' id='status')
+                            each status in ['active', 'inactive']
+                                if status == rows.booking_status
+                                    option(value=status selected)=status
+                                else
+                                    option(value=status)=status
+                div(class='row mb-3')
+                    label(class='col-sm-4 col-form-label') Email
+                    div(class='col-sm-5')            
+                        input(type='email' class='form-control' id='email' name='email' value=rows.email)
+                div(class='row mb-3')
+                    div(class='col-sm-8 ms-auto')            
+                        button(type='submit' class="btn btn-primary") Update Booking
