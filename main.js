@@ -1,6 +1,8 @@
 const mysql = require('mysql')
 const express = require('express')
 const session = require('express-session')
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const crypto = require('crypto')
 const util = require('util')
 const mysqlstore = require('express-mysql-session')(session);
@@ -10,7 +12,7 @@ const uuid = require("uuid")
 const app = express()
 const bodyParser = require('body-parser')
 const e = require('express')
-const { count } = require('console')
+const { count, profile } = require('console')
 const mysqloptions = {
 	host: 'localhost',
 	port: 3306,
@@ -49,7 +51,7 @@ app.use(session({
 app.use(express.static('static'))
 
 const authenticationMiddleware = async (req, res, next) => {
-	if(req.session.userid){
+	if(req.session.profile){
 		//console.log(req.session)
 		next()
 	}
@@ -58,16 +60,26 @@ const authenticationMiddleware = async (req, res, next) => {
 	}
 }
 
-const SQLError = async (req,res,error) => {
-	console.log(error);
-	return res.status(500).send("Server Error: " + error.sqlMessage);
+const adminAuthenticationMiddleware = async (req, res, next) => {
+	if(req.session.admin == 'admin'){
+		//console.log(req.session)
+		next()
+	}
+	else{
+		return res.redirect('/admin/login')
+	}
 }
 
-const loggedInMiddleware = async (req, res, next) => {
-	if(!req.session.userid){
+const refNumMiddleware = async (req, res, next) => {
+	if(!req.session.authorized_ref_num || req.session.authorized_ref_num == ''){
 		return res.redirect('/')
 	}
 	next()
+}
+
+const SQLError = async (req,res,error) => {
+	console.log(error);
+	return res.status(500).send("Server Error: " + error.sqlMessage);
 }
 
 const indexHandler = async (req, res) => {
@@ -76,15 +88,17 @@ const indexHandler = async (req, res) => {
 	//console.log("indexHandler(): " + String(req.session))
 	//console.log(req.session)
 	var rows = await query('SELECT airport_name, airport_code FROM view_airports;')
-	var rowsJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rowsJSON)
-	if(req.session.userid){
-		return res.send(pug.renderFile('views/home.pug', {fn: req.session.name, rowsJSON: rowsJSON}))
+	//var rowsJSON = JSON.parse(JSON.stringify(rows))
+	//console.log(rows)
+	if(req.session.profile){
+		res.send(pug.renderFile('views/home.pug', {rows: rows, profile: JSON.parse(req.session.profile)}))
 	}
-	res.send(pug.renderFile('views/home.pug', {rowsJSON: rowsJSON}))
+	else{
+		res.send(pug.renderFile('views/home.pug', {rows: rows}))
+	}
 }
 
-const getLoginHandler = async (_req, res) => {
+const getLoginHandler = async (req, res) => {
     return res.send(pug.renderFile('views/login.pug'))
 }
 
@@ -96,51 +110,52 @@ const getRegisterHandler = async (req, res) => {
 }
 
 const postRegisterHandler = async (req, res) => {
-	const { fn, ln, gender, dob, email, pass} = req.body
+	let { fn, pass, ln, gender, dob, email} = req.body
+	const salt = await bcrypt.genSalt(10);
+    pass = await bcrypt.hash(pass, salt);
+	console.log(pass)
+	
 	try{
-		var rows = await query(`INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?)`, [email, pass, fn, ln, gender, dob])
+		let rows = await query(`CALL sp_ins_user(?, ?, ?, ?, ?, ?)`, [email, pass, fn, ln, gender, dob])
 		//res.status(200).send("Registration successful. Redirecting to home page...");
-		rows = await query(`SELECT id, email, fname, lname FROM users WHERE email=?`, [email])
-		req.session.name = rows[0].fname + " " + rows[0].lname
-		req.session.email = rows[0].email
-		req.session.userid = rows[0].id
+		let profile = {'email' : email, 'fname': fn, 'lname': ln, 'gender': gender, 'dob': dob}
+		req.session.profile = JSON.stringify(profile)
 		res.redirect("/");
 	}
 	catch (err){
 		//console.log('MY SQL ERROR', err);
 		console.log(err.sqlMessage);
-		res.send(pug.renderFile('views/register.pug', {msg: err.sqlMessage}))
+		res.send(pug.renderFile('views/register.pug', {msg: "Error creating user"}))
 	}
+	
 	//return res.send(pug.renderFile('views/home.pug')
 }
 
 const postLoginHandler = async (req, res) => {
 	//console.log(req.body)
-	const { email, password } = req.body
+	let { email, password } = req.body
     if (!email || !password){
 		return res.send(pug.renderFile('/login'))
 	}
-    const rows = await query(`SELECT * FROM users WHERE email = ? AND password = ?`, [email, password])
-    if (rows.length == 0){
-        return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))
+	let rows = await query(`SELECT * FROM users WHERE email = ? AND password = ? AND role = 'user'`, [email, hashed_pass])
+	if(rows.length == 0){
+		return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+	}
+	rows = rows[0]
+	const verified = bcrypt.compareSync('password', rows.password)
+	if(!verified){
+		return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
 	}
 	//console.log(rows[0].email);
-	req.session.email = rows[0].email
-	req.session.name = rows[0].fname + " " + rows[0].lname
-	req.session.userid = rows[0].id
+	let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': gender, 'dob': dob}
+	req.session.profile = JSON.parse(profile)
 	//console.log(req.session)
     return res.redirect("/")
 }
 
 const getProfileHandler = async (req, res) => {
-	const rows = await query(`SELECT email, fname, lname, gender, dob FROM users WHERE id = ?`, [req.session.userid])
-	if(rows.length == 0){
-		return res.status(500).send('Something went wrong. Pls login again')
-	}
 	//console.log(rows)
-	profileJSON = JSON.parse(JSON.stringify(rows))
-	console.log(profileJSON)
-	return res.send(pug.renderFile('views/profile.pug', {profile: profileJSON, fn: req.session.name}))
+	return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(req.session.profile)}))
 }
 
 const postProfileHandler = async (req, res) => {
@@ -170,7 +185,14 @@ const postProfileHandler = async (req, res) => {
 
 
 const getLogoutHandler = async (req, res) => {
+	let admin = false;
+	if(req.session.admin){
+		admin = true;
+	}
 	req.session.destroy();
+	if(admin){
+		return res.redirect('/admin')
+	}
 	return res.redirect('/');
 }
 
@@ -226,18 +248,12 @@ const postFlightBookingSeatSelectHandler = async (req, res) => {
 	let prevJSON = JSON.parse(req.body.prev)
 	delete req.body.prev // delete the submitted JSON values from previous stage, then reassign them as JSON objects to the request body so that we can pass them to .pug as a whole
 	req.body = Object.assign(prevJSON, req.body)
-	//let rows = await query('SELECT id,seat_num FROM seats WHERE flt_id=? AND available=true', [req.body.flt_id])
-	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, group_concat(id) as seat_ids, count(id) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [req.body.flt_id])
-	for(let i = 0; i < seats.length; i++){ // convert the seat_nums and seat_ids to array
+	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, count(seat_num) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [req.body.flt_id])
+	for(let i = 0; i < seats.length; i++){ // convert the seat_nums array
 		seats[i]['seat_nums'] = seats[i]['seat_nums'].split(',')
-		seats[i]['seat_ids'] = seats[i]['seat_ids'].split(',')
 	}
-	seats = JSON.parse(JSON.stringify(seats))
-	//console.log(seats)
-	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_informative WHERE flt_id in (?)', [req.body.flt_id])
+	let flt_info = await query('SELECT depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [req.body.flt_id])
 	flt_info = JSON.parse(JSON.stringify(flt_info))
-	//return res.send(pug.renderFile('views/flight_seat_select.pug', {pax : req.body.pax, flt_id : req.body.flt_id, seats : rowsJSON}))
-	//console.log(req.body)
 	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {prev : req.body, seats : seats, flt_info: flt_info, hops: flt_info.length}))
 }
 
@@ -248,18 +264,18 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	//console.log(req.body)
 	let seats_check = []
 	let conflict = []
-	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_informative WHERE flt_id in (?)', [prevJSON['flt_id']])
+	let flt_info = await query('SELECT src_airport_code,dst_airport_code FROM view_flights_join WHERE flt_id in (?)', [prevJSON['flt_id']])
 	let pax = prevJSON['pax']
-	flt_info = JSON.parse(JSON.stringify(flt_info))
+	//flt_info = JSON.parse(JSON.stringify(flt_info))
 	for(let i = 0; i < pax; i++){
 		for(let j = 0; j < prevJSON['flt_id'].length; j++){
-			let seat_form_id = ['seat',(i+1).toString(),prevJSON['flt_id'][j]].join('_')
-			let seat_form_value = req.body[seat_form_id]
+			let seat_form_num = ['seat',(i+1).toString(),prevJSON['flt_id'][j]].join('_')
+			let seat_form_value = req.body[seat_form_num]
 			let seat_db = [prevJSON['flt_id'][j],seat_form_value].join('_')
 			//console.log(seat_db)
 			if(seats_check.includes(seat_db)){
 				let src_dst = [flt_info[j]['src_airport_code'],flt_info[j]['dst_airport_code']].join(' to ')
-				conflict.push('Duplicate seats for passenger ' + Number(i+1) + ' on flight ' + src_dst)
+				conflict.push('Duplicate seats ' + seat_form_value + ' for passenger ' + Number(i+1) + ' on flight ' + src_dst)
 				continue
 			}
 			seats_check.push(seat_db)
@@ -272,8 +288,8 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		return res.status(500).send(error)
 	}
 	//console.log(seats_check)
-	var ref_num = uuid.v4().substring(0,8)
-	var email_for_retrieve = ''
+	var ref_num = ''
+	var ref_num_all = []
 	for (let i = 0; i < seats_check.length; i++){
 		let pax_num = (i % pax)+1
 		let email = ['email', pax_num.toString()].join('_')
@@ -282,77 +298,95 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 		let gender = ['gender', pax_num.toString()].join('_')
 		let dob = ['dob', pax_num.toString()].join('_')
 		let flt_id = seats_check[i].split('_')[0]
-		let seat_id = seats_check[i].split('_')[1]
+		let seat_num = seats_check[i].split('_')[1]
+		
 		try{
+			// for multi flight, we use the pax_num to help us determine if we're adding seats for a new flt_id
+			// whenever pax_num cycles back to 1, we're adding another flt_id. So, reset ref_num back to blank
+			if(pax_num == 1){ 
+				ref_num = '';
+				//console.log("reset ref_num due to pax_num == 1")
+			}
 			//console.log(ref_num)
-			//rows = await query('INSERT INTO customers VALUES (NULL,NULL,NULL,NULL,NULL,NULL,NULL)')
-			//var rows = await query('INSERT INTO customers VALUES (NULL,NULL,?,?,?,?,?)', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob]]);
-			var rows = await query('CALL sp_ins_customer_and_booking(NULL,?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_id,ref_num])
+			if(ref_num == ''){ // after inseting the first user, we get the ref_num, and use it for all subsequent users
+				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_num,''])
+				let rowsJSON = JSON.parse(JSON.stringify(rows[0]))
+				ref_num = rowsJSON[0].ref_num_uuid
+				//console.log("ref_num: " + ref_num)
+				ref_num_all.push(ref_num)
+			}
+			else{ // for subsequent users where the ref_num is already set
+				let rows = await query('CALL sp_ins_user_and_booking(?,?,?,?,?,?,?,?);', [prevJSON[email],prevJSON[fn],prevJSON[ln],prevJSON[gender],prevJSON[dob],flt_id,seat_num,ref_num])
+			}
 		}
 		catch(e){
 			console.log(e);
-			return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
+			return res.status(500).send('Internal Server Error')
 		}		
 	}
-	let msg = 'Booking successful. Use reference number ' + ref_num + ' and registered email to check booking'
-	return res.send(pug.renderFile('views/booking_success.pug', {msg: msg}))
-	//rows = await query('')
+	var msg = []
+	for (let i = 0; i < ref_num_all.length; i++){
+		msg[i] = 'Booking successful. Use reference number ' + ref_num_all[i] + ' and registered email to check booking for flight ' + [flt_info[i]['src_airport_code'],flt_info[i]['dst_airport_code']].join(' to ')
+	}
+	return res.send(pug.renderFile('views/booking_success.pug', {msgs: msg}))
 }
 
-const postBookingSearchHandler = async (req, res) => {
-	//console.log(req.query)
-	console.log(res.locals)
-	let result
+const postBookingSearchHandler = async (req, res, next) => {
+	//console.log(req.body)
 	let rows
-	if(res.locals.booking_id){
-		result = await query(`SELECT ref_num, email FROM view_bookings_informative WHERE booking_id = ?`,[res.locals.booking_id])
-		result = JSON.parse(JSON.stringify(result[0]))
-		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[result['ref_num'], result['email']])
+	let rowsJSON
+	req.session.authorized_ref_num = ''
+	try{
+		rows = await query(`CALL sp_verify_refnum_email(?,?)`,[req.body.ref_num, req.body.email])
+		if(rows[0].length > 0){
+			console.log('set authorized_ref_num as ' + req.body.ref_num)
+			req.session.authorized_ref_num = req.body.ref_num
+		}
 	}
-	else{
-		rows = await query(`CALL sp_select_booking_by_ref_and_email(?,?)`,[req.body.ref_num, req.body.email])
+	catch(e){
+		console.log(e);
+		return res.status(500).send('Internal Server Error')
 	}
-	var rowsJSON = JSON.parse(JSON.stringify(rows[0]))
-	//console.log(rowsJSON)
-	for(let i = 0; i < rowsJSON.length; i++){
-		if(rowsJSON[i].booking_status == 'flt_cancelled'){
-			
-			rowsJSON[i].booking_status = "Cancelled by Flight Cancellation"
-			continue
+	next()
+}
+
+const getBookingSearchHandler = async (req, res) => {
+	let rows = []
+	let rowsJSON
+	if(req.session.authorized_ref_num){ // we don't submit GET query for booking search as it reveals the info on the URL. So, we check if the user has successfully verified him/herself via cookie
+		rows = await query(`SELECT * FROM view_bookings_join WHERE ref_num = ?`,[req.session.authorized_ref_num])
+	}
+	for(let i = 0; i < rows.length; i++){
+		if(rows[i].flt_status == 'flt_cancelled'){
+			rows[i].booking_status = "Flight Cancelled"
 		}
-		if(rowsJSON[i].booking_status == 'cust_cancelled'){
-			rowsJSON[i].booking_status = "Cancelled by Passenger"
-			continue
+		else if(rows[i].booking_status == 'active'){
+			rows[i].booking_status = "Active"
 		}
-		if(rowsJSON[i].booking_status == 'active'){
-			rowsJSON[i].booking_status = "Active"
-			continue
-		}
-	}	
-	//console.log(rowsJSON)
-	return res.send(pug.renderFile('views/booking_summary.pug', {rowsJSON: rowsJSON}))
+	}
+	return res.send(pug.renderFile('views/booking_summary.pug', {rows: rows}))
 }
 
 const postBookingEditHandler = async (req, res, next) => {
-	//console.log(req.body)
-	let rows = await query(`UPDATE bookings SET seat_id = ? WHERE id = ?`,[Number(req.body.seat_id), Number(req.body.booking_id)])
+	console.log(req.body)
+	//let ref_num = await query(`SELECT ref_num FROM booking`)
+	let rows = await query(`UPDATE bookings SET seat_num = ? WHERE id = ?`,[req.body.seat_num, Number(req.body.booking_id)])
 	//console.log(rowsJSON)
-	res.locals.booking_id = req.body.booking_id
-	next()
-	//return res.redirect('/booking/edit')
+	//next()
+	return res.redirect('/booking/search')
 }
 
 const getBookingEditHandler = async (req, res) => {
-	let seats = await query(`SELECT id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
-	let curr_seat = await query(`SELECT seat_id, seat_num FROM view_bookings_informative WHERE booking_id = ?`, [req.query.booking_id])
-	seats = JSON.parse(JSON.stringify(seats))
+	let all_seats = await query(`SELECT flt_id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
+	let curr_seat = await query(`SELECT seat_num FROM view_bookings_join WHERE booking_id = ?`, [req.query.booking_id])
+	all_seats = JSON.parse(JSON.stringify(all_seats))
 	curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
 	//console.log(currSeatJSON)
-	return res.send(pug.renderFile('views/booking_edit.pug', {curr_seat : curr_seat, seats: seats, booking_id: req.query.booking_id}))
+	return res.send(pug.renderFile('views/booking_edit.pug', {curr_seat : curr_seat, all_seats: all_seats, booking_id: req.query.booking_id}))
 }
 
 const getBookingActionHandler = async (req, res) => {
-	console.log(req.query)
+	//console.log(req.query)
 	let param = `?booking_id=${req.query.booking_id}`
 	if(req.query.edit_action){
 		//console.log('edit action')
@@ -361,34 +395,61 @@ const getBookingActionHandler = async (req, res) => {
 	}
 	if(req.query.cancel_action){
 		let url = '/booking/cancel' + param;
-		return res.redirect(307, url)
+		return res.redirect(url)
 	}
 }
 
 const getBookingCancelHandler = async (req, res) => {
 	//console.log(req.query)
-	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id}))
+	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id, ref_no: req.query.refno}))
 }
 
 const postBookingCancelHandler = async (req, res, next) => {
 	//console.log(req.body)
 	try{
-		var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
+		//var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
+		var rows = await query('DELETE FROM bookings WHERE id=?', [req.body.booking_id])
 	}
 	catch(e){
 		console.log(e);
-		return res.status(500).send('Internal Server Error: ' + e.sqlMessage)
+		return res.status(500).send('Internal Server Error')
 	}
-	res.locals.booking_id = req.body.booking_id
-	next()
+	return res.redirect('/booking/search')
 }
 
-const getAdminHomeHandler = async (_req, res) => {
-	return res.send(pug.renderFile('views/admin_home.pug', {admin: "admin"}))
+const getAdminLoginHandler = async (req, res) => {
+	return res.send(pug.renderFile('views/admin_login.pug'))
 }
 
-const getAdminFlightHandler = async (_req, res) => {
-	var rows = await query(`SELECT * from view_flights_informative ORDER BY flt_id ASC;`)
+const postAdminLoginHandler = async(req, res) =>{
+	//console.log(req.body)
+	let { username, password } = req.body
+	if(!username || !password){
+		return res.send(pug.renderFile('/login'))
+	}
+	//const hashed_pass = bcrypt.hash(req.body.password,'')
+	let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'admin'`, [username])
+	if(rows.length == 0){
+		return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+	}
+	rows = rows[0]
+	const verified = bcrypt.compareSync('password', rows.password)
+	if(!verified){
+		return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+	}
+	let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': rows.gender, 'dob': rows.dob}
+	//console.log(profile)
+	req.session.profile = JSON.stringify(profile)
+	req.session.admin = 'admin';
+	return res.redirect("/admin")
+}
+
+const getAdminHomeHandler = async (req, res) => {
+	return res.send(pug.renderFile('views/admin_home.pug', {profile: JSON.parse(req.session.profile)}))
+}
+
+const getAdminFlightHandler = async (req, res) => {
+	var rows = await query(`SELECT * from view_flights_join ORDER BY flt_id ASC;`)
 	var rowsJSON = JSON.parse(JSON.stringify(rows))
 	//console.log(rowsJSON)
 	if(rowsJSON.length == 0){
@@ -400,7 +461,7 @@ const getAdminFlightHandler = async (_req, res) => {
 	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON}))
 }
 
-const getAdminFlightAddHandler = async (_req, res) => {
+const getAdminFlightAddHandler = async (req, res) => {
 	//var airlines = await query(`SELECT * FROM airlines`)
 	var aircrafts = await query(`SELECT * FROM aircrafts`)
 	var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
@@ -440,7 +501,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 	//console.log(countriesJSON)
 	var rowsJSON = [{}]
 	try{
-		let rows = await query(`SELECT * FROM view_flights_informative WHERE flt_id=?`, [req.query.flt_id])
+		let rows = await query(`SELECT * FROM view_flights_join WHERE flt_id=?`, [req.query.flt_id])
 		rowsJSON = JSON.parse(JSON.stringify(rows[0]))
 	}
 	catch (err){
@@ -473,15 +534,10 @@ const postAdminFlightEditHandler = async (req, res) => {
 	return res.redirect('/admin/flight')
 }
 
-const getAdminBookingHandler = async (_req, res) => {
+const getAdminBookingHandler = async (req, res) => {
 	//console.log("getAdminBookingHandler")
-	//var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT b.id, b.ref_num, f.flt_num, c.fname, c.lname, b.status FROM bookings b, flights f, customers c WHERE b.id = c.id AND b.flt_id = f.id`)))
-	var customersJSON = JSON.parse(JSON.stringify(await query(`SELECT cust_id, booking_id, ref_num, flt_num, fname, lname, booking_status FROM view_bookings_informative;`)))
-	if(customersJSON.length == 0){
-		return res.send(pug.renderFile('views/admin_booking.pug'))
-	}
-
-	return res.send(pug.renderFile('views/admin_booking.pug', {customers : customersJSON}))
+	let users = await query(`SELECT booking_id, ref_num, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
+	return res.send(pug.renderFile('views/admin_booking.pug', {users : users}))
 
 }
 
@@ -519,24 +575,27 @@ app.get('/flight/search', urlencodedParser, getFlightSearchHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
 app.post('/flight/booking/seat_selection', urlencodedParser, postFlightBookingSeatSelectHandler)
 app.post('/flight/booking/confirm', urlencodedParser, postFlightBookingConfirmHandler)
-app.post('/booking/search', urlencodedParser, postBookingSearchHandler)
-app.get('/booking/action', urlencodedParser, getBookingActionHandler)
-app.post('/booking/edit', urlencodedParser, postBookingEditHandler, postBookingSearchHandler)
-app.get('/booking/edit', urlencodedParser, getBookingEditHandler)
-app.get('/booking/cancel', urlencodedParser, getBookingCancelHandler)
-app.post('/booking/cancel', urlencodedParser, postBookingCancelHandler, postBookingSearchHandler)
+app.get('/booking/search', urlencodedParser, getBookingSearchHandler)
+app.post('/booking/search', urlencodedParser, postBookingSearchHandler, getBookingSearchHandler)
+app.get('/booking/action', refNumMiddleware, urlencodedParser, getBookingActionHandler)
+app.post('/booking/edit', refNumMiddleware, urlencodedParser, postBookingEditHandler, postBookingSearchHandler)
+app.get('/booking/edit', refNumMiddleware, urlencodedParser, getBookingEditHandler)
+app.get('/booking/cancel', refNumMiddleware, urlencodedParser, getBookingCancelHandler)
+app.post('/booking/cancel', refNumMiddleware, urlencodedParser, postBookingCancelHandler, postBookingSearchHandler)
 app.get('/login', getLoginHandler)
 app.post('/login', urlencodedParser, postLoginHandler)
 app.get('/register', getRegisterHandler)
 app.post('/register', urlencodedParser, postRegisterHandler)
 app.get('/profile', authenticationMiddleware, getProfileHandler)
-app.post('/profile', authenticationMiddleware, loggedInMiddleware, urlencodedParser, postProfileHandler)
+app.post('/profile', authenticationMiddleware, urlencodedParser, postProfileHandler)
 app.get('/logout', getLogoutHandler)
-app.get('/admin', getAdminHomeHandler)
-app.get('/admin/flight', getAdminFlightHandler)
-app.get('/admin/booking', getAdminBookingHandler)
-app.post('/admin/booking', urlencodedParser, postAdminBookingHandler)
-app.get('/admin/flight/add', getAdminFlightAddHandler)
-app.post('/admin/flight/add', urlencodedParser, postAdminFlightAddHandler)
-app.get('/admin/flight/edit', urlencodedParser, getAdminFlightEditHandler)
-app.post('/admin/flight/edit', urlencodedParser, postAdminFlightEditHandler)
+app.get('/admin/login', getAdminLoginHandler)
+app.post('/admin/login', urlencodedParser, postAdminLoginHandler)
+app.get('/admin', adminAuthenticationMiddleware, getAdminHomeHandler)
+app.get('/admin/flight', adminAuthenticationMiddleware, getAdminFlightHandler)
+app.get('/admin/booking', adminAuthenticationMiddleware, getAdminBookingHandler)
+app.post('/admin/booking', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingHandler)
+app.get('/admin/flight/add', adminAuthenticationMiddleware, getAdminFlightAddHandler)
+app.post('/admin/flight/add', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)
+app.get('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, getAdminFlightEditHandler)
+app.post('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightEditHandler)

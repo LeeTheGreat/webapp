@@ -11,9 +11,9 @@ block append content
             div(class='row mb-3')
                 label(class='col-sm-2 col-form-label') New Seat:
                 div(class='col-sm-1')
-                    select(name="seat_id" class="form-select" id="seat")
-                        each seat in seats
-                            option(value=seat.id)=seat.seat_num
+                    select(name="seat_num" class="form-select" id="seat_num")
+                        each seat in all_seats
+                            option(value=seat.seat_num)=seat.seat_num
             div(class='row mb-3')
                 label(class='col-sm-2 col-form-label')
                 div(class='col-sm-2')  

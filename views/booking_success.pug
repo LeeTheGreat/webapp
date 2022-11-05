@@ -4,4 +4,5 @@ block append content
     div(class='container')
         h3 Booking Success
         div(class='row mb-3')
-            label(class='col-sm-12 col-form-label') #{msg}
+            each msg in msgs
+                label(class='col-sm-12 col-form-label') #{msg}

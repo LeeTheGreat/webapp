@@ -2,7 +2,7 @@ extends admin_base.pug
 
 block append content
     div(class='container')
-        div(class="title") Customer Booking Tracker
+        div(class="title") User Booking Tracker
         
         div(class="search_box")
             input(type='text' id="search_input" placeholder="Input your search here")
@@ -10,20 +10,22 @@ block append content
         table(class='table table-striped table-hover table-condensed')  
             thead(class='table-dark')
             tr
-                th Customer ID
+                th Booking ID
                 th Reference ID
                 th Flight ID
+                th Email
                 th Name
                 th Status
                 th(scope='col') Action
                     
             tbody
-            if customers
-                each row in customers
+            if users
+                each row in users
                     tr
-                        td #{row["cust_id"]}
+                        td #{row["booking_id"]}
                         td #{row["ref_num"]}
                         td #{row["flt_num"]} 
+                        td #{row["email"]}
                         td #{row["fname"]} #{row["lname"]}
                         td #{row["booking_status"]}
                         td      
@@ -31,11 +33,9 @@ block append content
                                 div   
                                     form(action='/booking/edit' method='GET')
                                         input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')        
-                                        button(type="submit" class="btn")
-                                            i(class="material-icons text-warning") Edit
-                                div 
+                                        button(type='submit' class="btn btn-primary") Edit
+                                div(class="mx-3")
                                     form(action='/admin/booking' method='POST')
                                         input(type='hidden' class='form-control' value=row.ref_num id='ref_num' name='ref_num')
-                                        button(type="submit" class="btn")
-                                            i(class="material-icons text-danger") Delete
+                                        button(type="submit" class="btn btn-primary") Delete
                         

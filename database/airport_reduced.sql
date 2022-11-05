@@ -5,7 +5,6 @@ CREATE TABLE `airports`(
   ,`country_iso2` char(2) NOT NULL
   ,`country` char(20) NOT NULL
   ,`region` char(50) NOT NULL
-  ,CONSTRAINT `fk_airports_country_iso2` FOREIGN KEY (`country_iso2`) REFERENCES `countries` (`iso2`)
   ,INDEX idx_airports_iata_code (iata_code)
 );
 

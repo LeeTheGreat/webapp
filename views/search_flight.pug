@@ -3,7 +3,7 @@ div(class='container')
     form(action='/flight/search' method='GET')
         div(class='form-group row col-6 mb-3')
             datalist(id='airport_list')
-                each row in rowsJSON
+                each row in rows
                     option(value=row.airport_code) #{row.airport_name}
             div(class='row mb-3')
                 label(class='col-sm-4 col-form-label') From Airport:
@@ -20,7 +20,7 @@ div(class='container')
             div(class='row mb-3')
                 label(class='col-sm-4 col-form-label') Return Date
                 div(class='col-sm-6')
-                    input(class='form-control form-control-md' type='date' name='arr' value='2022-11-30')
+                    input(class='form-control form-control-md' type='date' name='arr' value='2022-11-03')
             div(class='row mb-3')
                 label(class='col-sm-4 col-form-label') No. of Pax
                 div(class='col-sm-6')

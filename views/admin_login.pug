@@ -1,14 +1,14 @@
-extends base.pug
+extends admin_base.pug
 
 block append content
-    form(action='/adminlogin' method='POST')
+    form(action='/admin/login' method='POST')
         div(class='container')
             h3 Login
             div(class='form-group row col-4 mb-3')
                 div(class='col-sm-12 mb-3')
-                    input(type='email' class='form-control' placeholder='email' id='email' name='email')
+                    input(type='text' class='form-control' placeholder='username' id='username' name='username')
                 div(class='col-sm-12 mb-3')
-                    input(type='password' class='form-control' placeholder='password' id='email' name='password')
+                    input(type='password' class='form-control' placeholder='password' id='password' name='password')
                 div(class='col-sm-4 mb-3')
                     a(class='col-sm-4 col-form-label' href='/forgotpassword') Forgot Password
                 div(class='col-sm-12 mb-3')    
