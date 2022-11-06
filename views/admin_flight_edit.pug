@@ -8,54 +8,54 @@ block append content
                     each airport in airports 
                         option(value=airport.iata_code) #{airport.name}     
                 div(class='row mb-3')
-                    input(type='hidden' class='form-control' value=rowsJSON.flt_id id='flt_id' name='flt_id')
+                    input(type='hidden' class='form-control' value=rows.flt_id id='flt_id' name='flt_id')
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Aircraft
                     div(class='col-sm-6 ms-auto')
-                        select(name="aircraft" class="form-select" id="aircraft" value=value=rowsJSON.aircraft_id)
+                        select(name="aircraft" class="form-select" id="aircraft" value=value=rows.aircraft_id)
                             each aircraft in aircrafts
-                                if aircraft.id == rowsJSON.aircraft_id
+                                if aircraft.id == rows.aircraft_id
                                     option(value=aircraft.id selected) #{aircraft.company} #{aircraft.model}
                                 else
                                     option(value=aircraft.id) #{aircraft.company} #{aircraft.model}
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Flight Number
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control' id='flt_num' name='flt_num' maxlength='4' value=rowsJSON.flt_num)
+                        input(type='text',class='form-control' id='flt_num' name='flt_num' maxlength='4' value=rows.flt_num)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') From Airport
                     div(class='col-sm-6 ms-auto')
-                        input(list='airport_list',class='form-control' id='fm_airport' name='fm_airport' value=rowsJSON.src_airport_code)
+                        input(list='airport_list',class='form-control' id='fm_airport' name='fm_airport' value=rows.src_airport_code)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') To Airport
                     div(class='col-sm-6 ms-auto')
-                        input(list='airport_list',class='form-control' id='to_airport' name='to_airport' value=rowsJSON.dst_airport_code)
+                        input(list='airport_list',class='form-control' id='to_airport' name='to_airport' value=rows.dst_airport_code)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Departure Date
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dpt_date' value=rowsJSON.dpt_date)
+                        input(class='form-control form-control-md' type='date' name='dpt_date' value=rows.dpt_date)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Arrival Date
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='arr_date' value=rowsJSON.arr_date )
+                        input(class='form-control form-control-md' type='date' name='arr_date' value=rows.arr_date )
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Departure Time (GMT)
                     div(class='col-sm-6 ms-auto')            
-                        input(type='time',class='form-control',id='dpt_time' ,name='dpt_time' value=rowsJSON.dpt_time)
+                        input(type='time',class='form-control',id='dpt_time' ,name='dpt_time' value=rows.dpt_time)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Arrival Time (GMT)
                     div(class='col-sm-6 ms-auto')            
-                        input(type='time',class='form-control',id='arr_time' name='arr_time' value=rowsJSON.arr_time)
+                        input(type='time',class='form-control',id='arr_time' name='arr_time' value=rows.arr_time)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Price
                     div(class='col-sm-6 ms-auto')            
-                        input(type='number',class='form-control' id='price' name='price' value=rowsJSON.price)
+                        input(type='number',class='form-control' id='price' name='price' value=rows.price)
                 div(class='row mb-3')
                     label(class='col-sm-4 col-form-label') Status
                     div(class='col-sm-6 ms-auto')
                         select(name='status' class='form-select' id='status')
                             each status in ['active', 'cancelled', 'rescheduled']
-                                if status == rowsJSON.flt_status
+                                if status == rows.flt_status
                                     option(value=status selected)=status
                                 else
                                     option(value=status)=status

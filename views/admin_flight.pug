@@ -24,8 +24,8 @@ block append content
                 th Status
                 th Edit
         tbody
-            if rowsJSON
-                each row in rowsJSON
+            if rows
+                each row in rows
                     tr
                         td #{row["flt_id"]}
                         td #{row["flt_num"]}

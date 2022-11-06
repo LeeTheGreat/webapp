@@ -34,7 +34,6 @@ const db = mysql.createConnection({
 	password: "password",
 	database: "airline",
 	dateStrings: "true",
-	multipleStatements: true
 });
 
 const query = util.promisify(db.query).bind(db);
@@ -42,9 +41,10 @@ app.use(session({
 	key: 'sessionid',
 	secret: "airline",
 	store: sessionStore,
-	resave: false,
+	resave: true,
 	saveUninitialized: false,
-	cookie: { maxAge: 1000 * 60 * 60 * 24 },
+	httpOnly: true,
+	cookie: { maxAge: 1000 * 60 * 60 }, // 1 hour
 }))
 
 app.use(express.static('static'))
@@ -331,12 +331,13 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 			let dst_msg = flt_info[i]['dst_airport_name'] + ' (' + flt_info[i]['dst_airport_code'] + ')'
 			msg[i] = 'Booking successful. Use reference number ' + ref_num_all[i] + ' and registered email to check booking for flight ' + src_msg + ' >>> ' + dst_msg
 		}
+		delete req.session.booking_data
 		return res.send(pug.renderFile('views/booking_success.pug', {msgs: msg}))
 	}
 	catch(e){
 		console.log(e);
 		return res.status(500).send('Internal Server Error')
-	}		
+	}
 }
 
 const postBookingSearchHandler = async (req, res, next) => {
@@ -461,75 +462,65 @@ const getAdminHomeHandler = async (req, res) => {
 }
 
 const getAdminFlightHandler = async (req, res) => {
-	var rows = await query(`SELECT * from view_flights_join ORDER BY flt_id ASC;`)
-	var rowsJSON = JSON.parse(JSON.stringify(rows))
-	//console.log(rowsJSON)
-	if(rowsJSON.length == 0){
-		return res.send(pug.renderFile('views/admin_flight.pug'))
+	try{
+		var rows = await query(`SELECT * from view_flights_join ORDER BY flt_id ASC;`)
+		if(rows.length == 0){
+			return res.send(pug.renderFile('views/admin_flight.pug'))
+		}
+		return res.send(pug.renderFile('views/admin_flight.pug', {rows: rows, profile: req.session.profile}))
 	}
-	//var rowsKeyJSON = JSON.parse(JSON.stringify(rowsKey))
-	//console.log(rowsJSON)
-	//console.log(rowsKeyJSON)
-	return res.send(pug.renderFile('views/admin_flight.pug', {rowsJSON: rowsJSON}))
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
 }
 
 const getAdminFlightAddHandler = async (req, res) => {
-	//var airlines = await query(`SELECT * FROM airlines`)
-	var aircrafts = await query(`SELECT * FROM aircrafts`)
-	var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
-	//var airlinesJSON = JSON.parse(JSON.stringify(airlines))
-	var aircraftsJSON = JSON.parse(JSON.stringify(aircrafts))
-	var airportsJSON = JSON.parse(JSON.stringify(airports))
-	//console.log(countriesJSON)
-	return res.send(pug.renderFile('views/admin_flight_add.pug', {aircrafts: aircraftsJSON, airports: airportsJSON}))
+	try{
+		var aircrafts = await query(`SELECT * FROM aircrafts`)
+		var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
+		return res.send(pug.renderFile('views/admin_flight_add.pug', {aircrafts: aircrafts, airports: airports}))
+	}
+	catch(e){
+		console.log(e)
+		return InternalServerError_500(req,res)
+	}
 }
 
 const postAdminFlightAddHandler = async (req, res) => {
-	//console.log(req.body)
-	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
-	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
+		var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
+		var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 		var rows = await query(`CALL sp_flights_insert(?,?,?,?,?,?,?,?);`, [req.body.flt_num, Number(req.body.aircraft), req.body.fm_airport, req.body.to_airport, sqlDptDate, sqlArrDate, Number(req.body.price), req.body.status])
-		//var rowsJSON = JSON.stringify(rows)
-		//var rowsObj = JSON.parse(rowsJSON)
-		//console.log(rowsJSON)
 		return res.status(200).send('Flight updated')
-		//console.log("sp_flights_insert rows: " + rowsJSON)
-		//call sp_flights_insert('1111',2,2,2,2,210,210,'1111-11-11 11:11:11','1111-11-12 11:11:12', 1111, 'active', @ret); select @ret;
-		//res.redirect('/admin/flight/add')
 	}
 	catch (e){
 		console.log(e);
-		return res.status(500).send("Internal Server Error: " + e.sqlMessage);
+		InternalServerError_500(req,res)
 	}		
 }
 
 const getAdminFlightEditHandler = async (req, res) => {
-	//var airlinesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airlines`)))
-	var aircraftsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from aircrafts`)))
-	var airportsJSON = JSON.parse(JSON.stringify(await query(`SELECT * from airports`)))
-	var countriesJSON = JSON.parse(JSON.stringify(await query(`SELECT * from countries`)))
-	//console.log(airportsJSON)
-	//console.log(countriesJSON)
-	var rowsJSON = [{}]
 	try{
-		let rows = await query(`SELECT * FROM view_flights_join WHERE flt_id=?`, [req.query.flt_id])
-		rowsJSON = JSON.parse(JSON.stringify(rows[0]))
+		let aircrafts = await query(`SELECT * from aircrafts`)
+		let airports = await query(`SELECT * from airports`)
+		let countries = await query(`SELECT * from countries`)
+		let rows
+		rows = await query(`SELECT * FROM view_flights_join WHERE flt_id=?`, [req.query.flt_id])
+		rows = rows[0]
+		if(rows.length == 0){
+			return res.status(500).send('No result returned');
+		}
+		rows.dpt_date = rows.depart.split(' ')[0]
+		rows.arr_date = rows.arrive.split(' ')[0]
+		rows.dpt_time = rows.depart.split(' ')[1]
+		rows.arr_time = rows.arrive.split(' ')[1]
+		return res.send(pug.renderFile('views/admin_flight_edit.pug', {aircrafts: aircrafts, airports: airports, countries: countries, rows: rows}))
 	}
 	catch (err){
-		console.log(err.sqlMessage);
-		return res.status(500).send(err.sqlMessage);
+		console.log(e);
+		InternalServerError_500(req,res)
 	}
-	//console.log(rowsJSON)
-	if(rowsJSON.length == 0){
-		return res.status(500).send('No result returned');
-	}
-	rowsJSON.dpt_date = rowsJSON.depart.split(' ')[0]
-	rowsJSON.arr_date = rowsJSON.arrive.split(' ')[0]
-	rowsJSON.dpt_time = rowsJSON.depart.split(' ')[1]
-	rowsJSON.arr_time = rowsJSON.arrive.split(' ')[1]
-	//console.log(rowsJSON)
-	return res.send(pug.renderFile('views/admin_flight_edit.pug', {aircrafts: aircraftsJSON, airports: airportsJSON, countries: countriesJSON, rowsJSON: rowsJSON}))
 }
 
 const postAdminFlightEditHandler = async (req, res) => {
@@ -549,7 +540,7 @@ const postAdminFlightEditHandler = async (req, res) => {
 const getAdminBookingHandler = async (req, res) => {
 	//console.log("getAdminBookingHandler")
 	let users = await query(`SELECT booking_id, ref_num, flt_id, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
-	return res.send(pug.renderFile('views/admin_booking.pug', {users : users}))
+	return res.send(pug.renderFile('views/admin_booking.pug', {users : users, profile: req.session.profile}))
 
 }
 

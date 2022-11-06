@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	-- ,INDEX idx_seats_flt_id_seat_id (flt_id,id)
 );
 
-
 CREATE TABLE IF NOT EXISTS `bookings`(
 	`id` INT AUTO_INCREMENT PRIMARY KEY
 	,`flt_id` INT NOT NULL

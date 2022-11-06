@@ -22,7 +22,7 @@ CREATE VIEW view_users AS
 
 drop view if exists view_seats;
 CREATE VIEW view_seats AS
-    SELECT flt_id, seat_num, available FROM seats;
+    SELECT * FROM seats;
 
 drop view if exists view_flights_join;
 CREATE VIEW view_flights_join AS
