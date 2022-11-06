@@ -83,9 +83,8 @@ drop trigger if exists upd_bookings_before;
 delimiter //
 CREATE TRIGGER upd_bookings_before BEFORE UPDATE ON bookings FOR EACH ROW
 BEGIN
- 
-    -- ensure that inactive bookings cannot be updated
-    IF old.status = 'inactive' THEN
+    -- ensure that not active bookings cannot be updated
+    IF OLD.status <> 'active' THEN
         SET @error_msg = CONCAT('Invalid Bookings UPDATE. Booking id ', old.id, ' to be updated, but status is inactive');
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @error_msg;
     END IF;
@@ -101,39 +100,29 @@ BEGIN
         SET @error_msg = CONCAT('Invalid Bookings UPDATE. Booking id ', NEW.id, ' to be updated as active, but flt_id ', NEW.flt_id, ' status is not active');
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @error_msg;
     END IF;
-
 END//
 delimiter ;
 
-/*
+
 drop trigger if exists upd_bookings_after;
 delimiter //
 CREATE TRIGGER upd_bookings_after AFTER UPDATE ON bookings
 FOR EACH ROW
 BEGIN
-    -- if booking is cancelled by customer, then seat becomes availalbe
-    IF NEW.status = 'cust_cancelled' THEN
-        UPDATE seats SET seats.available = true WHERE seats.id = NEW.seat_id;
-
-    -- if booking is active, then seat becomes unavailable 
-    -- if the seat_id for booking change, then the customer changed seat. Need to update the seat availability accordingly 
-    -- if the seat_id didn't change, then everything still the same because the NEW.seat_id will overwrite the OLD.seat_id
-
-    ELSEIF NEW.status = 'active' THEN
-        UPDATE seats SET seats.available = true WHERE seats.id = OLD.seat_id;
-        UPDATE seats SET seats.available = false WHERE seats.id = NEW.seat_id;    
+    IF(OLD.seat_num <> NEW.seat_num) THEN
+        UPDATE seats SET available = true WHERE seat_num = OLD.seat_num AND flt_id = OLD.flt_id;
+        UPDATE seats SET available = false WHERE seat_num = NEW.seat_num AND flt_id = OLD.flt_id;
     END IF;
 END//
 delimiter ;
-*/
 
-drop trigger if exists del_bookings_after;
+
+drop trigger if exists del_bookings_before;
 delimiter //
-CREATE TRIGGER del_bookings_after AFTER DELETE ON bookings
+CREATE TRIGGER del_bookings_before BEFORE DELETE ON bookings
 FOR EACH ROW
 BEGIN
-    
-    UPDATE seats SET seats.available = true WHERE seat_num = OLD.seat_num AND flt_id = OLD.flt_id;
-
+    UPDATE seats SET available = true WHERE seat_num = OLD.seat_num AND flt_id = OLD.flt_id;
 END//
 delimiter ;
+

@@ -8,17 +8,18 @@ block append content
         div(class="search_box")
             input(type='text' id="search_input" placeholder="Input your search here")
 
-    table(class='table table-striped table-hover table-condensed')  
+    table(class='table table-striped table-hover table-condensed')
         thead(class='table-dark')
-        tr
-            th Booking ID
-            th Reference Num
-            th Flight ID
-            th Flight Num
-            th Email
-            th Name
-            th Status
-            th(scope='col') Action
+            tr
+                th Booking ID
+                th Reference Num
+                th Flight ID
+                th Flight Num
+                th Seat Num
+                th Email
+                th Customer Name
+                th Status
+                th(scope='col') Action
                 
         tbody
         if users
@@ -27,7 +28,8 @@ block append content
                     td #{row["booking_id"]}
                     td #{row["ref_num"]}
                     td #{row["flt_id"]}
-                    td #{row["flt_num"]} 
+                    td #{row["flt_num"]}
+                    td #{row["seat_num"]}
                     td #{row["email"]}
                     td #{row["fname"]} #{row["lname"]}
                     td #{row["booking_status"]}
@@ -35,10 +37,11 @@ block append content
                         div(class="d-flex flex-row mb-1")
                             div   
                                 form(action='/admin/booking/edit' method='GET')
-                                    input(type='hidden' class='form-control' value=row.booking_id id='booking_id' name='booking_id')        
+                                    input(type='hidden' class='form-control' value=row.booking_id name='booking_id')
+                                    input(type='hidden' class='form-control' value=row.flt_id name='flt_id')
                                     button(type='submit' class="btn btn-primary") Edit
                             div(class="mx-3")
-                                form(action='/admin/booking/delete' method='POST')
+                                form(action='/admin/booking/delete' method='GET')
                                     input(type='hidden' class='form-control' value=row.booking_id id='booking_id' name='booking_id')
                                     button(type="submit" class="btn btn-primary") Delete
                         

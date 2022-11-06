@@ -59,7 +59,7 @@ drop procedure if exists sp_ins_user_and_booking;
 delimiter //
 CREATE PROCEDURE sp_ins_user_and_booking (IN email VARCHAR(50), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE, IN flt_id INT, IN seat_num CHAR(3), IN ref_num CHAR(8))
 BEGIN
-	DECLARE cust_id INT DEFAULT 0;
+	DECLARE cust_id INT DEFAULT -1;
 	DECLARE ref_num_uuid CHAR(8) DEFAULT (SELECT UPPER(SUBSTRING(UUID(),1,8)));
 	DECLARE ref_num_count INT DEFAULT 0;
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -77,9 +77,9 @@ BEGIN
 	-- if ref_num is not empty, use it
 	IF (TRIM(ref_num) <> '') THEN
 		SET ref_num_uuid = ref_num;
-	-- if ref_num is empty, then generate a new one
 	END IF;
 	
+	-- if ref_num is empty, then generate a new one
 	IF (TRIM(ref_num) = '') THEN
 		WHILE (SELECT COUNT(id) FROM bookings WHERE ref_num = ref_num_uuid) > 0 DO
 			-- check if ref_num exists. If yes, regenerate new one. Else ok		

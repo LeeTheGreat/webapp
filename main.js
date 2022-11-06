@@ -389,7 +389,7 @@ const postBookingEditHandler = async (req, res, next) => {
 }
 
 const getBookingEditHandler = async (req, res) => {
-	let all_seats = await query(`SELECT flt_id,seat_num FROM seats WHERE flt_id = (SELECT flt_id FROM bookings WHERE id = ?) and available=true; `,[req.query.booking_id]) 
+	let all_seats = await query(`SELECT flt_id,seat_num FROM seats WHERE flt_id ? and available=true; `,[req.query.booking_id]) 
 	let curr_seat = await query(`SELECT seat_num FROM view_bookings_join WHERE booking_id = ?`, [req.query.booking_id])
 	all_seats = JSON.parse(JSON.stringify(all_seats))
 	curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
@@ -555,9 +555,13 @@ const getAdminBookingHandler = async (req, res) => {
 
 const getAdminBookingEditHandler = async (req, res) => {
 	try{
-		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[req.query.booking_id])
+		let {flt_id, booking_id} = req.query
+		let all_seats = await query(`SELECT seat_num FROM seats WHERE flt_id = ? and available=true; `,[flt_id]) 
+		let curr_seat = await query(`SELECT seat_num FROM view_bookings_join WHERE booking_id = ?`, [booking_id])
+		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[booking_id])
+		curr_seat = curr_seat[0]
 		rows = rows[0]
-		return res.send(pug.renderFile('views/admin_booking_edit.pug', {rows: rows}))
+		return res.send(pug.renderFile('views/admin_booking_edit.pug', {rows: rows, all_seats: all_seats, curr_seat: curr_seat}))
 	}
 	catch(e){
 		console.log(e)
@@ -565,15 +569,44 @@ const getAdminBookingEditHandler = async (req, res) => {
 	}
 }
 
-const postAdminBookingEditHandler = async (req, res) => {
-	
+const postAdminBookingEditHandler = async (req, res, next) => {
 	try{
-		await query (`UPDATE bookings WHERE ref_num=?`, [req.body.ref_num])
+		let {email, old_email, seat_num, booking_id} = req.body
+		if(email != old_email){
+			let rows = await query (`UPDATE users SET email = ? WHERE email = ?`, [email, old_email])
+		}
+		let rows = await query (`UPDATE bookings SET seat_num = ? WHERE id = ?`, [seat_num, booking_id])
+		next()
 	}
-	catch(err){
-		return res.status(500).send(err.sqlMessage)
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
 	}
-	return res.redirect('/admin/booking')
+}
+
+const getAdminBookingDeleteHandler = async (req, res, next) => {
+	try{
+		let {booking_id} = req.query
+		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[booking_id])
+		rows = rows[0]
+		return res.send(pug.renderFile('views/admin_booking_delete.pug', {rows: rows}))
+	}
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
+}
+
+const postAdminBookingDeleteHandler = async (req, res, next) => {
+	try{
+		let {booking_id} = req.body
+		let rows = await query (`DELETE FROM bookings WHERE id = ?`, [booking_id])
+		next()
+	}
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
 }
 
 app.get('/', indexHandler)
@@ -601,7 +634,9 @@ app.get('/admin', adminAuthenticationMiddleware, getAdminHomeHandler)
 app.get('/admin/flight', adminAuthenticationMiddleware, getAdminFlightHandler)
 app.get('/admin/booking', adminAuthenticationMiddleware, getAdminBookingHandler)
 app.get('/admin/booking/edit', adminAuthenticationMiddleware, getAdminBookingEditHandler)
-app.post('/admin/booking/edit', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingEditHandler)
+app.post('/admin/booking/edit', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingEditHandler, getAdminBookingHandler)
+app.get('/admin/booking/delete', adminAuthenticationMiddleware, getAdminBookingDeleteHandler)
+app.post('/admin/booking/delete', adminAuthenticationMiddleware, urlencodedParser, postAdminBookingDeleteHandler, getAdminBookingHandler)
 app.get('/admin/flight/add', adminAuthenticationMiddleware, getAdminFlightAddHandler)
 app.post('/admin/flight/add', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, getAdminFlightEditHandler)
