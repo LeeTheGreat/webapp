@@ -97,14 +97,26 @@ const indexHandler = async (req, res) => {
 }
 
 const getLoginHandler = async (req, res) => {
-    return res.send(pug.renderFile('views/login.pug'))
+	try{
+    	return res.send(pug.renderFile('views/login.pug'))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const getRegisterHandler = async (req, res) => {
-	if(req.session.email){
-		return res.redirect('/')
+	try{
+		if(req.session.email){
+			return res.redirect('/')
+		}
+		return res.send(pug.renderFile('views/register.pug'))
 	}
-    return res.send(pug.renderFile('views/register.pug'))
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const postRegisterHandler = async (req, res) => {
@@ -149,7 +161,13 @@ const postLoginHandler = async (req, res) => {
 }
 
 const getProfileHandler = async (req, res) => {
-	return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(req.session.profile)}))
+	try{
+		return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(req.session.profile)}))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const postProfileHandler = async (req, res) => {
@@ -235,10 +253,10 @@ const getFlightSearchHandler = async (req, res) => {
 }
 
 const postFlightBookingPaxInfoHandler = async (req, res) => {
-	if(req.cookies.booking_data == undefined){ // user skipped first part (search flight). A client-side validation, but not really an issue
-		res.redirect('/')
-	}
 	try{
+		if(req.cookies.booking_data == undefined){ // user skipped first part (search flight). A client-side validation, but not really an issue
+			res.redirect('/')
+		}
 		if(req.session.userid){
 			var rows = await query('SELECT email,fname,lname,gender,dob FROM users WHERE id=?',[req.session.userid])
 			return res.send(pug.renderFile('views/flight_booking_pax_info.pug', {pax : req.body.pax, rows : rows}))
@@ -250,25 +268,30 @@ const postFlightBookingPaxInfoHandler = async (req, res) => {
 	}
 	catch(e){
 		console.log(e)
+		InternalServerError_500(req,res)
 	}
 }
 
 const postFlightBookingSeatSelectHandler = async (req, res) => {
-	if(req.cookies.booking_data == undefined){ // user skipped first or second part (search flight, pax info). A client-side validation, but not really an issue as it's all client data
-		res.redirect('/')
+	try{
+		if(req.cookies.booking_data == undefined){ // user skipped first or second part (search flight, pax info). A client-side validation, but not really an issue as it's all client data
+			res.redirect('/')
+		}
+		let booking_data = JSON.parse(req.cookies.booking_data)
+		booking_data['pax_info'] = req.body
+		res.cookie('booking_data', JSON.stringify(booking_data), { maxAge: 1800000, httpOnly: true })
+		let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, count(seat_num) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [booking_data.flt_id])
+		for(let i = 0; i < seats.length; i++){ // convert the seat_nums array
+			seats[i]['seat_nums'] = seats[i]['seat_nums'].split(',')
+		}
+		// query again to make sure we are getting the latest data
+		let flt_info = await query('SELECT flt_id,depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [booking_data.flt_id])
+		return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {pax : booking_data.pax, seats : seats, flt_info: flt_info, hops: flt_info.length}))
 	}
-	let booking_data = JSON.parse(req.cookies.booking_data)
-	booking_data['pax_info'] = req.body
-	res.cookie('booking_data', JSON.stringify(booking_data), { maxAge: 1800000, httpOnly: true })
-	console.log(res.cookie.booking_data)
-	let seats = await query('SELECT flt_id, group_concat(seat_num) as seat_nums, count(seat_num) as seat_count FROM seats WHERE flt_id IN (?) AND available=true GROUP BY flt_id', [booking_data.flt_id])
-	for(let i = 0; i < seats.length; i++){ // convert the seat_nums array
-		seats[i]['seat_nums'] = seats[i]['seat_nums'].split(',')
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
 	}
-	// query again to make sure we are getting the latest data
-	let flt_info = await query('SELECT flt_id,depart,arrive,src_airport_code,dst_airport_code,src_airport_name,dst_airport_name FROM view_flights_join WHERE flt_id in (?)', [booking_data.flt_id])
-	//console.log(flt_info)
-	return res.send(pug.renderFile('views/flight_booking_seat_select.pug', {pax : booking_data.pax, seats : seats, flt_info: flt_info, hops: flt_info.length}))
 }
 
 
@@ -336,7 +359,7 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 	}
 	catch(e){
 		console.log(e);
-		return res.status(500).send('Internal Server Error')
+		InternalServerError_500(req,res)
 	}
 }
 
@@ -349,12 +372,12 @@ const postBookingSearchHandler = async (req, res, next) => {
 		if(rows[0].length > 0){
 			req.session.authorized_ref_num = req.body.ref_num
 		}
+		next()
 	}
 	catch(e){
 		console.log(e);
-		return res.status(500).send('Internal Server Error')
+		InternalServerError_500(req,res)
 	}
-	next()
 }
 
 const getBookingSearchHandler = async (req, res) => {
@@ -376,89 +399,119 @@ const getBookingSearchHandler = async (req, res) => {
 	}
 	catch(e){
 		console.log(e);
-		return res.status(500).send('Internal Server Error')
+		InternalServerError_500(req,res)
 	}
 }
 
 const postBookingEditHandler = async (req, res, next) => {
-	console.log(req.body)
-	//let ref_num = await query(`SELECT ref_num FROM booking`)
-	let rows = await query(`UPDATE bookings SET seat_num = ? WHERE id = ?`,[req.body.seat_num, Number(req.body.booking_id)])
-	//console.log(rowsJSON)
-	//next()
-	return res.redirect('/booking/search')
+	try{
+		let rows = await query(`UPDATE bookings SET seat_num = ? WHERE id = ?`,[req.body.seat_num, Number(req.body.booking_id)])
+		return res.redirect('/booking/search')
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const getBookingEditHandler = async (req, res) => {
-	let all_seats = await query(`SELECT flt_id,seat_num FROM seats WHERE flt_id ? and available=true; `,[req.query.booking_id]) 
-	let curr_seat = await query(`SELECT seat_num FROM view_bookings_join WHERE booking_id = ?`, [req.query.booking_id])
-	all_seats = JSON.parse(JSON.stringify(all_seats))
-	curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
-	//console.log(currSeatJSON)
-	return res.send(pug.renderFile('views/booking_edit.pug', {curr_seat : curr_seat, all_seats: all_seats, booking_id: req.query.booking_id}))
+	try{
+		let all_seats = await query(`SELECT flt_id,seat_num FROM seats WHERE flt_id ? and available=true; `,[req.query.booking_id]) 
+		let curr_seat = await query(`SELECT seat_num FROM view_bookings_join WHERE booking_id = ?`, [req.query.booking_id])
+		all_seats = JSON.parse(JSON.stringify(all_seats))
+		curr_seat = JSON.parse(JSON.stringify(curr_seat[0]))
+		return res.send(pug.renderFile('views/booking_edit.pug', {curr_seat : curr_seat, all_seats: all_seats, booking_id: req.query.booking_id}))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const getBookingActionHandler = async (req, res) => {
-	//console.log(req.query)
-	let param = `?booking_id=${req.query.booking_id}`
-	if(req.query.edit_action){
-		//console.log('edit action')
-		let url = '/booking/edit' + param;
-		return res.redirect(url)
+	try{
+		let param = `?booking_id=${req.query.booking_id}`
+		if(req.query.edit_action){
+			//console.log('edit action')
+			let url = '/booking/edit' + param;
+			return res.redirect(url)
+		}
+		if(req.query.cancel_action){
+			let url = '/booking/cancel' + param;
+			return res.redirect(url)
+		}
 	}
-	if(req.query.cancel_action){
-		let url = '/booking/cancel' + param;
-		return res.redirect(url)
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
 	}
 }
 
 const getBookingCancelHandler = async (req, res) => {
-	//console.log(req.query)
-	return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id, ref_no: req.query.refno}))
-}
-
-const postBookingCancelHandler = async (req, res, next) => {
-	//console.log(req.body)
 	try{
-		//var rows = await query('UPDATE bookings SET status=? WHERE id=?', ['cust_cancelled',req.body.booking_id])
-		var rows = await query('DELETE FROM bookings WHERE id=?', [req.body.booking_id])
+		return res.send(pug.renderFile('views/booking_cancel_confirm.pug', {booking_id: req.query.booking_id, ref_no: req.query.refno}))
 	}
 	catch(e){
 		console.log(e);
-		return res.status(500).send('Internal Server Error')
+		InternalServerError_500(req,res)
 	}
-	return res.redirect('/booking/search')
+}
+
+const postBookingCancelHandler = async (req, res, next) => {
+	try{
+		var rows = await query('DELETE FROM bookings WHERE id=?', [req.body.booking_id])
+		return res.redirect('/booking/search')
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}	
 }
 
 const getAdminLoginHandler = async (req, res) => {
-	return res.send(pug.renderFile('views/admin_login.pug'))
+	try{
+		return res.send(pug.renderFile('views/admin_login.pug'))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}	
 }
 
 const postAdminLoginHandler = async(req, res) =>{
-	//console.log(req.body)
-	let { username, password } = req.body
-	if(!username || !password){
-		return res.send(pug.renderFile('/login'))
+	try{
+		let { username, password } = req.body
+		if(!username || !password){
+			return res.send(pug.renderFile('/login'))
+		}
+		let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'admin'`, [username])
+		if(rows.length == 0){
+			return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+		}
+		rows = rows[0]
+		const verified = bcrypt.compareSync('password', rows.password)
+		if(!verified){
+			return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+		}
+		let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': rows.gender, 'dob': rows.dob}
+		req.session.profile = JSON.stringify(profile)
+		req.session.admin = 'admin';
+		return res.redirect("/admin")
 	}
-	//const hashed_pass = bcrypt.hash(req.body.password,'')
-	let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'admin'`, [username])
-	if(rows.length == 0){
-		return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
-	}
-	rows = rows[0]
-	const verified = bcrypt.compareSync('password', rows.password)
-	if(!verified){
-		return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
-	}
-	let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': rows.gender, 'dob': rows.dob}
-	//console.log(profile)
-	req.session.profile = JSON.stringify(profile)
-	req.session.admin = 'admin';
-	return res.redirect("/admin")
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}	
 }
 
 const getAdminHomeHandler = async (req, res) => {
-	return res.send(pug.renderFile('views/admin_home.pug', {profile: JSON.parse(req.session.profile)}))
+	try{
+		return res.send(pug.renderFile('views/admin_home.pug', {profile: JSON.parse(req.session.profile)}))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 }
 
 const getAdminFlightHandler = async (req, res) => {
@@ -538,9 +591,14 @@ const postAdminFlightEditHandler = async (req, res) => {
 }
 
 const getAdminBookingHandler = async (req, res) => {
-	//console.log("getAdminBookingHandler")
-	let users = await query(`SELECT booking_id, ref_num, flt_id, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
-	return res.send(pug.renderFile('views/admin_booking.pug', {users : users, profile: req.session.profile}))
+	try{
+		let users = await query(`SELECT booking_id, ref_num, flt_id, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
+		return res.send(pug.renderFile('views/admin_booking.pug', {users : users, profile: req.session.profile}))
+	}
+	catch(e){
+		console.log(e);
+		InternalServerError_500(req,res)
+	}
 
 }
 
