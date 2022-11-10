@@ -4,3 +4,4 @@ CALL sp_ins_user_and_booking('noemail@email.com', 'noemail_fn', 'noemail_ln', 'M
 CALL sp_ins_user_and_booking('mshemminga@networksolutions.com', 'mshemminga', 'mshemminga', 'M', '1988-10-01', 16, 'A05', '112233');
 CALL sp_ins_user_and_booking('kfitzgilbert0@mapy.cz', 'kfitzgilbert0', 'kfitzgilbert0', 'M', '1987-01-10', 16, 'A06', '334455');
 CALL sp_ins_user_and_booking('kfitzgilbert0@mapy.cz', 'kfitzgilbert0', 'kfitzgilbert0', 'M', '1987-01-10', 16, 'A07', '554433');
+

@@ -658,6 +658,21 @@ const postAdminBookingDeleteHandler = async (req, res, next) => {
 	}
 }
 
+const getAdminStatisticsHandler = async (req, res) => {
+	console.log('test')
+	try{
+		let top_10_dst = await query (`SELECT COUNT(booking_id) AS Bookings, dst_country_name AS Destination FROM view_bookings_join GROUP BY dst_country_name ORDER BY Bookings DESC LIMIT 10;`)
+		let bookings_per_season = await query (`SELECT COUNT(b.id) AS Bookings, FLOOR((MONTH(b.purchase_datetime) % 12) / 3) AS Season FROM bookings b GROUP BY season;`)
+		let top_rev_dst_per_year = await query (`SELECT SUM(price) AS Revenue, dst_country_name AS Destination, YEAR(purchase_datetime) AS Year FROM view_bookings_join vbj1 GROUP BY Year, Destination HAVING SUM(price) >= ALL (SELECT sum(vbj2.price) FROM view_bookings_join vbj2 WHERE Year = YEAR(vbj2.purchase_datetime) GROUP BY YEAR(vbj2.purchase_datetime), vbj2.dst_country_name);`)
+		let rev_season_per_year = await query (`SELECT COUNT(booking_id) AS Bookings, SUM(price) AS Revenue, YEAR(purchase_datetime) AS Year, FLOOR((MONTH(depart) % 12) / 3) AS Season FROM view_bookings_join GROUP BY YEAR(purchase_datetime), Season ORDER BY Year;`)
+		return res.send(pug.renderFile('views/admin_statistics.pug', {top_10_dst: top_10_dst, bookings_per_season: bookings_per_season, top_rev_dst_per_year: top_rev_dst_per_year, rev_season_per_year: rev_season_per_year}))
+	}
+	catch(e){
+		console.log(e)
+		InternalServerError_500(req,res)
+	}
+}
+
 app.get('/', indexHandler)
 app.get('/flight/search', urlencodedParser, getFlightSearchHandler)
 app.post('/flight/booking/pax_information', urlencodedParser, postFlightBookingPaxInfoHandler)
@@ -690,3 +705,4 @@ app.get('/admin/flight/add', adminAuthenticationMiddleware, getAdminFlightAddHan
 app.post('/admin/flight/add', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightAddHandler)
 app.get('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, getAdminFlightEditHandler)
 app.post('/admin/flight/edit', adminAuthenticationMiddleware, urlencodedParser, postAdminFlightEditHandler)
+app.get('/admin/statistics', adminAuthenticationMiddleware, getAdminStatisticsHandler)

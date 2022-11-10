@@ -1,0 +1,60 @@
+extends admin_base.pug
+
+
+block append content
+    div(class='container-fluid')
+        h3 Top 10 Destinations
+        if top_10_dst
+            div(class='col-sm-6')
+                table(class='table table-striped table-hover table-condensed')
+                    thead(class='table-dark')
+                        tr
+                            th Bookings
+                            th Destination
+                    tbody
+                    each r in top_10_dst
+                        tr
+                            td #{r.Bookings}
+                            td #{r.Destination}
+        hr
+        h3 Bookings Per Season
+        if bookings_per_season
+            div(class='col-sm-6')
+                table(class='table table-striped table-hover table-condensed')
+                    thead(class='table-dark')
+                        tr
+                            th Bookings
+                            th Season
+                    tbody
+                    each r in bookings_per_season
+                        tr
+                            td #{r.Bookings}
+                            td #{r.Season}
+        hr
+        h3 Top Revenue Destination Per Year
+        if top_rev_dst_per_year
+            div(class='col-sm-6')
+                table(class='table table-striped table-hover table-condensed')
+                    thead(class='table-dark')
+                        tr
+                            th Revenue
+                            th Destination 
+                            th Year 
+                    each r in top_rev_dst_per_year
+                        tr
+                            td #{r.Revenue}
+                            td #{r.Destination}
+                            td #{r.Year}
+        if rev_season_per_year
+            div(class='col-sm-6')
+                table(class='table table-striped table-hover table-condensed')
+                    thead(class='table-dark')
+                        tr
+                            th Revenue
+                            th Year 
+                            th Season 
+                    each r in rev_season_per_year
+                        tr
+                            td #{r.Revenue}
+                            td #{r.Year}
+                            td #{r.Season}
