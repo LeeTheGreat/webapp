@@ -1,36 +1,3 @@
-/* Moved to Trigger
-DROP procedure if exists sp_create_seats;
-delimiter //
-CREATE PROCEDURE sp_create_seats (IN flt_id INT, IN aircraft_id INT)
-BEGIN
-	DECLARE k INT DEFAULT 0;
-	DECLARE seat_num CHAR(3);
-	DECLARE num INT;
-	DECLARE totalseat INT DEFAULT 0;
-	SELECT total_seat FROM aircrafts WHERE id = aircraft_id INTO totalseat;
-	WHILE k < totalseat DO			
-		IF(k < totalseat/4) THEN
-			SET seat_num = CONCAT('A', LPAD(k+1,2,0));
-			INSERT INTO seats VALUES(flt_id,seat_num,true);
-		ELSEIF(k < totalseat/4 * 2) THEN
-			SET num = k+1 - totalseat/4;
-			SET seat_num = CONCAT('B', LPAD(num,2,0));
-			INSERT INTO seats VALUES(flt_id,seat_num,true);
-		ELSEIF(k < totalseat/4 * 3) THEN
-			SET num = k+1 - totalseat/4 * 2;
-			SET seat_num = CONCAT('C', LPAD(num,2,0));
-			INSERT INTO seats VALUES(flt_id,seat_num,true);
-		ELSEIF(k < totalseat/4 * 4) THEN
-			SET num = k+1 - totalseat/4 * 3;
-			SET seat_num = CONCAT('D', LPAD(num,2,0));
-			INSERT INTO seats VALUES(flt_id,seat_num,true);
-		END IF;
-		SET k = k + 1;
-	END WHILE;
-END//
-delimiter ;
-*/
-
 drop procedure if exists sp_flights_insert;
 delimiter //
 CREATE PROCEDURE sp_flights_insert (IN flt_num CHAR(4), IN ac_id INT, IN src_ap_code VARCHAR(4), IN dst_ap_code VARCHAR(4), IN dpt DATETIME, IN arr DATETIME, IN price INT, IN status VARCHAR(20))
@@ -43,7 +10,13 @@ drop procedure if exists sp_ins_user;
 delimiter //
 CREATE procedure sp_ins_user(IN email VARCHAR(50), IN password CHAR(60), IN fn VARCHAR(30), IN ln VARCHAR(30), IN gender CHAR(1), IN dob DATE)
 BEGIN
-	INSERT INTO users VALUES (NULL,TRIM(email),password,fn,ln,gender,REPLACE(dob,'/','-'),'user');
+	-- previously a customer, then created an account. Due to unique email constraint, we can't add another account of the email. So, we update the existing entry
+	IF (EXISTS(SELECT * FROM users u WHERE u.email = TRIM(email) AND u.password IS NULL AND role = 'user')) THEN 
+		UPDATE users u SET u.password = password, u.fname = fn, u.lname = ln, u.gender = gender, u.dob = dob WHERE u.email = email AND role = 'user';
+	-- new user signing up
+	ELSE
+		INSERT INTO users VALUES (NULL,TRIM(email),password,fn,ln,gender,REPLACE(dob,'/','-'),'user');
+	END IF;
 END//
 delimiter ;
 
@@ -88,7 +61,7 @@ BEGIN
 	END IF;
 	
 	-- check if customer exists by email. If exists, then just need to insert booking
-	SET cust_id = (SELECT id FROM users c WHERE c.email = email);
+	SET cust_id = (SELECT id FROM users c WHERE c.email = email AND role = 'user');
 	IF cust_id > -1 THEN
 		INSERT INTO bookings VALUES(NULL, flt_id, cust_id, seat_num, NOW(), 'active', ref_num_uuid);
 	ELSE
@@ -101,16 +74,6 @@ BEGIN
 	SELECT ref_num_uuid;
 END//
 delimiter ;
-
-/*
-drop procedure if exists sp_select_flights_direct;
-delimiter //
-CREATE procedure sp_select_flights_direct (IN dpt DATETIME, IN arr DATETIME, IN src_ap_code CHAR(3), IN dst_ap_code CHAR(3), IN pax INT)
-BEGIN
-	SELECT * FROM view_flights_join WHERE depart >= dpt AND arrive <= arr AND src_airport_code = src_ap_code AND dst_airport_code = dst_ap_code AND total_seat_available >= pax;	
-END//
-delimiter ;
-*/
 
 drop procedure if exists sp_select_flights_recurse;
 delimiter //
@@ -136,7 +99,7 @@ BEGIN
 		AND f.flt_status = 'active'
 	)
 	-- finally, select the wanted results from the entire recused query
-	SELECT * FROM base WHERE dst_airport_code = dst_ap_code AND DATE(arrive) <= DATE(arr) ORDER BY hops ASC, dpt_arv ASC, total_wait_hours ASC;
+	SELECT * FROM base WHERE dst_airport_code = dst_ap_code AND DATE(arrive) < DATE(arr) ORDER BY hops ASC, dpt_arv ASC, total_wait_hours ASC;
 END//
 delimiter ;
 
@@ -144,13 +107,7 @@ drop procedure if exists sp_verify_refnum_email;
 delimiter //
 CREATE procedure sp_verify_refnum_email (IN in_refnum CHAR(8), IN in_email VARCHAR(50))
 BEGIN
-	/* get booking if the ref_num exists, and for all the bookings with ref_num, there's a customer with the specified email */
-	/*
-	SELECT * FROM view_bookings_join vbi1
-		WHERE vbi1.user_id IN (SELECT user_id FROM view_bookings WHERE ref_num = in_refnum)
-		AND EXISTS(SELECT 1 FROM view_bookings_join vbi2 WHERE vbi2.email = in_email);
-	*/
-	SELECT ref_num FROM view_bookings_join WHERE ref_num = in_refnum AND email = in_email LIMIT 1;
+	SELECT ref_num FROM view_bookings_join WHERE ref_num = TRIM(in_refnum) AND email = TRIM(in_email) LIMIT 1;
 END//
 delimiter ;
 

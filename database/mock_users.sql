@@ -1,3 +1,5 @@
+-- password is "password" for all users
+
 call sp_ins_admin('admin1','$2a$12$SP0qwq3BevvlNjAaQW3xJubkb9YQbA1GZg0h6mU48VydvuxRm1xcS', 'Admin1', 'Admin1', 'M', '1994/03/21');
 call sp_ins_admin('admin2','$2a$12$SP0qwq3BevvlNjAaQW3xJubkb9YQbA1GZg0h6mU48VydvuxRm1xcS', 'Admin2', 'Admin2', 'M', '1994/03/21');
 call sp_ins_admin('admin3','$2a$12$SP0qwq3BevvlNjAaQW3xJubkb9YQbA1GZg0h6mU48VydvuxRm1xcS', 'Admin3', 'Admin3', 'M', '1994/03/21');

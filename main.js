@@ -10,7 +10,6 @@ const cookieParser = require('cookie-parser');
 
 const app = express()
 const bodyParser = require('body-parser')
-const e = require('express')
 const { count, profile } = require('console')
 const mysqloptions = {
 	host: 'localhost',
@@ -141,12 +140,12 @@ const postLoginHandler = async (req, res) => {
 		if (!email || !password){
 			return res.send(pug.renderFile('/login'))
 		}
-		let rows = await query(`SELECT * FROM users WHERE email = ? AND password = ? AND role = 'user'`, [email, hashed_pass])
+		let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'user' AND password IS NOT NULL LIMIT 1`, [email])
 		if(rows.length == 0){
 			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
 		}
 		rows = rows[0]
-		const verified = bcrypt.compareSync('password', rows.password)
+		const verified = bcrypt.compareSync(password, rows.password)
 		if(!verified){
 			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
 		}
@@ -365,12 +364,12 @@ const postFlightBookingConfirmHandler = async (req, res) => {
 
 const postBookingSearchHandler = async (req, res, next) => {
 	let rows
-	let rowsJSON
 	req.session.authorized_ref_num = ''
 	try{
 		rows = await query(`CALL sp_verify_refnum_email(?,?)`,[req.body.ref_num, req.body.email])
-		if(rows[0].length > 0){
-			req.session.authorized_ref_num = req.body.ref_num
+		rows = rows[0]
+		if(rows.length > 0){
+			req.session.authorized_ref_num = rows[0].ref_num
 		}
 		next()
 	}
@@ -383,7 +382,6 @@ const postBookingSearchHandler = async (req, res, next) => {
 const getBookingSearchHandler = async (req, res) => {
 	try{
 		let rows = []
-		let rowsJSON
 		if(req.session.authorized_ref_num){ // we don't submit GET query for booking search as it reveals the info on the URL. So, we check if the user has successfully verified him/herself via cookie
 			rows = await query(`SELECT * FROM view_bookings_join WHERE ref_num = ?`,[req.session.authorized_ref_num])
 		}
@@ -470,7 +468,7 @@ const postBookingCancelHandler = async (req, res, next) => {
 
 const getAdminLoginHandler = async (req, res) => {
 	try{
-		return res.send(pug.renderFile('views/admin_login.pug'))
+		return res.send(pug.renderFile('views/admin/admin_login.pug'))
 	}
 	catch(e){
 		console.log(e);
@@ -484,14 +482,14 @@ const postAdminLoginHandler = async(req, res) =>{
 		if(!username || !password){
 			return res.send(pug.renderFile('/login'))
 		}
-		let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'admin'`, [username])
+		let rows = await query(`SELECT * FROM users WHERE email = ? AND role = 'admin'`, [username, password])
 		if(rows.length == 0){
-			return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+			return res.status(401).send(pug.renderFile('views/admin/admin_login.pug', {msg: "Wrong username or password"}))	
 		}
 		rows = rows[0]
-		const verified = bcrypt.compareSync('password', rows.password)
+		const verified = bcrypt.compareSync(password, rows.password)
 		if(!verified){
-			return res.status(401).send(pug.renderFile('views/admin_login.pug', {msg: "Wrong username or password"}))	
+			return res.status(401).send(pug.renderFile('views/admin/admin_login.pug', {msg: "Wrong username or password"}))	
 		}
 		let profile = {'email' : rows.email, 'fname': rows.fname, 'lname': rows.lname, 'gender': rows.gender, 'dob': rows.dob}
 		req.session.profile = JSON.stringify(profile)
@@ -506,7 +504,7 @@ const postAdminLoginHandler = async(req, res) =>{
 
 const getAdminHomeHandler = async (req, res) => {
 	try{
-		return res.send(pug.renderFile('views/admin_home.pug', {profile: JSON.parse(req.session.profile)}))
+		return res.send(pug.renderFile('views/admin/admin_home.pug', {profile: JSON.parse(req.session.profile)}))
 	}
 	catch(e){
 		console.log(e);
@@ -518,9 +516,9 @@ const getAdminFlightHandler = async (req, res) => {
 	try{
 		var rows = await query(`SELECT * from view_flights_join ORDER BY flt_id ASC;`)
 		if(rows.length == 0){
-			return res.send(pug.renderFile('views/admin_flight.pug'))
+			return res.send(pug.renderFile('views/admin/admin_flight.pug'))
 		}
-		return res.send(pug.renderFile('views/admin_flight.pug', {rows: rows, profile: req.session.profile}))
+		return res.send(pug.renderFile('views/admin/admin_flight.pug', {rows: rows, profile: req.session.profile}))
 	}
 	catch(e){
 		console.log(e)
@@ -532,7 +530,7 @@ const getAdminFlightAddHandler = async (req, res) => {
 	try{
 		var aircrafts = await query(`SELECT * FROM aircrafts`)
 		var airports = await query(`SELECT * FROM airports ORDER BY country_iso2`)
-		return res.send(pug.renderFile('views/admin_flight_add.pug', {aircrafts: aircrafts, airports: airports}))
+		return res.send(pug.renderFile('views/admin/admin_flight_add.pug', {aircrafts: aircrafts, airports: airports}))
 	}
 	catch(e){
 		console.log(e)
@@ -568,7 +566,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 		rows.arr_date = rows.arrive.split(' ')[0]
 		rows.dpt_time = rows.depart.split(' ')[1]
 		rows.arr_time = rows.arrive.split(' ')[1]
-		return res.send(pug.renderFile('views/admin_flight_edit.pug', {aircrafts: aircrafts, airports: airports, countries: countries, rows: rows}))
+		return res.send(pug.renderFile('views/admin/admin_flight_edit.pug', {aircrafts: aircrafts, airports: airports, countries: countries, rows: rows}))
 	}
 	catch (err){
 		console.log(e);
@@ -576,8 +574,7 @@ const getAdminFlightEditHandler = async (req, res) => {
 	}
 }
 
-const postAdminFlightEditHandler = async (req, res) => {
-	//console.log(req.body)
+const postAdminFlightEditHandler = async (req, res) => {	
 	var sqlDptDate = req.body.dpt_date + " " + req.body.dpt_time
 	var sqlArrDate = req.body.arr_date + " " + req.body.arr_time
 	try{
@@ -593,7 +590,7 @@ const postAdminFlightEditHandler = async (req, res) => {
 const getAdminBookingHandler = async (req, res) => {
 	try{
 		let users = await query(`SELECT booking_id, ref_num, flt_id, flt_num, seat_num, email, fname, lname, booking_status FROM view_bookings_join;`)
-		return res.send(pug.renderFile('views/admin_booking.pug', {users : users, profile: req.session.profile}))
+		return res.send(pug.renderFile('views/admin/admin_booking.pug', {users : users, profile: req.session.profile}))
 	}
 	catch(e){
 		console.log(e);
@@ -610,7 +607,7 @@ const getAdminBookingEditHandler = async (req, res) => {
 		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[booking_id])
 		curr_seat = curr_seat[0]
 		rows = rows[0]
-		return res.send(pug.renderFile('views/admin_booking_edit.pug', {rows: rows, all_seats: all_seats, curr_seat: curr_seat}))
+		return res.send(pug.renderFile('views/admin/admin_booking_edit.pug', {rows: rows, all_seats: all_seats, curr_seat: curr_seat}))
 	}
 	catch(e){
 		console.log(e)
@@ -638,7 +635,7 @@ const getAdminBookingDeleteHandler = async (req, res, next) => {
 		let {booking_id} = req.query
 		let rows = await query (`SELECT * FROM view_bookings_join WHERE booking_id = ?`,[booking_id])
 		rows = rows[0]
-		return res.send(pug.renderFile('views/admin_booking_delete.pug', {rows: rows}))
+		return res.send(pug.renderFile('views/admin/admin_booking_delete.pug', {rows: rows}))
 	}
 	catch(e){
 		console.log(e)
@@ -665,7 +662,7 @@ const getAdminStatisticsHandler = async (req, res) => {
 		let bookings_per_season = await query (`SELECT COUNT(b.id) AS Bookings, FLOOR((MONTH(b.purchase_datetime) % 12) / 3) AS Season FROM bookings b GROUP BY season;`)
 		let top_rev_dst_per_year = await query (`SELECT SUM(price) AS Revenue, dst_country_name AS Destination, YEAR(purchase_datetime) AS Year FROM view_bookings_join vbj1 GROUP BY Year, Destination HAVING SUM(price) >= ALL (SELECT sum(vbj2.price) FROM view_bookings_join vbj2 WHERE Year = YEAR(vbj2.purchase_datetime) GROUP BY YEAR(vbj2.purchase_datetime), vbj2.dst_country_name);`)
 		let rev_season_per_year = await query (`SELECT COUNT(booking_id) AS Bookings, SUM(price) AS Revenue, YEAR(purchase_datetime) AS Year, FLOOR((MONTH(depart) % 12) / 3) AS Season FROM view_bookings_join GROUP BY YEAR(purchase_datetime), Season ORDER BY Year;`)
-		return res.send(pug.renderFile('views/admin_statistics.pug', {top_10_dst: top_10_dst, bookings_per_season: bookings_per_season, top_rev_dst_per_year: top_rev_dst_per_year, rev_season_per_year: rev_season_per_year}))
+		return res.send(pug.renderFile('views/admin/admin_statistics.pug', {top_10_dst: top_10_dst, bookings_per_season: bookings_per_season, top_rev_dst_per_year: top_rev_dst_per_year, rev_season_per_year: rev_season_per_year}))
 	}
 	catch(e){
 		console.log(e)

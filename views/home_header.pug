@@ -16,6 +16,8 @@ nav(class="navbar navbar-expand-lg navbar-light bg-light")
       if profile
         ul(class="navbar-nav ms-auto mb-2 mb-lg-0")
           li(class="nav-item")
+            a(class="nav-link") Welcome #{profile.fname} #{profile.lname}
+          li(class="nav-item")
             a(class="nav-link" href="/profile") Profile
           li(class="nav-item")
             a(class="nav-link" href="/logout") Logout
