@@ -1,9 +1,7 @@
-create user if not exists 'airline_admin'@'localhost' identified by 'password';
-drop database airline;
 create database if not exists airline;
-grant all privileges on airline.* to 'airline_admin'@'localhost' WITH GRANT OPTION;
-
 use airline;
+
+-- import table creation from other file
 source aircrafts.sql;
 source airports.sql;
 
@@ -24,8 +22,6 @@ CREATE TABLE IF NOT EXISTS `flights`(
 	,`arrive` DATETIME NOT NULL
 	,`price` INT NOT NULL
 	,`status` ENUM('active','cancelled','rescheduled') NOT NULL
-	-- ,FULLTEXT(flt_num,src_airport_code,dst_airport_code)
-	-- ,FULLTEXT(depart, arrive)
 	,CONSTRAINT fk_flights_src_airport_code FOREIGN KEY (src_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flights_dst_airport_code FOREIGN KEY (dst_airport_code) REFERENCES airports(iata_code)
 	,CONSTRAINT fk_flights_aircraft_id FOREIGN KEY (aircraft_id) REFERENCES aircrafts(id)
@@ -56,7 +52,6 @@ CREATE TABLE IF NOT EXISTS `seats`(
 	,`available` BOOLEAN NOT NULL
 	,PRIMARY KEY (flt_id,seat_num)
 	,CONSTRAINT fk_seats_airline_id_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-	-- ,INDEX idx_seats_flt_id_seat_id (flt_id,id)
 );
 
 CREATE TABLE IF NOT EXISTS `bookings`(
@@ -76,30 +71,3 @@ CREATE TABLE IF NOT EXISTS `bookings`(
 	-- to prevent same user_id from having the same ref_num
 	,CONSTRAINT uk_bookings_user_id_ref_num UNIQUE (user_id,ref_num)
 );
-
-/*
-CREATE TABLE IF NOT EXISTS `admins`(
-	`id` INT AUTO_INCREMENT PRIMARY KEY
-	,`username` VARCHAR(20) NOT NULL UNIQUE
-	,`password` VARCHAR(50) NOT NULL
-);
-*/
-/*
-CREATE TABLE IF NOT EXISTS `flights_hist`(
-	`id` INT AUTO_INCREMENT PRIMARY KEY
-	,`flt_id` INT NOT NULL
-	,`old_data` VARCHAR(100) NOT NULL
-	,CONSTRAINT fk_flights_hist_flt_id FOREIGN KEY (flt_id) REFERENCES flights(id)
-);
-*/
-
-source views.sql
-source trigger.sql
-source stored_procedures.sql
-source mock_users.sql;
--- source mock_customers_not_users_multi_pax.sql;
--- source mock_customers_not_users_single_pax.sql;
--- source mock_customers_users_multi_pax.sql;
--- source mock_customers_users_single_pax.sql;
-source mock_flights.sql;
-source mock_bookings.sql

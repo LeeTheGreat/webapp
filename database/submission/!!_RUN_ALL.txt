@@ -1,0 +1,8 @@
+use airline;
+source create_tables.sql
+source views.sql
+source trigger.sql
+source stored_procedures.sql
+source mock_users.sql;
+source mock_flights.sql;
+source mock_bookings.sql
