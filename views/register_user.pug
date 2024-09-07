@@ -2,37 +2,43 @@ extends base.pug
 
 block append content
     div(class='container-fluid')
+        h1 Register User
         form(action='/register' method='POST')
             div(class='form-group row col-6 mb-3')
                 div(class='row mb-3')
-                    label(class='col-sm-2 col-form-label') First Name
-                    div(class='col-sm-6 ms-auto')            
-                        input(type='text',class='form-control' id='fn' name='fn')                        
+                    label(class='col-sm-2 col-form-label') Name
+                    div(class='col-sm-6 ms-auto')
+                        input(type='text',class='form-control' id='name' name='name')
                 div(class='row mb-3')
-                    label(class='col-sm-2 col-form-label') Last Name
+                    label(class='col-sm-2 col-form-label') Phone
                     div(class='col-sm-6 ms-auto')
-                        input(type='text',class='form-control' id='ln' name='ln')
-                div(class='row mb-3') 
-                    label(class='col-sm-3 col-form-label') Date of Birth
+                        input(type='tel',class='form-control' id='phone' name='phone')
+                div(class='row mb-3')
+                    label(class='col-sm-2 col-form-label') Country
                     div(class='col-sm-6 ms-auto')
-                        input(class='form-control form-control-md' type='date' name='dob')                      
+                        input(type='text',class='form-control' id='country' name='country')
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Gender
                     div(class='col-sm-6 ms-auto')
                         select(name='gender' class='form-select')
                             option(value='F') F
                             option(value='M') M
-                div(class='row mb-3')                 
+                div(class='row mb-3')
+                    label(class='col-sm-2 col-form-label') Qualification
+                    div(class='col-sm-6 ms-auto')
+                        input(type='text',class='form-control' id='qualification' name='qualification')
+                div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Email
                     div(class='col-sm-6 ms-auto')
                         input(type='email',class='form-control',id='email',name='email')
                 div(class='row mb-3')
                     label(class='col-sm-3 col-form-label') Password
-                    div(class='col-sm-6 ms-auto')            
-                        input(type='password',class='form-control',id='pass' ,name='pass')
+                    div(class='col-sm-6 ms-auto')
+                        input(type='password',class='form-control',id='password' ,name='password')
                 div(class='row mb-3')
-                    div(class='col-sm-6 ms-auto')            
+                    div(class='col-sm-6 ms-auto')
                         button(type='submit' class="btn btn-primary my-3") Register
             if msg
                 span(class="border")
                     label(class='col-sm-3 col-form-label') #{msg}
+
