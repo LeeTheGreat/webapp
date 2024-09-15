@@ -23,8 +23,7 @@ const sessionStore = new mysqlstore(mysqloptions);
 app.listen(80, "localhost")
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-var msg = 'hello world'
-console.log(msg)
+console.log('application start')
 
 const db = mysql.createConnection({
 	host: "localhost",
@@ -79,7 +78,6 @@ const indexHandler = async (req, res) => {
 	try{
         if(!req.session || !req.session.userid){
             console.log('indexHandler without session.userid')
-			//res.send(pug.renderFile('views/home.pug', {rows: rows}))
             res.send(pug.renderFile('views/index.pug'))
         }
         else{
@@ -175,8 +173,9 @@ const getProfileHandler = async (req, res) => {
 	try{
         let rows = await query(`SELECT * FROM users WHERE id = ? LIMIT 1`, [req.session.userid])
         rows = rows[0]
-        console.log(rows)
+        //console.log(rows)
 		let profile = JSON.stringify(rows)
+        console.log(profile)
         //return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(req.session.profile)}))
         return res.send(pug.renderFile('views/profile.pug', {profile: JSON.parse(profile)}))
 	}
@@ -189,7 +188,7 @@ const getProfileHandler = async (req, res) => {
 const postProfileHandler = async (req, res) => {
 	try{
 		let { name, phone, country, gender, qualification, email, password } = req.body
-		console.log(req.body)
+		//console.log(req.body)
 		if(!password){
 			var rows = await query(`UPDATE users SET email=?, name=?, phone=?, country=?, gender=?, qualification=? WHERE id=?`, [email, name, phone, country, gender, qualification, req.session.userid])
 		}
