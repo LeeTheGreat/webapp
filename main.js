@@ -36,13 +36,14 @@ const db = mysql.createConnection({
 
 const query = util.promisify(db.query).bind(db);
 app.use(session({
-	key: 'id',
-	secret: "tic4303",
-	store: sessionStore,
-	resave: true,
-	saveUninitialized: false,
-	httpOnly: true,
-	cookie: { maxAge: 1000 * 60 * 60 }, // 1 hour
+	key: 'session_id'
+	,secret: "tic4303"
+	,store: sessionStore
+	,resave: true
+	,saveUninitialized: false
+	,httpOnly: true
+	,cookie: { maxAge: 1000 * 60 * 60 }
+    
 }))
 
 app.use(express.static('static'))
