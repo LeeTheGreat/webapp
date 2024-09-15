@@ -4,4 +4,9 @@
 - mysql -u root -p -f < .\database\tic4303_users.sql
 
 **Run web app**
-- npm run main.js
+- node run main.js
+- browse to http://localhost
+
+**install**
+- MySQL with legacy authentication. Create user called tic4303 with password tic4303
+- Node JS
