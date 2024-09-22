@@ -45,7 +45,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (7,'222@222.com','$2b$10$7VQR1F8BEXLo2fIm.FhhmuEzjSOi2PIowkI98cPCj9lM6rmpAZFn.','Lee Wee Lun','222','Singapore','F','111');
+INSERT INTO `users` VALUES (7,'222@222.com','$2b$10$7VQR1F8BEXLo2fIm.FhhmuEzjSOi2PIowkI98cPCj9lM6rmpAZFn.','user1','222','Singapore','F','111');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
