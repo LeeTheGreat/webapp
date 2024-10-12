@@ -16,5 +16,8 @@
     "redis": "^4.7.0",
     "sqlite3": "^5.1.7",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "sonarqube-scanner": "^4.2.3"
   }
 }

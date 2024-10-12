@@ -25,6 +25,28 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 console.log('application start')
 
+//const scanner = require('sonarqube-scanner').default;
+
+/*
+scanner(
+  {
+    serverUrl: 'http://localhost:9000/',
+    token: 'sqp_615808eb37380f5b599506611997b84d21601854',
+    options: {
+      'sonar.projectName': 'My App',
+      'sonar.projectDescription': 'Description for "My App" project...',    
+      'sonar.projectKey': 'web-app-on-mainjs'
+    },
+  },
+  error => {
+    if (error) {
+      console.error(error);
+    }
+    process.exit();
+  },
+);
+*/
+
 const db = mysql.createConnection({
 	host: "localhost",
 	port: 3306,
@@ -154,12 +176,12 @@ const postLoginHandler = async (req, res) => {
 		}
 		let rows = await query(`SELECT * FROM users WHERE email = ? LIMIT 1`, [email])
 		if(rows.length == 0){
-			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+			return res.send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
 		}
 		rows = rows[0]
 		const verified = bcrypt.compareSync(password, rows.password)
 		if(!verified){
-			return res.status(401).send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
+			return res.send(pug.renderFile('views/login.pug', {msg: "Wrong username or password"}))	
 		}
         req.session.userid = rows.id
 		return res.redirect("/")
@@ -198,7 +220,10 @@ const postProfileHandler = async (req, res) => {
             password = await bcrypt.hash(password, salt)
 			var rows = await query(`UPDATE users SET email=?, password=?, name=?, phone=?, country=?, gender=?, qualification=? WHERE id=?`, [email, password, name, phone, country, gender, qualification, req.session.userid])
 		}
-        return res.send(pug.renderFile('views/profile_update_success.pug'))
+        var rows = await query(`SELECT * FROM users WHERE id = ? LIMIT 1`, [req.session.userid])
+        rows = rows[0]
+        let profile = JSON.stringify(rows)
+        return res.send(pug.renderFile('views/profile_update_success.pug', {profile: JSON.parse(profile)}))
 	}
 	catch (e){
 		console.log(e)
